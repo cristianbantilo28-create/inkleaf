@@ -1,0 +1,13 @@
+# Inkleaf is a static app: nothing to build, publish the repository root.
+[build]
+  publish = "."
+
+# the service worker and manifest must never be served stale
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Cache-Control = "no-cache"

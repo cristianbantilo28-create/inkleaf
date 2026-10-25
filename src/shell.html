@@ -1,0 +1,458 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M5 15l7-7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M5 9l7 7 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="ps-ball" viewBox="0 0 36 22"><path d="M3 15 C 10 3, 16 20, 33 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  <symbol id="ps-fine" viewBox="0 0 36 22"><path d="M3 15 C 10 3, 16 20, 33 6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></symbol>
+  <symbol id="ps-marker" viewBox="0 0 36 22"><path d="M3 15 C 10 3, 16 20, 33 6" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" opacity=".95"/></symbol>
+  <symbol id="ps-brush" viewBox="0 0 36 22"><path d="M3 15 C 9 1, 15 20, 33 6 C 17 25, 11 8, 3 15 Z" fill="currentColor"/></symbol>
+  <symbol id="ps-fountain" viewBox="0 0 36 22"><path d="M3 15 C 10 2.2, 16 19.4, 33 6 C 16.5 21.6, 10.5 5.6, 3 15 Z" fill="currentColor"/><path d="M3 15 C 10 3, 16 20, 33 6" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></symbol>
+  <symbol id="ps-callig" viewBox="0 0 36 22"><path d="M5.4 12.6 L10.4 4.6 L16.4 5.6 L22.4 10.6 L28.4 7.6 L35.4 3.6 L30.6 8.4 L23.6 12.4 L17.6 15.4 L11.6 10.4 L5.6 9.4 L0.6 17.4 Z" fill="currentColor"/></symbol>
+  <symbol id="ps-pencil" viewBox="0 0 36 22"><path d="M3 15 C 10 3, 16 20, 33 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".5"/><path d="M3 14 C 10 2, 16 19, 33 5" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-dasharray="1.5 1.5" opacity=".45"/></symbol>
+  <symbol id="i-engine" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="10" y="10" width="4" height="4" rx="1" fill="currentColor"/><path d="M9 2.5v3M15 2.5v3M9 18.5v3M15 18.5v3M2.5 9h3M2.5 15h3M18.5 9h3M18.5 15h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l3.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M13 7.5l3 3" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-marker" viewBox="0 0 24 24"><path d="M4 21h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity=".45"/><path d="M8 17l-1.5-1.5 8.5-8.5a2.1 2.1 0 0 1 3 3L9.5 18.5 8 17z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5 20l3-3M14 7.5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-enter" viewBox="0 0 24 24"><path d="M19 5v7a2 2 0 0 1-2 2H6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.5 10.5L6 14l3.5 3.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-eraser" viewBox="0 0 24 24"><path d="M4.5 15.5l9-9a2 2 0 0 1 2.8 0l3.2 3.2a2 2 0 0 1 0 2.8l-7 7H8l-3.5-3.5a1.5 1.5 0 0 1 0-2.1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 11l5 5M6 20h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-type" viewBox="0 0 24 24"><path d="M5 6h14M12 6v13M9 19h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M8 7H4V3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 7A8 8 0 1 1 6 17.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24"><path d="M16 7h4V3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.5 7A8 8 0 1 0 18 17.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-wand" viewBox="0 0 24 24"><path d="M4 20L14 10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M17 3v3M17 10v3M13.5 6.5h3M20.5 6.5h-3M7 3v2M5 4h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-zoom-in" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4.5 4.5M11 8v6M8 11h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-zoom-out" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4.5 4.5M8 11h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="10" r="1.6" fill="currentColor"/><path d="M4 18l5-5 4 4 3-3 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-sticker" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9h-5a4 4 0 0 1-4-4V3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="9" cy="10" r="1.2" fill="currentColor"/><path d="M8 14.5c1 1.2 2.5 1.8 4 1.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18 2.5v4.5h-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-flip" viewBox="0 0 24 24"><path d="M12 3v18" stroke="currentColor" stroke-width="2" stroke-dasharray="2 2"/><path d="M9 7L4 12l5 5V7zM15 7l5 5-5 5V7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-front" viewBox="0 0 24 24"><rect x="9" y="3" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 9v10a2 2 0 0 0 2 2h10" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-backward" viewBox="0 0 24 24"><rect x="3" y="9" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 3h10a2 2 0 0 1 2 2v10" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 12V5.5a1.5 1.5 0 0 1 3 0V11m0-6.5a1.5 1.5 0 0 1 3 0V11m0-5a1.5 1.5 0 0 1 3 0v8a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L3.4 14a1.6 1.6 0 0 1 2.6-1.8L8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="18" cy="12" r="1.8" fill="currentColor"/></symbol>
+  <symbol id="i-text" viewBox="0 0 24 24"><path d="M5 5h14M12 5v14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.7 0 2-1 2-2 0-1.2-.8-1.6 0-2.5.9-1 3 .5 5-1.5 2.2-2.2 1-12-7-12z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="7.5" cy="12" r="1.3" fill="currentColor"/><circle cx="9.5" cy="8" r="1.3" fill="currentColor"/><circle cx="14" cy="7" r="1.3" fill="currentColor"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 0-3 3V4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5 17a3 3 0 0 1 3-3h10" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5M5 19h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16v4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 10l5-3v10l-5-3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-lasso" viewBox="0 0 24 24"><path d="M12 4c4.4 0 8 2.2 8 5s-3.6 5-8 5-8-2.2-8-5 3.6-5 8-5z" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 2.2"/><path d="M7 13.5c-1.4 1.6-1.6 3.4-.6 4.9M6.2 18.2c.8 1.2 1.6 1.9 2.4 2.3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="18" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.2 7.6L20 20M8.2 16.4L20 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-paste" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 5V3h6v2M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-select" viewBox="0 0 24 24"><path d="M6 4l12 8-5.5 1.5L9 20z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-fingerprint" viewBox="0 0 24 24"><path d="M6 8.5A7 7 0 0 1 18 8.5M4.5 13.5a9.5 9.5 0 0 1 2-7M8.2 20A9.5 9.5 0 0 1 5 14M12 6.5a5.5 5.5 0 0 1 5.5 5.5c0 2.2-.4 4.5-1.2 6.5M12 10a2.2 2.2 0 0 0-2.2 2.2c0 2.8.8 5.3 2.4 7.3M14.2 12.2c0 1.6-.2 3.2-.6 4.7M8.5 12.2a3.5 3.5 0 0 1 .3-1.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="15" r="1.4" fill="currentColor"/></symbol>
+  <symbol id="i-backspace" viewBox="0 0 24 24"><path d="M9 5h11a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9l-6-7 6-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 9.5l5 5M17 9.5l-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+</svg>
+
+<div id="app">
+
+  <!-- ============ LOCK / LOGIN ============ -->
+  <main id="view-lock" class="view lock" hidden>
+    <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span class="brand-name">Inkleaf</span></div>
+    <h2 id="lock-title">Locked</h2>
+    <p id="lock-text" class="muted">Unlock to open your notebooks.</p>
+    <button id="bio-btn" class="bio-btn" type="button" aria-label="Unlock with Face ID or fingerprint" hidden><svg><use href="#i-fingerprint"/></svg></button>
+    <div id="pin-area" hidden>
+      <div id="pin-dots" class="pin-dots" aria-hidden="true"></div>
+      <div id="pin-pad" class="pin-pad"></div>
+    </div>
+    <p id="lock-error" class="lock-error" aria-live="polite"></p>
+    <div id="lock-setup" class="lock-steps" hidden>
+      <button id="lock-setup-start" class="btn primary" type="button"><svg><use href="#i-lock"/></svg><span>Set a PIN and add Face ID / fingerprint</span></button>
+      <button id="lock-setup-skip" class="btn ghost" type="button">Skip for now</button>
+    </div>
+    <div id="lock-bio-setup" class="lock-steps" hidden>
+      <button id="lock-bio-add" class="btn primary" type="button"><svg><use href="#i-fingerprint"/></svg><span>Add Face ID / fingerprint</span></button>
+      <button id="lock-bio-skip" class="btn ghost" type="button">Use the PIN only</button>
+    </div>
+    <button id="lock-forgot" class="btn ghost small" type="button" hidden>Forgot your PIN?</button>
+  </main>
+
+  <!-- ============ HOME ============ -->
+  <main id="view-home" class="view">
+    <header class="bar">
+      <div class="gutter bar-inner">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-name">Inkleaf</span>
+        </div>
+        <div class="spacer"></div>
+        <button id="install-btn" class="btn ghost small" type="button" hidden>Install app</button>
+        <button id="home-import-btn" class="icon-btn" type="button" aria-label="Import a backup" title="Import a backup"><svg><use href="#i-upload"/></svg></button>
+        <button id="home-train-btn" class="icon-btn" type="button" aria-label="Teach my handwriting" title="Teach my handwriting"><svg><use href="#i-pen"/></svg></button>
+        <button id="home-settings-btn" class="icon-btn" type="button" aria-label="Settings: handwriting engine, app lock" title="Settings"><svg><use href="#i-gear"/></svg></button>
+      </div>
+    </header>
+    <div class="gutter home-body">
+      <div class="home-head">
+        <div>
+          <h1 class="display">My notebooks</h1>
+          <p id="home-sub" class="muted">Everything is saved on this device. No account, no internet needed.</p>
+        </div>
+        <button id="new-notebook-btn" class="btn primary" type="button"><svg><use href="#i-plus"/></svg><span>New notebook</span></button>
+      </div>
+      <div id="notebook-grid" class="nb-grid" aria-live="polite"></div>
+      <p id="storage-warning" class="warn" hidden>Storage is blocked in this browser window, so notebooks will disappear when you close it. Open the app normally (not in a private window) to keep your notes.</p>
+    </div>
+  </main>
+
+  <!-- ============ COVER EDITOR ============ -->
+  <main id="view-cover" class="view" hidden>
+    <header class="bar">
+      <div class="gutter bar-inner">
+        <button id="cover-back" class="icon-btn" type="button" aria-label="Back"><svg><use href="#i-back"/></svg></button>
+        <span class="bar-title">Design the cover</span>
+        <div class="spacer"></div>
+        <button id="cover-done" class="btn primary small" type="button">Done</button>
+      </div>
+    </header>
+    <div class="cover-editor gutter">
+      <div class="cover-stage">
+        <div id="cover-canvas" class="cover cover-edit" aria-label="Notebook cover"></div>
+        <div id="el-actions" class="el-actions" hidden>
+          <button data-act="front" class="icon-btn" type="button" title="Bring forward" aria-label="Bring forward"><svg><use href="#i-front"/></svg></button>
+          <button data-act="back" class="icon-btn" type="button" title="Send backward" aria-label="Send backward"><svg><use href="#i-backward"/></svg></button>
+          <button data-act="flip" class="icon-btn" type="button" title="Flip" aria-label="Flip"><svg><use href="#i-flip"/></svg></button>
+          <button data-act="dup" class="icon-btn" type="button" title="Duplicate" aria-label="Duplicate"><svg><use href="#i-copy"/></svg></button>
+          <button data-act="mask" class="icon-btn" type="button" title="Photo shape" aria-label="Photo shape" hidden><svg><use href="#i-image"/></svg></button>
+          <button data-act="del" class="icon-btn danger" type="button" title="Remove" aria-label="Remove"><svg><use href="#i-trash"/></svg></button>
+        </div>
+        <p class="hint muted">Drag to move. Use the corner handle to resize and the top handle to rotate. Pinch with two fingers also works.</p>
+      </div>
+      <div class="cover-panels">
+        <div class="tabs" role="tablist">
+          <button class="tab is-active" role="tab" data-panel="themes" type="button"><svg><use href="#i-palette"/></svg>Theme</button>
+          <button class="tab" role="tab" data-panel="stickers" type="button"><svg><use href="#i-sticker"/></svg>Stickers</button>
+          <button class="tab" role="tab" data-panel="photos" type="button"><svg><use href="#i-image"/></svg>Photos</button>
+          <button class="tab" role="tab" data-panel="title" type="button"><svg><use href="#i-text"/></svg>Title</button>
+        </div>
+        <section id="panel-themes" class="panel" role="tabpanel">
+          <h3 class="panel-h">Color theme</h3>
+          <div id="theme-grid" class="swatch-grid"></div>
+          <div class="field-row">
+            <label for="theme-custom">Custom color</label>
+            <input id="theme-custom" type="color" value="#2d4fc9">
+          </div>
+          <h3 class="panel-h">Pattern</h3>
+          <div id="pattern-row" class="chip-row"></div>
+          <h3 class="panel-h">Binding</h3>
+          <div id="spine-row" class="chip-row"></div>
+        </section>
+        <section id="panel-stickers" class="panel" role="tabpanel" hidden>
+          <div id="sticker-cats" class="chip-row scroll-x"></div>
+          <div id="sticker-grid" class="sticker-grid"></div>
+        </section>
+        <section id="panel-photos" class="panel" role="tabpanel" hidden>
+          <button id="photo-add-btn" class="btn block" type="button"><svg><use href="#i-image"/></svg><span>Choose from gallery</span></button>
+          <p class="muted small-text">Photos stay on this device. Large photos are reduced to save space.</p>
+          <div id="photo-opts" hidden>
+            <h3 class="panel-h">Selected photo</h3>
+            <div class="field-row"><span>Layout</span><div id="photo-layout" class="chip-row"></div></div>
+            <div class="field-row"><span>Filter</span><div id="photo-filter" class="chip-row"></div></div>
+            <div class="field-row"><span>Shape</span><div id="photo-mask" class="chip-row"></div></div>
+            <div class="field-row"><label for="photo-opacity">Opacity</label><input id="photo-opacity" type="range" min="0.2" max="1" step="0.05" value="1"><span id="photo-opacity-val">100%</span></div>
+          </div>
+          <h3 class="panel-h">Used in this cover</h3>
+          <div id="photo-grid" class="photo-grid"></div>
+        </section>
+        <section id="panel-title" class="panel" role="tabpanel" hidden>
+          <label class="field" for="title-input">Notebook title</label>
+          <input id="title-input" type="text" maxlength="60" placeholder="Give it a name">
+          <h3 class="panel-h">Title font</h3>
+          <div id="title-fonts" class="font-grid"></div>
+          <h3 class="panel-h">Title color</h3>
+          <div id="title-colors" class="color-row"></div>
+          <div class="field-row">
+            <label for="title-custom-color">Custom</label>
+            <input id="title-custom-color" type="color" value="#ffffff">
+          </div>
+          <label class="check"><input id="title-show" type="checkbox" checked> Show the title on the cover</label>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ NOTEBOOK ============ -->
+  <main id="view-notebook" class="view" hidden>
+    <header class="bar">
+      <div class="gutter bar-inner">
+        <button id="nb-back" class="icon-btn" type="button" aria-label="All notebooks"><svg><use href="#i-back"/></svg></button>
+        <button id="nb-title" class="title-btn" type="button" title="Rename">Notebook</button>
+        <div class="spacer"></div>
+        <button id="nb-search-btn" class="icon-btn" type="button" aria-label="Search this notebook" title="Search"><svg><use href="#i-search"/></svg></button>
+        <button id="nb-pages-btn" class="icon-btn" type="button" aria-label="Pages" title="Pages"><svg><use href="#i-grid"/></svg></button>
+        <button id="nb-settings-btn" class="icon-btn" type="button" aria-label="Notebook settings" title="Settings"><svg><use href="#i-gear"/></svg></button>
+      </div>
+    </header>
+
+    <div id="searchbar" class="searchbar" hidden>
+      <div class="gutter bar-inner">
+        <svg class="search-ico"><use href="#i-search"/></svg>
+        <input id="search-input" type="search" placeholder="Search every page of this notebook" autocomplete="off" enterkeyhint="search">
+        <span id="search-count" class="search-count">0 / 0</span>
+        <button id="search-prev" class="icon-btn" type="button" aria-label="Previous result" disabled><svg><use href="#i-up"/></svg></button>
+        <button id="search-next" class="icon-btn" type="button" aria-label="Next result" disabled><svg><use href="#i-down"/></svg></button>
+        <button id="search-close" class="icon-btn" type="button" aria-label="Close search"><svg><use href="#i-close"/></svg></button>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="gutter bar-inner tools">
+        <div class="tool-group" role="group" aria-label="Tools">
+          <button id="tool-pen" class="tool is-active" type="button" data-tool="pen" aria-label="Pen" title="Pen"><svg><use href="#i-pen"/></svg></button>
+          <button id="tool-hl" class="tool" type="button" data-tool="hl" aria-label="Highlighter" title="Highlighter"><svg><use href="#i-marker"/></svg></button>
+          <button id="tool-eraser" class="tool" type="button" data-tool="eraser" aria-label="Eraser" title="Eraser"><svg><use href="#i-eraser"/></svg></button>
+          <button id="tool-lasso" class="tool" type="button" data-tool="lasso" aria-label="Lasso: pick up handwriting" title="Lasso: draw a loop around handwriting to move, copy, convert or delete it"><svg><use href="#i-lasso"/></svg></button>
+          <button id="tool-type" class="tool" type="button" data-tool="type" aria-label="Keyboard" title="Type with the keyboard"><svg><use href="#i-type"/></svg></button>
+          <button id="tool-select" class="tool" type="button" data-tool="select" aria-label="Move pictures and videos" title="Move pictures and videos"><svg><use href="#i-select"/></svg></button>
+        </div>
+        <div class="tool-group" id="pen-styles" role="group" aria-label="Pen style"></div>
+        <div class="tool-group">
+          <button id="insert-btn" class="tool" type="button" title="Insert a photo or video"><svg><use href="#i-image"/></svg><span>Insert</span></button>
+        </div>
+        <div class="tool-group" id="pen-colors" role="group" aria-label="Ink color"></div>
+        <div class="tool-group" id="hl-colors" role="group" aria-label="Highlighter color" hidden></div>
+        <div class="tool-group" id="pen-widths" role="group" aria-label="Pen thickness"></div>
+        <div class="tool-group">
+          <button id="undo-btn" class="tool" type="button" aria-label="Undo" title="Undo" disabled><svg><use href="#i-undo"/></svg></button>
+          <button id="redo-btn" class="tool" type="button" aria-label="Redo" title="Redo" disabled><svg><use href="#i-redo"/></svg></button>
+        </div>
+        <div class="tool-group">
+          <button id="convert-btn" class="tool accent" type="button" title="Convert handwriting to text"><svg><use href="#i-wand"/></svg><span>Convert</span></button>
+          <button id="auto-btn" class="tool toggle" type="button" title="Live: words turn into text as you write" aria-pressed="true"><span>Live</span></button>
+          <button id="engine-btn" class="tool" type="button" title="Handwriting engine (Inkleaf, Apple Scribble or Gboard)"><svg><use href="#i-engine"/></svg><span id="engine-label">Inkleaf</span></button>
+        </div>
+        <div class="tool-group">
+          <button id="finger-btn" class="tool toggle" type="button" title="Finger draws (off: finger scrolls)" aria-pressed="false"><svg><use href="#i-hand"/></svg></button>
+          <button id="zoom-out-btn" class="tool" type="button" aria-label="Zoom out" title="Zoom out"><svg><use href="#i-zoom-out"/></svg></button>
+          <button id="zoom-in-btn" class="tool" type="button" aria-label="Zoom in" title="Zoom in"><svg><use href="#i-zoom-in"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-area" class="page-area">
+    <div id="page-scroller" class="page-scroller">
+      <div id="page-stage" class="page-stage"></div>
+      <div id="media-actions" class="el-actions floating" hidden>
+        <button data-act="play" class="icon-btn" type="button" title="Play" aria-label="Play" hidden><svg><use href="#i-video"/></svg></button>
+        <button data-act="front" class="icon-btn" type="button" title="Bring forward" aria-label="Bring forward"><svg><use href="#i-front"/></svg></button>
+        <button data-act="back" class="icon-btn" type="button" title="Send backward" aria-label="Send backward"><svg><use href="#i-backward"/></svg></button>
+        <button data-act="rename" class="icon-btn" type="button" title="Rename" aria-label="Rename" hidden><svg><use href="#i-edit"/></svg></button>
+        <button data-act="del" class="icon-btn danger" type="button" title="Remove" aria-label="Remove"><svg><use href="#i-trash"/></svg></button>
+      </div>
+      <div id="lasso-actions" class="el-actions floating lasso-actions" hidden>
+        <button data-act="convert" class="icon-btn" type="button" title="Convert this to text" aria-label="Convert selection to text"><svg><use href="#i-text"/></svg></button>
+        <button data-act="copy" class="icon-btn" type="button" title="Copy" aria-label="Copy selection"><svg><use href="#i-copy"/></svg></button>
+        <button data-act="cut" class="icon-btn" type="button" title="Cut" aria-label="Cut selection"><svg><use href="#i-scissors"/></svg></button>
+        <button data-act="paste" class="icon-btn" type="button" title="Paste" aria-label="Paste" hidden><svg><use href="#i-paste"/></svg><span class="lbl">Paste here</span></button>
+        <button data-act="del" class="icon-btn danger" type="button" title="Delete" aria-label="Delete selection"><svg><use href="#i-trash"/></svg></button>
+      </div>
+    </div>
+    <div id="flip-left" class="flip-zone left" role="button" aria-label="Previous page" title="Previous page"><svg><use href="#i-back"/></svg></div>
+    <div id="flip-right" class="flip-zone right" role="button" aria-label="Next page" title="Next page"><svg><use href="#i-next"/></svg></div>
+    <div id="flip-layer" class="flip-layer" hidden></div>
+    <button id="enter-btn" class="fab enter" type="button" title="New line (Enter)" aria-label="New line"><svg><use href="#i-enter"/></svg><span class="fab-label">Enter</span></button>
+    </div>
+
+    <footer class="pager">
+      <div class="gutter bar-inner">
+        <button id="page-prev" class="icon-btn" type="button" aria-label="Previous page"><svg><use href="#i-back"/></svg></button>
+        <span id="page-indicator" class="page-indicator">Page 1 of 1</span>
+        <button id="page-next" class="icon-btn" type="button" aria-label="Next page"><svg><use href="#i-next"/></svg></button>
+        <div class="spacer"></div>
+        <button id="page-add" class="btn ghost small" type="button"><svg><use href="#i-plus"/></svg><span>Add page</span></button>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ============ SHEETS / OVERLAYS ============ -->
+  <div id="sheet-backdrop" class="sheet-backdrop" hidden></div>
+
+  <div id="sheet-settings" class="sheet" role="dialog" aria-label="Notebook settings" hidden>
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h2>Settings</h2><button class="icon-btn sheet-close" type="button" aria-label="Close"><svg><use href="#i-close"/></svg></button></div>
+    <div class="sheet-body">
+      <section id="settings-handwriting">
+        <h3 class="panel-h">Handwriting</h3>
+        <div class="field-row"><span>Engine</span><div id="engine-row" class="chip-row"></div></div>
+        <p id="engine-hint" class="muted small-text"></p>
+        <p id="engine-info" class="muted small-text"></p>
+        <label class="check"><input id="auto-toggle" type="checkbox" checked> Live conversion: show a preview while I write and turn each word into text as soon as I move on</label>
+        <div class="field-row"><label for="auto-delay">Last word after a pause of</label><input id="auto-delay" type="range" min="0.6" max="3" step="0.2" value="1.2"><span id="auto-delay-val">1.2 s</span></div>
+        <label class="check"><input id="finger-toggle" type="checkbox"> Finger draws (otherwise the finger scrolls and only a pen draws)</label>
+        <button id="train-btn" class="btn block" type="button"><svg><use href="#i-pen"/></svg><span>Teach it my handwriting</span></button>
+      </section>
+      <section class="nb-only">
+        <h3 class="panel-h">Text style for converted and typed text</h3>
+        <p id="style-preview" class="style-preview">The quick brown fox jumps over the lazy dog</p>
+        <div id="font-grid" class="font-grid"></div>
+        <div class="field-row">
+          <span>Size</span>
+          <div id="size-row" class="chip-row"></div>
+        </div>
+        <div class="field-row">
+          <span>Text color</span>
+          <div id="text-colors" class="color-row"></div>
+          <input id="text-custom-color" type="color" value="#1b1f2a" aria-label="Custom text color">
+        </div>
+      </section>
+      <section>
+        <h3 class="panel-h">Pages</h3>
+        <label class="check"><input id="spread-toggle" type="checkbox" checked> Two pages side by side when a tablet is held in landscape</label>
+        <label class="check"><input id="sound-toggle" type="checkbox" checked> Paper sound when turning pages</label>
+      </section>
+      <section class="nb-only">
+        <h3 class="panel-h">Paper</h3>
+        <div id="paper-row" class="chip-row"></div>
+        <div class="field-row"><span>Line spacing</span><div id="spacing-row" class="chip-row"></div></div>
+        <label class="check"><input id="margin-toggle" type="checkbox"> Margin line</label>
+      </section>
+      <section class="nb-only">
+        <h3 class="panel-h">This notebook</h3>
+        <div class="btn-row">
+          <button id="nb-cover-btn" class="btn" type="button"><svg><use href="#i-palette"/></svg><span>Edit cover</span></button>
+          <button id="nb-export-btn" class="btn" type="button"><svg><use href="#i-download"/></svg><span>Export backup</span></button>
+        </div>
+      </section>
+      <section>
+        <h3 class="panel-h">App lock</h3>
+        <p id="lock-status" class="muted small-text"></p>
+        <div class="btn-row">
+          <button id="lock-enable-btn" class="btn" type="button"><svg><use href="#i-lock"/></svg><span>Turn on app lock</span></button>
+          <button id="lock-bio-btn" class="btn" type="button" hidden><svg><use href="#i-fingerprint"/></svg><span>Add Face ID / fingerprint</span></button>
+          <button id="lock-pin-btn" class="btn" type="button" hidden>Change PIN</button>
+          <button id="lock-disable-btn" class="btn danger-text" type="button" hidden>Turn off</button>
+        </div>
+        <div id="lock-after-row" class="field-row" hidden><span>Lock again</span><div id="lock-after" class="chip-row"></div></div>
+      </section>
+      <section id="install-section" hidden>
+        <h3 class="panel-h">Install</h3>
+        <p id="install-hint" class="muted small-text"></p>
+        <button id="install-btn-2" class="btn block" type="button" hidden>Install Inkleaf on this device</button>
+      </section>
+    </div>
+  </div>
+
+  <div id="sheet-pages" class="sheet" role="dialog" aria-label="Pages" hidden>
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h2>Pages</h2><button class="icon-btn sheet-close" type="button" aria-label="Close"><svg><use href="#i-close"/></svg></button></div>
+    <div class="sheet-body">
+      <div id="pages-grid" class="pages-grid"></div>
+    </div>
+  </div>
+
+  <div id="sheet-training" class="sheet" role="dialog" aria-label="Teach my handwriting" hidden>
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h2>Teach it my handwriting</h2><button class="icon-btn sheet-close" type="button" aria-label="Close"><svg><use href="#i-close"/></svg></button></div>
+    <div class="sheet-body">
+      <div id="train-modes" class="chip-row train-modes">
+        <button class="chip is-active" type="button" data-mode="words">Words · Neural engine</button>
+        <button class="chip" type="button" data-mode="letters">Letters · Classic engine</button>
+      </div>
+      <div id="train-words">
+        <p class="muted">Write each word the way you normally write — joined-up or printed, with the pen you use on the page. After <strong>8 words</strong> the Neural engine can adapt to your hand; 30 or more works best. Nothing leaves the device.</p>
+        <div class="train-area">
+          <div class="train-target">Write: <strong id="tw-current">hello</strong> <span id="tw-count" class="muted"></span></div>
+          <canvas id="tw-canvas" width="600" height="190"></canvas>
+          <div class="btn-row">
+            <button id="tw-clear" class="btn" type="button">Clear</button>
+            <button id="tw-skip" class="btn" type="button">Skip word</button>
+            <button id="tw-save" class="btn primary" type="button"><svg><use href="#i-check"/></svg><span>Save</span></button>
+          </div>
+          <div class="btn-row">
+            <button id="tw-test" class="btn ghost small" type="button">What does it read?</button>
+            <span id="tw-result" class="muted small-text"></span>
+          </div>
+        </div>
+        <div class="tw-adapt">
+          <button id="tw-adapt" class="btn primary block" type="button"><svg><use href="#i-wand"/></svg><span>Adapt the Neural engine to my handwriting</span></button>
+          <p id="tw-status" class="muted small-text"></p>
+        </div>
+        <div class="btn-row wrap">
+          <button id="tw-export" class="btn ghost small" type="button"><svg><use href="#i-download"/></svg><span>Export my samples</span></button>
+          <button id="tw-reset" class="btn danger-text small" type="button">Delete word samples and adaptation</button>
+        </div>
+      </div>
+      <div id="train-letters" hidden>
+      <p class="muted">Pick a character, write it the way you normally do, then save. Two or three samples per character make a big difference. Letters that only differ by size (c and C) share one sample. These samples are used by the <strong>Classic</strong> engine.</p>
+      <div id="train-chars" class="train-chars"></div>
+      <div class="train-area">
+        <div class="train-target">Write: <strong id="train-current">a</strong> <span id="train-count" class="muted"></span></div>
+        <canvas id="train-canvas" width="300" height="300"></canvas>
+        <div class="btn-row">
+          <button id="train-clear" class="btn" type="button">Clear</button>
+          <button id="train-save" class="btn primary" type="button"><svg><use href="#i-check"/></svg><span>Save sample</span></button>
+        </div>
+        <div class="btn-row">
+          <button id="train-test" class="btn ghost small" type="button">What does it read?</button>
+          <span id="train-result" class="muted small-text"></span>
+        </div>
+      </div>
+      <button id="train-reset" class="btn danger-text block" type="button">Delete all my letter samples</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="sheet-prompt" class="sheet small" role="dialog" aria-label="Rename" hidden>
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h2 id="prompt-title">Rename</h2><button class="icon-btn sheet-close" type="button" aria-label="Close"><svg><use href="#i-close"/></svg></button></div>
+    <div class="sheet-body">
+      <input id="prompt-input" type="text" maxlength="60">
+      <div class="btn-row end">
+        <button id="prompt-cancel" class="btn" type="button">Cancel</button>
+        <button id="prompt-ok" class="btn primary" type="button">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="sheet-confirm" class="sheet small" role="dialog" aria-label="Confirm" hidden>
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h2 id="confirm-title">Are you sure?</h2><button class="icon-btn sheet-close" type="button" aria-label="Close"><svg><use href="#i-close"/></svg></button></div>
+    <div class="sheet-body">
+      <p id="confirm-text" class="muted"></p>
+      <div class="btn-row end">
+        <button id="confirm-cancel" class="btn" type="button">Cancel</button>
+        <button id="confirm-ok" class="btn danger" type="button">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="sheet-export" class="sheet small" role="dialog" aria-label="Export" hidden>
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h2>Export backup</h2><button class="icon-btn sheet-close" type="button" aria-label="Close"><svg><use href="#i-close"/></svg></button></div>
+    <div class="sheet-body">
+      <p class="muted">A backup file holds every page, the cover and its photos. Import it on another device from the home screen.</p>
+      <div class="btn-row">
+        <button id="export-share" class="btn primary" type="button"><svg><use href="#i-download"/></svg><span>Save or share file</span></button>
+        <button id="export-copy" class="btn" type="button"><svg><use href="#i-copy"/></svg><span>Copy as text</span></button>
+      </div>
+      <p id="export-status" class="muted small-text"></p>
+    </div>
+  </div>
+
+  <div id="player" class="player" role="dialog" aria-label="Video" hidden>
+    <div class="player-bar gutter">
+      <span id="player-name" class="player-name"></span>
+      <a id="player-open" class="btn small" target="_blank" rel="noopener" href="#">Open in video player</a>
+      <button id="player-close" class="icon-btn" type="button" aria-label="Close video"><svg><use href="#i-close"/></svg></button>
+    </div>
+    <video id="player-video" controls playsinline preload="metadata"></video>
+  </div>
+
+  <div id="popover" class="popover" hidden></div>
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <input type="file" id="file-image" accept="image/*" multiple hidden>
+  <input type="file" id="file-page-image" accept="image/*" multiple hidden>
+  <input type="file" id="file-video" accept="video/*" hidden>
+  <input type="file" id="file-import" accept="application/json,.json" hidden>
+</div>

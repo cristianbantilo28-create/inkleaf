@@ -1,0 +1,17 @@
+{
+  "name": "Inkleaf",
+  "short_name": "Inkleaf",
+  "description": "Offline notebooks with custom covers, handwriting that turns into typed text, photos, video links and search.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#EEF0F5",
+  "theme_color": "#2D4FC9",
+  "categories": ["productivity", "education"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
