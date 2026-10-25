@@ -4,7 +4,9 @@
   const $ = id => document.getElementById(id);
   const relTime = t => { const d = Date.now() - t; const m = Math.round(d / 6e4); if (m < 1) return 'just now'; if (m < 60) return m + ' min ago'; const h = Math.round(m / 60); if (h < 24) return h + ' h ago'; const days = Math.round(h / 24); if (days < 7) return days + ' d ago'; return new Date(t).toLocaleDateString(); };
 
+  const APP_VERSION = '1.8.1';   // keep in step with VERSION in sw.js (tools/build.mjs checks)
   const app = {
+    get version() { return APP_VERSION; },
     settings: { live: true, autoDelay: 1.2, fingerDraws: true, penSeen: false, engine: 'inkleaf', spread: true, pageSound: true, theme: 'light' },
     /* light (default), dark, or auto (follow the device). Mirrored in localStorage so the first paint already has it. */
     applyTheme() {
@@ -55,16 +57,25 @@
        (not mid-stroke, not mid-animation), reopening the same notebook and page. The app also looks for updates whenever
        it comes back to the foreground and every quarter of an hour while open. */
     setupUpdates() {
-      if (!('serviceWorker' in navigator) || window.__INKLEAF_NO_SW) return;
+      $('version-label').textContent = 'Inkleaf ' + APP_VERSION;
+      $('update-btn').addEventListener('click', () => this.checkForUpdates());
+      if (!('serviceWorker' in navigator) || window.__INKLEAF_NO_SW) { $('update-btn').hidden = true; return; }
       let hadController = !!navigator.serviceWorker.controller;
       navigator.serviceWorker.addEventListener('controllerchange', () => { if (!hadController) { hadController = true; return; } this.restartWhenIdle(); });
       navigator.serviceWorker.register('./sw.js').then(reg => {
         this.swReg = reg;
+        reg.addEventListener('updatefound', () => { this.updateFound = true; const w = reg.installing; if (w) w.addEventListener('statechange', () => { if (w.state === 'installed') $('update-status').textContent = 'Update downloaded — restarting in a moment…'; }); });
         const check = () => { try { reg.update().catch(() => {}); } catch (e) {} };
         document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
         window.addEventListener('online', check);
         setInterval(check, 15 * 60 * 1000);
       }).catch(() => {});
+    },
+    async checkForUpdates() {
+      const st = $('update-status'); st.textContent = 'Checking…'; this.updateFound = false;
+      if (!this.swReg) { st.textContent = 'Updates arrive through the installed app; open the Netlify address again to get the newest version.'; return; }
+      try { await this.swReg.update(); } catch (e) { st.textContent = 'Could not reach the server — are you online?'; return; }
+      setTimeout(() => { if (!this.updateFound && !this._restarting) st.textContent = 'You have the latest version (' + APP_VERSION + ').'; }, 2500);
     },
     restartWhenIdle() {
       if (this._restarting) return; this._restarting = true;
