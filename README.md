@@ -62,6 +62,7 @@ The first time you open the app it asks you to set a PIN and offers Face ID / fi
 - Notes are stored in the browser's own database on the device (IndexedDB). The lock screen keeps casual eyes out; it does not encrypt the files on disk.
 - Clearing the browser's site data deletes the notebooks. Export a backup first.
 - Videos are stored on the device as well; very large videos may exceed what the browser allows, in which case add them as a link instead.
+- The app is light by default, whatever the device's setting. Settings → **Appearance** switches to Dark or to following the device.
 - On tablets, the first touch of a stylus switches the app to "pen draws, fingers scroll and zoom" (palm rejection); the hand button in the toolbar changes it back.
 - To ship an update, change `VERSION` in `sw.js` so installed copies refresh.
 

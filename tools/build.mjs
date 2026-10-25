@@ -17,9 +17,9 @@ const index = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>Inkleaf</title>
 <meta name="description" content="Offline notebooks with custom covers, handwriting that turns into typed text, photos, video links and search.">
-<meta name="theme-color" content="#2D4FC9" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1B1F29" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#FFFFFF">
 <meta name="color-scheme" content="light dark">
+<script>(function(){try{var t=localStorage.getItem('inkleafTheme')||'light';if(t!=='auto')document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -46,6 +46,7 @@ for (const f of ['js/lexicon.js', 'js/hwr.js', 'js/crnn.js', 'js/crnn-wasm.js', 
 if (/<\/script/i.test(js)) throw new Error('JS contains a closing script tag');
 const artifact = `<meta charset="utf-8">
 <title>Inkleaf</title>
+<script>(function(){try{var t=localStorage.getItem('inkleafTheme')||'light';if(t!=='auto')document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="${FONTS}">
 <style>

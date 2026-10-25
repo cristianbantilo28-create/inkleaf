@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>Inkleaf</title>
 <meta name="description" content="Offline notebooks with custom covers, handwriting that turns into typed text, photos, video links and search.">
-<meta name="theme-color" content="#2D4FC9" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1B1F29" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#FFFFFF">
 <meta name="color-scheme" content="light dark">
+<script>(function(){try{var t=localStorage.getItem('inkleafTheme')||'light';if(t!=='auto')document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -327,6 +327,14 @@
           <span>Text color</span>
           <div id="text-colors" class="color-row"></div>
           <input id="text-custom-color" type="color" value="#1b1f2a" aria-label="Custom text color">
+        </div>
+      </section>
+      <section>
+        <h3 class="panel-h">Appearance</h3>
+        <div id="theme-chips" class="chip-row">
+          <button class="chip" type="button" data-theme="light">Light</button>
+          <button class="chip" type="button" data-theme="dark">Dark</button>
+          <button class="chip" type="button" data-theme="auto">Follow the device</button>
         </div>
       </section>
       <section>

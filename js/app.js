@@ -5,7 +5,16 @@
   const relTime = t => { const d = Date.now() - t; const m = Math.round(d / 6e4); if (m < 1) return 'just now'; if (m < 60) return m + ' min ago'; const h = Math.round(m / 60); if (h < 24) return h + ' h ago'; const days = Math.round(h / 24); if (days < 7) return days + ' d ago'; return new Date(t).toLocaleDateString(); };
 
   const app = {
-    settings: { live: true, autoDelay: 1.2, fingerDraws: true, penSeen: false, engine: 'inkleaf', spread: true, pageSound: true },
+    settings: { live: true, autoDelay: 1.2, fingerDraws: true, penSeen: false, engine: 'inkleaf', spread: true, pageSound: true, theme: 'light' },
+    /* light (default), dark, or auto (follow the device). Mirrored in localStorage so the first paint already has it. */
+    applyTheme() {
+      const t = ['light', 'dark', 'auto'].includes(this.settings.theme) ? this.settings.theme : 'light';
+      if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.dataset.theme = t;
+      try { localStorage.setItem('inkleafTheme', t); } catch (e) {}
+      const dark = t === 'dark' || (t === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute('content', dark ? '#1B1F29' : '#FFFFFF'));
+      document.querySelectorAll('#theme-chips .chip').forEach(b => b.classList.toggle('is-active', b.dataset.theme === t));
+    },
     /* First time a stylus touches the page: pen draws, finger scrolls (palm rejection on tablets). */
     penDetected() {
       this.settings.penSeen = true; this.settings.fingerDraws = false; this.saveSettings(); this.syncToolbarToggles();
@@ -17,6 +26,7 @@
       await IL.db.ready();
       if (IL.storageFallback) $('storage-warning').hidden = false;
       Object.assign(this.settings, await IL.db.kvGet('settings', {}));
+      this.applyTheme();
       if (this.settings.live === undefined) { this.settings.live = true; if (this.settings.autoDelay > 2) this.settings.autoDelay = 1.2; }
       if (!this.settings.engineChosen && this.settings.engine === 'inkleaf') this.settings.engine = 'neural';   // the neural engine is the default unless the person picked one
       IL.hwrClient.setMode(this.settings.engine === 'inkleaf' ? 'classic' : 'neural');
@@ -187,6 +197,8 @@
       $('auto-toggle').addEventListener('change', e => { this.settings.live = e.target.checked; this.saveSettings(); this.syncToolbarToggles(); if (this.editor.lv) { this.editor.liveCommitAll(); if (!this.settings.live) for (const [k] of this.editor.lv.lines) this.editor.renderPreview(k, null); } });
       $('auto-delay').addEventListener('input', e => { this.settings.autoDelay = +e.target.value; $('auto-delay-val').textContent = e.target.value + ' s'; this.saveSettings(); });
       $('finger-toggle').addEventListener('change', e => { this.settings.fingerDraws = e.target.checked; this.saveSettings(); this.syncToolbarToggles(); });
+      document.querySelectorAll('#theme-chips .chip').forEach(b => b.addEventListener('click', () => { this.settings.theme = b.dataset.theme; this.saveSettings(); this.applyTheme(); }));
+      if (window.matchMedia) { try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => this.applyTheme()); } catch (e) {} }
       $('spread-toggle').addEventListener('change', e => { this.settings.spread = e.target.checked; this.saveSettings(); if (this.editor.sheets.length) { this.editor.renderPage(); this.editor.layout(); this.editor.updatePager(); } });
       $('sound-toggle').addEventListener('change', e => { this.settings.pageSound = e.target.checked; this.saveSettings(); });
       const er = $('engine-row'); er.innerHTML = '';
@@ -224,7 +236,7 @@
       document.querySelectorAll('#spacing-row .chip').forEach(b => b.classList.toggle('is-active', b.dataset.spacing === st.spacing));
       $('margin-toggle').checked = !!st.marginLine;
       const prev = $('style-preview'); prev.style.fontFamily = (IL.editor.FONTS.find(f => f.key === st.font) || IL.editor.FONTS[0]).css; prev.style.color = st.color; prev.style.fontSize = ({ small: 22, medium: 27, large: 32 })[st.size] + 'px';
-      $('spread-toggle').checked = this.settings.spread !== false; $('sound-toggle').checked = this.settings.pageSound !== false;
+      $('spread-toggle').checked = this.settings.spread !== false; $('sound-toggle').checked = this.settings.pageSound !== false; this.applyTheme();
       $('auto-toggle').checked = this.settings.live !== false; $('auto-delay').value = this.settings.autoDelay || 1.2; $('auto-delay-val').textContent = (this.settings.autoDelay || 1.2) + ' s'; $('finger-toggle').checked = !!this.settings.fingerDraws;
       const eng = this.settings.engine === 'system' ? 'system' : this.settings.engine === 'inkleaf' ? 'inkleaf' : 'neural';
       document.querySelectorAll('#engine-row .chip').forEach(b => b.classList.toggle('is-active', b.dataset.engine === eng));
