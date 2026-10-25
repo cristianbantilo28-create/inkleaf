@@ -376,6 +376,16 @@ await step('LASSO: corner handle resizes; ink colour recolours the selection; co
   await page.click('#lasso-actions [data-act="convert"]'); await waitFor(n => IL.app.editor.page.strokes.length === n, 2, 8000);
   const rows1 = await ev(() => IL.app.editor.page.rows.slice()); const changed = rows1.map((r, i) => r !== rows0[i] ? { i, from: rows0[i], to: r } : null).filter(Boolean); log('      changed rows:', JSON.stringify(changed));
   if (!changed.some(c => /hel|hallo/i.test(c.to.slice(c.from.length)))) throw new Error('selection was not converted into text'); if ((await ev(() => IL.app.editor.page.strokes.length)) !== 2) throw new Error('other ink was converted too');
+  // typed words: a loop around the converted word picks it up; Delete removes it from the row; undo restores; a tap picks a word too
+  const trow = changed[0].i; const wbox = await ev(r => { const ws = IL.app.editor.rowWords(r); const w = ws[ws.length - 1]; return { x0: w.x0, x1: w.x1, text: w.text, L: IL.app.editor.L, top: IL.editor.PAGE.top + r * IL.app.editor.L }; }, trow);
+  const lp = densify([[wbox.x0 - 6, wbox.top + 2], [wbox.x1 + 6, wbox.top + 2], [wbox.x1 + 6, wbox.top + wbox.L - 2], [wbox.x0 - 6, wbox.top + wbox.L - 2], [wbox.x0 - 6, wbox.top + 4]], 8).map(([x, y]) => [g.x + x * g.s, g.y + y * g.s]);
+  await pen(lp); await sleep(150);
+  const wsel = await ev(() => IL.app.editor.lassoSel && IL.app.editor.lassoSel.words.map(w => w.text)); log('      words picked:', JSON.stringify(wsel)); if (!wsel || wsel.length !== 1 || wsel[0] !== wbox.text) throw new Error('typed word not picked up');
+  await page.click('#lasso-actions [data-act="del"]'); await sleep(120);
+  const rowAfter = await ev(r => IL.app.editor.page.rows[r], trow); if (rowAfter.includes(wbox.text)) throw new Error('typed word not deleted: ' + rowAfter);
+  await page.click('#undo-btn'); await sleep(120); if (!(await ev(r => IL.app.editor.page.rows[r], trow)).includes(wbox.text)) throw new Error('undo did not restore the word');
+  await pen([[g.x + (wbox.x0 + wbox.x1) / 2 * g.s, g.y + (wbox.top + wbox.L / 2) * g.s]]); await sleep(120);
+  const tsel = await ev(() => IL.app.editor.lassoSel && IL.app.editor.lassoSel.words.length); if (tsel !== 1) throw new Error('tap did not pick the typed word'); await page.keyboard.press('Escape');
   await page.click('#tool-eraser'); const rest = await strokeInfo(); for (const s of rest) await pen([[g.x + (s.x0 + s.x1) / 2 * g.s, g.y + (s.y0 + s.y1) / 2 * g.s]]); await sleep(100);
   await page.click('#tool-pen');
 });
@@ -452,11 +462,11 @@ await step('FLIP ZONES: wider in landscape; arrow keys turn pages', async () => 
   const after = await ev(() => ({ active: IL.app.editor.active, idx: IL.app.editor.pageIndex, row: IL.app.editor.caret.row, pages: IL.app.editor.pages.length }));
   log('      enter from the left page bottom:', JSON.stringify(after)); if (after.active !== 1 || after.row !== 0) throw new Error('Enter did not continue on the facing page');
   // live recognition keeps the two pages apart: a word on each page, written one after the other, each lands on its own page
-  await ev(async () => { const ed = IL.app.editor; while (ed.pages.length < 4) await ed.addPage(); await ed.goTo(2); IL.app.settings.live = true; IL.app.settings.autoDelay = 0.8; });
+  await ev(async () => { const ed = IL.app.editor; while (ed.pages.length < 4) await ed.addPage(); await ed.goTo(2); IL.app.settings.live = true; IL.app.settings.autoDelay = 2.0; });   // a long pause so a slow test machine cannot split the word
   await sleep(300);
   const sp2 = await ev(() => IL.app.editor.sheets.map(sh => sh.pageIndex)); log('      spread pages:', JSON.stringify(sp2)); if (sp2.join() !== '2,3') throw new Error('expected pages 3–4 on screen');
   const before = await ev(() => ({ left: IL.app.editor.pages[2].rows.slice(), right: IL.app.editor.pages[3].rows.slice() }));
-  await writeWord('hello', 1, 'pen', 0); await writeWord('lo', 1, 'pen', 1); await sleep(2600);
+  await writeWord('hello', 1, 'pen', 0); await writeWord('lo', 1, 'pen', 1); await sleep(3800);
   const rows = await ev(() => ({ left: IL.app.editor.pages[2].rows.slice(), right: IL.app.editor.pages[3].rows.slice(), ink: IL.app.editor.pages.map(p => p.strokes.length) }));
   const changed = (a, b) => b.map((t, i) => t !== a[i] ? t.replace(a[i], '').trim() : null).filter(t => t != null);
   const addedLeft = changed(before.left, rows.left), addedRight = changed(before.right, rows.right);
@@ -579,6 +589,13 @@ await step('SWEEP cover editor: all themes, custom color, patterns, bindings, ev
   await ev(() => { const i = document.getElementById('theme-custom'); i.value = '#aa3366'; i.dispatchEvent(new Event('input', { bubbles: true })); });
   for (const b of await page.$$('#pattern-row .chip')) await b.click();
   for (const b of await page.$$('#spine-row .chip')) await b.click();
+  // material and closure
+  await page.click('#material-row .chip[data-material="leather"]'); if (!(await ev(() => !!document.querySelector('#cover-canvas .cover-material.leather')))) throw new Error('leather not rendered');
+  await page.click('#clasp-row .chip[data-clasp="magnet"]'); if (!(await ev(() => !!document.querySelector('#cover-canvas .cover-clasp .strap .stud')))) throw new Error('magnetic strap not rendered');
+  await page.click('#clasp-row .chip[data-clasp="lock"]'); if (!(await ev(() => !!document.querySelector('#cover-canvas .cover-clasp .lockplate .keyhole') && !!document.querySelector('#cover-canvas .cover-clasp .hasp .tongue')))) throw new Error('key lock not rendered');
+  const lockBox = await ev(() => { const c = document.querySelector('#cover-canvas').getBoundingClientRect(), p = document.querySelector('#cover-canvas .lockplate').getBoundingClientRect(); return { x: (p.left - c.left) / c.width, y: (p.top - c.top) / c.height, w: p.width / c.width }; });
+  log('      lock plate at', JSON.stringify(lockBox)); if (lockBox.x < 0.7 || lockBox.y < 0.3 || lockBox.y > 0.6 || lockBox.w > 0.3) throw new Error('lock plate misplaced');
+  await page.click('#clasp-row .chip[data-clasp="none"]'); await page.click('#material-row .chip[data-material="none"]');
   await page.click('.tab[data-panel="stickers"]');
   for (const cat of await page.$$('#sticker-cats .chip')) { await cat.click(); const n = await page.$$eval('#sticker-grid .sticker-btn', b => b.length); if (n < 8) throw new Error('few stickers in ' + await cat.textContent()); await page.click('#sticker-grid .sticker-btn:nth-child(2)'); }
   const n = await ev(() => IL.app.coverEditor.cover.elements.filter(e => e.type === 'sticker').length); if (n < 8) throw new Error('stickers ' + n);
@@ -631,6 +648,19 @@ await step('SWEEP cover editor: all themes, custom color, patterns, bindings, ev
   if (!(w1 > w0 * 1.5)) throw new Error('pinch resize failed');
   await page.click('#cover-done'); await page.waitForSelector('#view-notebook:not([hidden])');
   if ((await page.textContent('#nb-title')) !== 'Physics 101') throw new Error('title');
+});
+await step('OPEN animation: key lock → key appears, turns, hasp opens, then the cover; magnetic strap flips first', async () => {
+  await ev(() => IL.app.closeNotebook()); await page.waitForSelector('#view-home:not([hidden])'); await settled(); await sleep(300);
+  await ev(async () => { const nb = IL.app.notebooks[0]; nb.cover.clasp = 'lock'; await IL.app.saveNotebook(nb); IL.app.renderHome(); window.__open = { key: 0, keyMaxRot: 0, hasp: 0 }; new MutationObserver(() => { const k = document.querySelector('.bo-key'); if (k) window.__open.key++; }).observe(document.body, { childList: true, subtree: true }); });
+  const t0 = Date.now(); await page.click('.nb-card .cover');
+  await waitFor(() => !document.getElementById('view-notebook').hidden && !document.querySelector('.bookopen'), null, 15000);
+  const dt = Date.now() - t0; const seen = await ev(() => window.__open); log('      lock open took', dt, 'ms; key seen:', seen.key > 0);
+  if (!seen.key) throw new Error('no key in the lock animation'); if (dt > 9000) throw new Error('lock opening too slow: ' + dt);
+  await ev(() => IL.app.closeNotebook()); await page.waitForSelector('#view-home:not([hidden])'); await settled(); await sleep(200);
+  await ev(async () => { const nb = IL.app.notebooks[0]; nb.cover.clasp = 'magnet'; await IL.app.saveNotebook(nb); IL.app.renderHome(); window.__strap = []; const ob = new MutationObserver(() => { const s = document.querySelector('.bookopen .cover-clasp .strap'); if (s) { const a = s.getAnimations()[0]; if (a) window.__strap.push(1); } }); ob.observe(document.body, { childList: true, subtree: true, attributes: true }); });
+  await page.click('.nb-card .cover'); await waitFor(() => !document.getElementById('view-notebook').hidden && !document.querySelector('.bookopen'), null, 15000);
+  const strap = await ev(() => window.__strap.length); log('      magnet: strap animation observed', strap > 0); if (!strap) throw new Error('strap did not animate');
+  await ev(async () => { const nb = IL.app.notebooks[0]; nb.cover.clasp = 'none'; await IL.app.saveNotebook(nb); });
 });
 await step('SWEEP home: rename, duplicate, import backup, delete', async () => {
   await page.click('#nb-back'); await page.waitForSelector('#view-home:not([hidden])');

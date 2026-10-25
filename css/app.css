@@ -165,6 +165,37 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 20px; margin
 .cover-spine.rings::before { content: ""; position: absolute; left: 2.2cqw; top: 6cqh; bottom: 6cqh; width: 4.5cqw; background-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,.45) 0 1.6cqw, rgba(230,232,240,.95) 1.6cqw 2.4cqw, transparent 2.5cqw); background-size: 4.5cqw 8cqh; background-repeat: repeat-y; }
 .cover-spine.stitch::before { content: ""; position: absolute; left: 4cqw; top: 3cqh; bottom: 3cqh; width: 0; border-left: 0.6cqw dashed rgba(255,255,255,.55); }
 .cover-sheen { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, rgba(255,255,255,.14), transparent 40%, rgba(0,0,0,.08)); }
+.cover-sheen.matte { background: linear-gradient(115deg, rgba(255,255,255,.07), transparent 45%, rgba(0,0,0,.12)); }
+/* ---- materials: leather = fine grain (SVG noise, multiplied), worn edges and a stitched border ---- */
+.cover-material { position: absolute; inset: 0; pointer-events: none; }
+.cover-material.leather { mix-blend-mode: overlay; opacity: .95;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' seed='7' stitchTiles='stitch'/><feColorMatrix values='1.6 0 0 0 -0.3 1.6 0 0 0 -0.3 1.6 0 0 0 -0.3 0 0 0 0 1'/></filter><rect width='240' height='240' filter='url(%23g)'/></svg>"),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2' seed='11' stitchTiles='stitch'/><feColorMatrix values='1.2 0 0 0 -0.1 1.2 0 0 0 -0.1 1.2 0 0 0 -0.1 0 0 0 0 0.55'/></filter><rect width='120' height='120' filter='url(%23f)'/></svg>");
+  background-size: 46cqw 46cqw, 18cqw 18cqw; }
+.cover-material.leather::before { content: ""; position: absolute; inset: 4.2cqw; border: .65cqw dashed rgba(255,236,205,.55); border-radius: 2.6cqw; }
+.cover-material.leather::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, transparent 50%, rgba(40,20,10,.5) 100%); box-shadow: inset 0 0 7cqw rgba(0,0,0,.45), inset 0 0 1cqw rgba(0,0,0,.3); }
+/* ---- closures on the fore-edge (drawn in cover units, so they scale with the cover) ---- */
+.cover-clasp { position: absolute; inset: 0; pointer-events: none; perspective: 160cqw; perspective-origin: 100% 50%; }
+.cover-clasp .strap, .cover-clasp .hasp { position: absolute; right: -1cqw; transform-origin: 100% 50%; transform-style: preserve-3d; box-shadow: 0 1.3cqw 2.6cqw rgba(0,0,0,.45), 0 .3cqw .6cqw rgba(0,0,0,.3), inset 0 .35cqw 0 rgba(255,255,255,.14), inset 0 -.35cqw 0 rgba(0,0,0,.25); }
+.cover-clasp .strap { top: 46%; width: 29cqw; height: 13cqh; border-radius: 6.5cqh 0 0 6.5cqh; }
+.cover-clasp .strap::after { content: ""; position: absolute; inset: 1.5cqh 0 1.5cqh 1.6cqw; border: .4cqw dashed rgba(255,236,205,.38); border-right: 0; border-radius: 5cqh 0 0 5cqh; }
+.cover-clasp .stud { position: absolute; left: 3.4cqw; top: 50%; width: 5.4cqw; height: 5.4cqw; margin-top: -2.7cqw; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FFFFFF 0%, #D5DAE2 40%, #7E8794 100%); box-shadow: 0 .35cqw .9cqw rgba(0,0,0,.55), inset 0 -.3cqw .5cqw rgba(0,0,0,.25); }
+.cover-clasp .hasp { top: 43.5%; width: 21cqw; height: 8.5cqh; border-radius: 4.25cqh 0 0 4.25cqh; z-index: 2; }
+.cover-clasp .hasp::after { content: ""; position: absolute; inset: 1.2cqh 0 1.2cqh 7.5cqw; border: .4cqw dashed rgba(255,236,205,.38); border-right: 0; border-radius: 3cqh 0 0 3cqh; }
+.cover-clasp .tongue { position: absolute; left: 0; top: 50%; width: 7cqw; height: 6.2cqh; margin-top: -3.1cqh; border-radius: 3.5cqh 0 0 3.5cqh; background: linear-gradient(180deg, #F3F5F8 0%, #B7BEC9 45%, #868E9B 70%, #D3D8E0 100%); box-shadow: 0 .4cqw 1cqw rgba(0,0,0,.4), inset 0 0 0 .3cqw rgba(255,255,255,.45); }
+.cover-clasp .lockplate { position: absolute; right: 6cqw; top: 41%; width: 15cqw; height: 21cqh; border-radius: 2.6cqw; z-index: 1;
+  background: linear-gradient(135deg, #F6F8FB 0%, #C2C9D3 32%, #8F97A4 58%, #DCE0E7 100%); box-shadow: 0 1.1cqw 2.6cqw rgba(0,0,0,.48), 0 .3cqw .5cqw rgba(0,0,0,.3), inset 0 0 0 .45cqw rgba(255,255,255,.55), inset 0 -.8cqw 1cqw rgba(0,0,0,.22); }
+.cover-clasp .lockplate::before { content: ""; position: absolute; inset: 1.4cqw; border-radius: 1.6cqw; border: .3cqw solid rgba(60,70,90,.25); }
+.cover-clasp .lockplate { overflow: hidden; }
+.cover-clasp .lockplate .gleam { position: absolute; inset: -20%; background: linear-gradient(115deg, transparent 38%, rgba(255,255,255,.85) 50%, transparent 62%); transform: translateX(-130%); pointer-events: none; }
+/* the "focus pull" while the key works: the rest of the cover falls away softly, the lock stays lit */
+.bo-focus { position: absolute; inset: 0; opacity: 0; pointer-events: none; background: radial-gradient(circle at var(--fx, 85%) var(--fy, 50%), transparent 9%, rgba(8,10,22,.12) 22%, rgba(8,10,22,.5) 60%); }
+.cover-clasp .keyhole { position: absolute; left: 50%; top: 62%; width: 3.6cqw; height: 3.6cqw; margin: -1.8cqw 0 0 -1.8cqw; border-radius: 50%; background: #12161E; box-shadow: inset 0 .3cqw .6cqw rgba(0,0,0,.95), 0 .25cqw 0 rgba(255,255,255,.55); }
+.cover-clasp .keyhole::after { content: ""; position: absolute; left: 50%; top: 62%; width: 1.7cqw; height: 4.6cqh; margin-left: -.85cqw; background: #12161E; border-radius: 0 0 .6cqw .6cqw; box-shadow: 0 .25cqw 0 rgba(255,255,255,.45); }
+/* the key that opens a locked notebook (drawn by bookopen.js in a fixed layer over the scene) */
+.bo-fx { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+.bo-key { position: absolute; transform-origin: 20% 50%; filter: drop-shadow(0 6px 10px rgba(20,24,40,.45)); will-change: transform, opacity; }
+.bo-key svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .cel { position: absolute; transform-origin: center center; touch-action: none; }
 .cel-sticker { display: flex; align-items: center; justify-content: center; line-height: 1; }
 .cel-sticker .emoji { font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 1.5px #fff) drop-shadow(0 2px 2px rgba(0,0,0,.3)); line-height: 1; }

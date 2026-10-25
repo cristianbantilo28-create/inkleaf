@@ -58,5 +58,29 @@
     const og = ctx.createGain(); og.gain.setValueAtTime(0.0001, now); og.gain.exponentialRampToValueAtTime(0.02, now + 0.01); og.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
     o.connect(og); og.connect(master); o.start(now); o.stop(now + 0.11);   // straight to the master (below the high-pass on purpose)
   }
-  IL.paperSound = { ensure, slide, flap, get ready() { return !!ctx; }, get context() { return ctx; } };
+  /* short foley for the closures: clink = key meeting the lock (bright, tiny), click = the tumblers turning (heavier
+     mechanical), snap = a magnet letting go (dull, soft), thud = the cover settling (low, felt more than heard) */
+  const FOLEY = {
+    clink: { f: 5200, q: 9, nz: 0.06, nt: 0.035, tone: 2600, tone2: 1900, tg: 0.02, tt: 0.05 },
+    click: { f: 1900, q: 4, nz: 0.10, nt: 0.06, tone: 640, tone2: 380, tg: 0.045, tt: 0.09 },
+    snap:  { f: 1400, q: 2.5, nz: 0.05, nt: 0.07, tone: 240, tone2: 120, tg: 0.03, tt: 0.08 },
+    thud:  { f: 320, q: 0.9, nz: 0.05, nt: 0.12, tone: 95, tone2: 55, tg: 0.04, tt: 0.14 }
+  };
+  function tick(kind) {
+    if (!ctx) return;
+    const now = ctx.currentTime; const p = FOLEY[kind] || FOLEY.click;
+    const src = ctx.createBufferSource(); src.buffer = noiseBuf;
+    const bp = ctx.createBiquadFilter(); bp.type = kind === 'thud' ? 'lowpass' : 'bandpass'; bp.frequency.value = p.f; bp.Q.value = p.q;
+    const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, now); g.gain.exponentialRampToValueAtTime(p.nz, now + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, now + p.nt);
+    src.connect(bp); bp.connect(g); g.connect(kind === 'thud' ? master : master.input); src.start(now, Math.random() * 1.5, 0.2);
+    const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(p.tone, now); o.frequency.exponentialRampToValueAtTime(p.tone2, now + p.tt * 0.7);
+    const og = ctx.createGain(); og.gain.setValueAtTime(0.0001, now); og.gain.exponentialRampToValueAtTime(p.tg, now + 0.006); og.gain.exponentialRampToValueAtTime(0.0001, now + p.tt);
+    o.connect(og); og.connect(master); o.start(now); o.stop(now + p.tt + 0.01);
+    if (kind === 'click') {   // a second, softer tumbler a moment later
+      const o2 = ctx.createOscillator(); o2.type = 'triangle'; o2.frequency.setValueAtTime(900, now + 0.045); o2.frequency.exponentialRampToValueAtTime(500, now + 0.1);
+      const g2 = ctx.createGain(); g2.gain.setValueAtTime(0.0001, now + 0.045); g2.gain.exponentialRampToValueAtTime(0.02, now + 0.05); g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.11);
+      o2.connect(g2); g2.connect(master); o2.start(now + 0.045); o2.stop(now + 0.12);
+    }
+  }
+  IL.paperSound = { ensure, slide, flap, click: () => tick('click'), clink: () => tick('clink'), snap: () => tick('snap'), thud: () => tick('thud'), get ready() { return !!ctx; }, get context() { return ctx; } };
 })();

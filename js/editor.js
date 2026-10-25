@@ -152,7 +152,7 @@
       this.stage = document.getElementById('page-stage');
       this.mediaActions = document.getElementById('media-actions');
       this.lassoActions = document.getElementById('lasso-actions');
-      this.lassoSel = null; this.lassoDraw = null; this.lassoDrag = null; this.inkClipboard = null;   // lasso: picked-up strokes, the loop being drawn, a drag in progress, copied ink
+      this.lassoSel = null; this.lassoDraw = null; this.lassoDrag = null; this.inkClipboard = null; this.textClipboard = null;   // lasso: picked-up strokes/words/photos, the loop being drawn, a drag in progress, copied ink and words
       this.tool = 'pen'; this.penColor = PEN_COLORS[0]; this.penWidth = PEN_WIDTHS[1]; this.hlColor = HL_COLORS[0]; this.penStyle = 'ball';
       this.zoom = 1; this.s = 1; this.dpr = Math.min(3, window.devicePixelRatio || 1);
       this.nb = null; this.pages = []; this._pageIndex = 0;
@@ -708,8 +708,8 @@
       const [x, y] = this.pagePoint(e); const sel = this.lassoSel;
       if (sel && sel.sheet === this.sheet) {
         const b = sel.box, pad = 6 / this.s;
-        if (e.target.closest('.lasso-h')) { this.lassoDrag = { id: e.pointerId, mode: 'scale', ax: b.x0, ay: b.y0, d0: Math.max(4, Math.hypot(x - b.x0, y - b.y0)), orig: this.lassoSnapshot(sel.strokes), moved: false }; this.lassoBoxEl().classList.add('moving'); return; }
-        if (x >= b.x0 - pad && x <= b.x1 + pad && y >= b.y0 - pad && y <= b.y1 + pad) { this.lassoDrag = { id: e.pointerId, mode: 'move', x, y, dx: 0, dy: 0, orig: this.lassoSnapshot(sel.strokes), moved: false }; this.lassoBoxEl().classList.add('moving'); this.lassoActions.hidden = true; return; }
+        if (e.target.closest('.lasso-h')) { this.lassoDrag = { id: e.pointerId, mode: 'scale', ax: b.x0, ay: b.y0, d0: Math.max(4, Math.hypot(x - b.x0, y - b.y0)), orig: this.lassoSnapshot(sel.strokes, sel.media), moved: false }; this.lassoBoxEl().classList.add('moving'); return; }
+        if (x >= b.x0 - pad && x <= b.x1 + pad && y >= b.y0 - pad && y <= b.y1 + pad) { this.lassoDrag = { id: e.pointerId, mode: 'move', x, y, dx: 0, dy: 0, orig: this.lassoSnapshot(sel.strokes, sel.media), moved: false }; this.lassoBoxEl().classList.add('moving'); this.lassoActions.hidden = true; return; }
       }
       const hadSel = !!(sel && sel.sheet === this.sheet); this.clearLasso();
       this.lassoDraw = { id: e.pointerId, pts: [[x, y]], pointerType: e.pointerType, t0: performance.now(), deselect: hadSel };
@@ -728,14 +728,17 @@
         const dx = x - d.x, dy = y - d.y; if (!dx && !dy) return;
         d.x = x; d.y = y; d.dx += dx; d.dy += dy; d.moved = true;
         for (const st of sel.strokes) for (const p of st.pts) { p[0] += dx; p[1] += dy; }
-        sel.box = { x0: sel.box.x0 + dx, y0: sel.box.y0 + dy, x1: sel.box.x1 + dx, y1: sel.box.y1 + dy };
+        for (const m of sel.media || []) { m.x += dx; m.y += dy; this.applyMediaNode(m); }
+        sel.box = { x0: sel.box.x0 + dx, y0: sel.box.y0 + dy, x1: sel.box.x1 + dx, y1: sel.box.y1 + dy };   // typed words follow on drop (they live in rows)
       } else {
         const k = Math.max(0.12, Math.min(8, Math.hypot(x - d.ax, y - d.ay) / d.d0)); d.k = k; d.moved = true;
-        for (const o of d.orig) { o.st.pts = o.pts.map(p => [d.ax + (p[0] - d.ax) * k, d.ay + (p[1] - d.ay) * k, p[2], p[3]]); o.st.width = Math.max(0.4, Math.min(60, o.width * k)); }
-        sel.box = this.lassoBounds(sel.strokes);
+        for (const o of d.orig.strokes) { o.st.pts = o.pts.map(p => [d.ax + (p[0] - d.ax) * k, d.ay + (p[1] - d.ay) * k, p[2], p[3]]); o.st.width = Math.max(0.4, Math.min(60, o.width * k)); }
+        for (const o of d.orig.media) { o.m.x = d.ax + (o.x - d.ax) * k; o.m.y = d.ay + (o.y - d.ay) * k; o.m.w = Math.max(20, o.w * k); if (o.h != null) o.m.h = Math.max(20, o.h * k); this.applyMediaNode(o.m); }
+        sel.box = this.lassoBounds(sel.strokes, sel.words, sel.media);
       }
       this.renderLassoBox(); this.scheduleRedraw();
     }
+    applyMediaNode(m) { const node = this.mediaLayer && this.mediaLayer.querySelector(`.pm[data-id="${m.id}"]`); if (node) this.applyMediaStyle(node, m); }
     lassoUp(e) {
       if (this.lassoDraw) {
         const draw = this.lassoDraw; this.lassoDraw = null;
@@ -746,23 +749,58 @@
       const d = this.lassoDrag, sel = this.lassoSel; this.lassoDrag = null; if (!sel) return;
       this.lassoBoxEl().classList.remove('moving');
       if (d.moved) {
-        this.roundStrokes(sel.strokes); const after = this.lassoSnapshot(sel.strokes);
-        this.pushUndo({ type: 'xform', before: d.orig, after });
-        for (const st of sel.strokes) st.lineKey = null;
-        sel.box = this.lassoBounds(sel.strokes); this.renderLassoBox();
+        const page = this.page; const entries = [];
+        this.roundStrokes(sel.strokes); for (const st of sel.strokes) st.lineKey = null;
+        if (sel.strokes.length || (sel.media && sel.media.length)) entries.push({ type: 'xform', before: d.orig, after: this.lassoSnapshot(sel.strokes, sel.media) });
+        if (d.mode === 'move' && sel.words && sel.words.length) {
+          // typed words move by whole rows: the row under the frame's new position takes them (at its end)
+          const shift = Math.round(d.dy / this.L);
+          if (shift) {
+            const rowsBefore = page.rows.slice(); const moved = this.takeWords(sel.words);
+            const groups = new Map(); for (const w of moved) { const r = Math.max(0, Math.min(page.rows.length - 1, w.row + shift)); groups.set(r, (groups.get(r) || []).concat(w.text)); }
+            let last = 0; for (const [r, texts] of [...groups.entries()].sort((a, b) => a[0] - b[0])) { const t = page.rows[r] || ''; page.rows[r] = (t && !/\s$/.test(t) ? t + ' ' : t) + texts.join(' '); last = Math.max(last, this.reflowFrom(r, null)); }
+            entries.push({ type: 'rows', before: rowsBefore, after: page.rows.slice() });
+            sel.words = this.findWords(moved.map(w => ({ ...w, row: Math.max(0, Math.min(page.rows.length - 1, w.row + shift)) })));
+            this.refreshRows(); this.renderCaret(); this.app.onTextChanged && this.app.onTextChanged();
+          }
+        }
+        if (entries.length) this.pushUndo(entries.length === 1 ? entries[0] : { type: 'multi', entries });
+        sel.box = this.lassoBounds(sel.strokes, sel.words, sel.media); this.renderLassoBox();
         this.markDirty(); this.redraw(); this.liveRefresh();
       }
       this.lassoActions.hidden = false; this.positionLassoActions();
     }
+    /* removes the given typed words from their rows (right to left so offsets stay valid); returns them with their text */
+    takeWords(words) {
+      const page = this.page; const byRow = new Map(); for (const w of words) byRow.set(w.row, (byRow.get(w.row) || []).concat(w));
+      for (const [r, list] of byRow) {
+        let t = page.rows[r] || '';
+        for (const w of list.sort((a, b) => b.start - a.start)) { let s0 = w.start, e0 = w.end; if (t.slice(s0, e0) !== w.text) { const i = t.indexOf(w.text); if (i < 0) continue; s0 = i; e0 = i + w.text.length; } if (t[e0] === ' ') e0++; else if (s0 > 0 && t[s0 - 1] === ' ') s0--; t = t.slice(0, s0) + t.slice(e0); }
+        page.rows[r] = t.replace(/\s+$/, ''); if (this.lv) this.lv.commits = this.lv.commits.filter(c => c.row !== r);
+      }
+      return words.map(w => ({ row: w.row, text: w.text }));
+    }
+    /* finds typed words again after a text change (same row, same text, in order) so the selection can keep pointing at them */
+    findWords(list) {
+      const out = []; const used = new Map();
+      for (const w of list) { const cands = this.rowWords(w.row); const from = used.get(w.row) || 0; const i = cands.findIndex((c, k) => k >= from && c.text === w.text); if (i < 0) continue; used.set(w.row, i + 1); const c = cands[i]; out.push({ row: w.row, start: c.start, end: c.end, text: c.text, x0: c.x0, x1: c.x1 }); }
+      return out;
+    }
     cancelLasso() { this.lassoDraw = null; this.renderLassoPath(null); }
     scheduleRedraw() { if (this._redrawRaf) return; const sh = this.sheet; this._redrawRaf = requestAnimationFrame(() => { this._redrawRaf = null; if (this.sheetLive(sh)) this.using(this.sheets.indexOf(sh), () => this.redraw()); }); }
     roundStrokes(strokes) { for (const st of strokes) st.pts = st.pts.map(p => [Math.round(p[0] * 10) / 10, Math.round(p[1] * 10) / 10, p[2], p[3]]); }
-    lassoSnapshot(strokes) { return strokes.map(st => ({ st, pts: st.pts.map(p => p.slice()), width: st.width, color: st.color })); }
-    lassoRestore(snap) { for (const o of snap) { o.st.pts = o.pts.map(p => p.slice()); o.st.width = o.width; if (o.color) o.st.color = o.color; o.st.lineKey = null; } }
+    lassoSnapshot(strokes, media) { return { strokes: strokes.map(st => ({ st, pts: st.pts.map(p => p.slice()), width: st.width, color: st.color })), media: (media || []).map(m => ({ m, x: m.x, y: m.y, w: m.w, h: m.h })) }; }
+    lassoRestore(snap) {
+      for (const o of snap.strokes || []) { o.st.pts = o.pts.map(p => p.slice()); o.st.width = o.width; if (o.color) o.st.color = o.color; o.st.lineKey = null; }
+      for (const o of snap.media || []) { o.m.x = o.x; o.m.y = o.y; o.m.w = o.w; if (o.h != null) o.m.h = o.h; }
+      if (snap.media && snap.media.length) this.renderMedia();
+    }
     lassoBoxEl() { return this.lassoLayer ? this.lassoLayer.querySelector('.lasso-box') : null; }
-    lassoBounds(strokes) {
+    lassoBounds(strokes, words, media) {
       let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
       for (const st of strokes) { const b = strokeBox(st); const w = (st.width || 2) / 2; x0 = Math.min(x0, b.x0 - w); y0 = Math.min(y0, b.y0 - w); x1 = Math.max(x1, b.x1 + w); y1 = Math.max(y1, b.y1 + w); }
+      const L = this.L; for (const w of words || []) { x0 = Math.min(x0, w.x0); x1 = Math.max(x1, w.x1); y0 = Math.min(y0, PAGE.top + w.row * L + L * 0.08); y1 = Math.max(y1, PAGE.top + (w.row + 1) * L - L * 0.06); }
+      for (const m of media || []) { const h = m.h != null ? m.h : m.w; x0 = Math.min(x0, m.x); y0 = Math.min(y0, m.y); x1 = Math.max(x1, m.x + m.w); y1 = Math.max(y1, m.y + h); }
       const pad = 4; return { x0: x0 - pad, y0: y0 - pad, x1: x1 + pad, y1: y1 + pad };
     }
     renderLassoPath(pts, closed) {
@@ -781,14 +819,14 @@
       const sel = this.lassoSel; if (!sel || this.lassoActions.hidden || this.lassoActions.dataset.mode === 'paste') return;
       const el = sel.sheet.lassoLayer.querySelector('.lasso-box'); if (!el || el.hidden) return;
       const r = el.getBoundingClientRect(), sr = this.scroller.getBoundingClientRect();
-      this.lassoActions.querySelector('[data-act="paste"]').hidden = !this.inkClipboard;
+      this.lassoActions.querySelector('[data-act="paste"]').hidden = !this.inkClipboard && !this.textClipboard;
       const left = Math.max(8, Math.min(sr.width - this.lassoActions.offsetWidth - 8, r.left - sr.left + r.width / 2 - this.lassoActions.offsetWidth / 2));
       let top = r.top - sr.top - 54; if (top < 6) top = r.bottom - sr.top + 14;
       this.lassoActions.style.left = left + 'px'; this.lassoActions.style.top = top + 'px';
     }
     /* finishes the loop: picks the strokes that are (mostly) inside it; a short tap picks the word under the finger */
     lassoSelect(pts, ms, quiet) {
-      const page = this.page; let picked = [];
+      const page = this.page; let picked = []; const words = [], media = [];
       const span = pts.reduce((m, p) => Math.max(m, Math.hypot(p[0] - pts[0][0], p[1] - pts[0][1])), 0);
       if (span < 4 && ms < 500) {
         const [x, y] = pts[0]; const r = 10 / Math.sqrt(this.s) + 3;
@@ -803,22 +841,33 @@
         for (const st of page.strokes) {
           const b = strokeBox(st); if (b.x1 < bx0 || b.x0 > bx1 || b.y1 < by0 || b.y0 > by1) continue;
           let inside = 0; for (const p of st.pts) if (pointInPoly(p[0], p[1], pts)) inside++;
-          if (inside >= Math.max(1, Math.ceil(st.pts.length * 0.5))) picked.push(st);
+          if (inside >= Math.max(1, Math.ceil(st.pts.length * 0.35))) picked.push(st);
         }
+        // typed words whose middle lies in the loop, and photos / video chips
+        const L = this.L; const r0 = Math.max(0, Math.floor((by0 - PAGE.top) / L)), r1 = Math.min(page.rows.length - 1, Math.floor((by1 - PAGE.top) / L));
+        for (let r = r0; r <= r1; r++) { if (!(page.rows[r] || '').trim()) continue; const cy = PAGE.top + (r + 0.55) * L; for (const w of this.rowWords(r)) if (pointInPoly((w.x0 + w.x1) / 2, cy, pts)) words.push({ row: r, start: w.start, end: w.end, text: w.text, x0: w.x0, x1: w.x1 }); }
+        for (const m of page.media || []) { const h = m.h != null ? m.h : m.w; if (pointInPoly(m.x + m.w / 2, m.y + h / 2, pts)) media.push(m); }
+      }
+      if (!picked.length && !words.length && !media.length && span < 4) {   // a tap on a typed word or a photo picks it
+        const [x, y] = pts[0]; const r = Math.floor((y - PAGE.top) / this.L);
+        if (r >= 0 && r < page.rows.length) { const w = this.rowWords(r).find(w => x >= w.x0 - 2 && x <= w.x1 + 2); if (w) words.push({ row: r, start: w.start, end: w.end, text: w.text, x0: w.x0, x1: w.x1 }); }
+        if (!words.length) { const hit = this.hitMedia(x, y); if (hit) media.push(hit); }
       }
       this.renderLassoPath(null);
-      if (!picked.length) {
-        if (span < 4 && this.inkClipboard) { this.showPasteBar(pts[0][0], pts[0][1]); return; }   // a tap on empty paper with ink on the clipboard: offer to paste here
+      if (!picked.length && !words.length && !media.length) {
+        if (span < 4 && (this.inkClipboard || this.textClipboard)) { this.showPasteBar(pts[0][0], pts[0][1]); return; }   // a tap on empty paper with something on the clipboard: offer to paste here
         if (quiet) return;
-        if (span >= 4) this.app.toast('Nothing inside the loop. Draw it around the handwriting you want to pick up.', 2400);
-        else this.app.toast('Draw a loop around handwriting to pick it up, or tap a word.', 2400);
+        if (span >= 4) this.app.toast('Nothing inside the loop. Draw it around handwriting, typed words or a photo to pick them up.', 2600);
+        else this.app.toast('Draw a loop around handwriting or words to pick them up, or tap a word.', 2400);
         return;
       }
-      this.lassoSel = { sheet: this.sheet, pageIndex: this.pageIndex, strokes: picked, box: this.lassoBounds(picked) };
+      this.lassoSel = { sheet: this.sheet, pageIndex: this.pageIndex, strokes: picked, words, media, box: null };
+      this.lassoSel.box = this.lassoBounds(picked, words, media);
       this.renderLassoBox(); this.lassoActions.hidden = false; this.positionLassoActions();
       try { if (navigator.vibrate) navigator.vibrate(6); } catch (err) {}
       this._lassoHints = (this._lassoHints || 0) + 1;
-      if (this._lassoHints <= 2) this.app.toast(`${picked.length} stroke${picked.length > 1 ? 's' : ''} picked up. Drag to move, corner handle resizes, an ink colour recolours.`, 2800);
+      const parts = []; if (picked.length) parts.push(`${picked.length} stroke${picked.length > 1 ? 's' : ''}`); if (words.length) parts.push(`${words.length} word${words.length > 1 ? 's' : ''}`); if (media.length) parts.push(`${media.length} photo${media.length > 1 ? 's' : ''}`);
+      if (this._lassoHints <= 3) this.app.toast(`${parts.join(', ')} picked up. Drag to move, corner handle resizes, the bar cuts, copies, converts or deletes.`, 2800);
     }
     /* a "Paste" button where the person tapped; the pasted ink is centred there */
     showPasteBar(x, y) {
@@ -839,43 +888,64 @@
     lassoAction(act) {
       if (act === 'paste') { this.pasteInk(); return; }
       const sel = this.lassoSel; if (!sel) return;
+      const words = sel.words || [], media = sel.media || [];
       if (act === 'copy' || act === 'cut') {
-        this.inkClipboard = { strokes: sel.strokes.map(st => ({ pts: st.pts.map(p => p.slice()), color: st.color, width: st.width, kind: st.kind, pen: st.pen })), box: { ...sel.box }, pageId: this.withLasso((s, p) => p.id) };
-        if (act === 'copy') { this.app.toast('Copied. Paste lands it on any page.', 2000); this.positionLassoActions(); return; }
+        if (sel.strokes.length) this.inkClipboard = { strokes: sel.strokes.map(st => ({ pts: st.pts.map(p => p.slice()), color: st.color, width: st.width, kind: st.kind, pen: st.pen })), box: { ...sel.box }, pageId: this.withLasso((s, p) => p.id) };
+        else if (words.length) this.inkClipboard = null;
+        this.textClipboard = words.length ? words.map(w => w.text).join(' ') : null;
+        if (this.textClipboard) { try { navigator.clipboard && navigator.clipboard.writeText(this.textClipboard).catch(() => {}); } catch (e) {} }
+        if (act === 'copy') { this.app.toast(media.length && !sel.strokes.length && !words.length ? 'Photos cannot be copied yet — move or delete them.' : 'Copied. Paste lands it on any page.', 2000); this.positionLassoActions(); return; }
       }
       if (act === 'del' || act === 'cut') {
+        const n = sel.strokes.length + words.length + media.length;
         this.withLasso((s, page) => {
-          const removed = s.strokes.map(st => ({ stroke: st, index: page.strokes.indexOf(st) })).filter(it => it.index >= 0).sort((a, b) => a.index - b.index);
-          const set = new Set(s.strokes); page.strokes = page.strokes.filter(st => !set.has(st));
-          this.pushUndo({ type: 'erase', removed }); this.markDirty(); this.redraw(); this.liveRefresh();
+          const entries = [];
+          if (s.strokes.length) { const removed = s.strokes.map(st => ({ stroke: st, index: page.strokes.indexOf(st) })).filter(it => it.index >= 0).sort((a, b) => a.index - b.index); const set = new Set(s.strokes); page.strokes = page.strokes.filter(st => !set.has(st)); entries.push({ type: 'erase', removed }); }
+          if (words.length) { const before = page.rows.slice(); this.takeWords(words); entries.push({ type: 'rows', before, after: page.rows.slice() }); this.refreshRows(); this.renderCaret(); this.app.onTextChanged && this.app.onTextChanged(); }
+          if (media.length) { const before = this.cloneMedia(); const ids = new Set(media.map(m => m.id)); page.media = page.media.filter(m => !ids.has(m.id)); entries.push({ type: 'media', before, after: this.cloneMedia() }); this.renderMedia(); }
+          if (entries.length) this.pushUndo(entries.length === 1 ? entries[0] : { type: 'multi', entries });
+          this.markDirty(); this.redraw(); this.liveRefresh();
         });
-        const n = sel.strokes.length; this.clearLasso();
-        this.app.toast(act === 'cut' ? 'Cut. Paste lands it on any page.' : `Deleted ${n} stroke${n > 1 ? 's' : ''}. Undo brings them back.`, 2000);
+        this.clearLasso();
+        this.app.toast(act === 'cut' ? 'Cut. Paste lands it on any page.' : `Deleted ${n} item${n > 1 ? 's' : ''}. Undo brings them back.`, 2000);
         return;
       }
       if (act === 'convert') {
-        const strokes = sel.strokes.filter(st => st.kind !== 'hl'); if (!strokes.length) { this.app.toast('Only highlighter marks in the selection — nothing to convert.', 2200); return; }
+        const strokes = sel.strokes.filter(st => st.kind !== 'hl');
+        if (!strokes.length) { this.app.toast(words.length ? 'That is already text.' : 'Only highlighter marks or photos in the selection — nothing to convert.', 2200); return; }
         const slot = this.sheets.indexOf(sel.sheet); this.clearLasso();
         this.using(slot, () => this.convert(null, false, strokes));
       }
     }
-    /* pastes copied ink: on the same page a little below-right of the original, elsewhere at the same spot (kept on the page) */
+    /* pastes copied ink (and copied words, at the end of the row under the paste point): on the same page a little
+       below-right of the original, elsewhere at the same spot (kept on the page) */
     pasteInk() {
-      const clip = this.inkClipboard; if (!clip) return;
+      const clip = this.inkClipboard, text = this.textClipboard; if (!clip && !text) return;
       const at = this.pasteAt && this.sheetLive(this.pasteAt.sheet) ? this.pasteAt : null;
       const sh = at ? at.sheet : this.sheets[this.focus]; if (!sh) return;
       this.using(this.sheets.indexOf(sh), () => {
-        const page = this.page; const L = this.L; const w = clip.box.x1 - clip.box.x0, h = clip.box.y1 - clip.box.y0;
-        let x0 = clip.box.x0, y0 = clip.box.y0;
-        if (at) { x0 = at.x - w / 2; y0 = at.y - h / 2; } else if (page.id === clip.pageId) { x0 += L * 0.6; y0 += L * 0.6; }
-        x0 = Math.max(2, Math.min(PAGE.W - w - 2, x0)); y0 = Math.max(2, Math.min(PAGE.H - h - 2, y0));
-        const dx = x0 - clip.box.x0, dy = y0 - clip.box.y0; const now = Date.now();
-        const clones = clip.strokes.map((st, i) => ({ pts: st.pts.map(p => [Math.round((p[0] + dx) * 10) / 10, Math.round((p[1] + dy) * 10) / 10, p[2], p[3]]), color: st.color, width: st.width, kind: st.kind, pen: st.pen, at: now + i }));
-        clones.forEach(st => this.strokeId(st)); page.strokes.push(...clones);
-        this.pushUndo({ type: 'strokes', strokes: clones }); this.markDirty(); this.redraw(); this.liveRefresh();
+        const page = this.page; const L = this.L; const entries = []; let clones = [];
+        if (clip) {
+          const w = clip.box.x1 - clip.box.x0, h = clip.box.y1 - clip.box.y0;
+          let x0 = clip.box.x0, y0 = clip.box.y0;
+          if (at) { x0 = at.x - w / 2; y0 = at.y - h / 2; } else if (page.id === clip.pageId) { x0 += L * 0.6; y0 += L * 0.6; }
+          x0 = Math.max(2, Math.min(PAGE.W - w - 2, x0)); y0 = Math.max(2, Math.min(PAGE.H - h - 2, y0));
+          const dx = x0 - clip.box.x0, dy = y0 - clip.box.y0; const now = Date.now();
+          clones = clip.strokes.map((st, i) => ({ pts: st.pts.map(p => [Math.round((p[0] + dx) * 10) / 10, Math.round((p[1] + dy) * 10) / 10, p[2], p[3]]), color: st.color, width: st.width, kind: st.kind, pen: st.pen, at: now + i }));
+          clones.forEach(st => this.strokeId(st)); page.strokes.push(...clones);
+          entries.push({ type: 'strokes', strokes: clones });
+        }
+        let pastedWords = [];
+        if (text) {
+          const r = Math.max(0, Math.min(page.rows.length - 1, at ? Math.floor((at.y - PAGE.top) / L) : this.caret.row));
+          const before = page.rows.slice(); const t = page.rows[r] || ''; page.rows[r] = (t && !/\s$/.test(t) ? t + ' ' : t) + text; this.reflowFrom(r, null);
+          entries.push({ type: 'rows', before, after: page.rows.slice() }); this.refreshRows(); this.renderCaret(); this.app.onTextChanged && this.app.onTextChanged();
+          pastedWords = this.findWords(text.split(/\s+/).filter(Boolean).map(tx => ({ row: r, text: tx })));
+        }
+        if (entries.length) this.pushUndo(entries.length === 1 ? entries[0] : { type: 'multi', entries });
+        this.markDirty(); this.redraw(); this.liveRefresh();
         this.clearLasso(); if (this.tool !== 'lasso') this.setTool('lasso');
-        this.lassoSel = { sheet: this.sheet, pageIndex: this.pageIndex, strokes: clones, box: this.lassoBounds(clones) };
-        this.renderLassoBox(); this.lassoActions.hidden = false; this.positionLassoActions();
+        if (clones.length || pastedWords.length) { this.lassoSel = { sheet: this.sheet, pageIndex: this.pageIndex, strokes: clones, words: pastedWords, media: [], box: null }; this.lassoSel.box = this.lassoBounds(clones, pastedWords, []); this.renderLassoBox(); this.lassoActions.hidden = false; this.positionLassoActions(); }
       });
       this.app.toast('Pasted. Drag it where you want it.', 1800);
     }
@@ -1193,6 +1263,7 @@
       else if (e.type === 'media') { p.media = (undo ? e.before : e.after).map(m => ({ ...m })); this.renderMedia(); if (this.tf) this.tf.select(null); this.mediaActions.hidden = true; }
       else if (e.type === 'strokes') { if (undo) { const set = new Set(e.strokes); p.strokes = p.strokes.filter(s => !set.has(s)); } else p.strokes.push(...e.strokes); }
       else if (e.type === 'xform') { this.lassoRestore(undo ? e.before : e.after); }
+      else if (e.type === 'multi') { for (const sub of (undo ? e.entries.slice().reverse() : e.entries)) this.applyEntry(sub, undo); return; }
       if (this.lassoSel) this.clearLasso();
       if (document.activeElement && document.activeElement.classList.contains('row')) document.activeElement.blur();
       this.refreshRows(); this.redraw(); this.markDirty(); this.renderCaret(); this.app.onTextChanged && this.app.onTextChanged();
@@ -1591,7 +1662,7 @@
         else if ((e.key === 'Delete' || e.key === 'Backspace') && !inRow && this.lassoSel) { e.preventDefault(); this.lassoAction('del'); }
         else if ((e.key === 'Delete' || e.key === 'Backspace') && !inRow && this.tf && this.tf.selected()) { e.preventDefault(); this.mediaAction('del'); }
         else if (mod && !inRow && this.lassoSel && (e.key.toLowerCase() === 'c' || e.key.toLowerCase() === 'x')) { e.preventDefault(); this.lassoAction(e.key.toLowerCase() === 'c' ? 'copy' : 'cut'); }
-        else if (mod && !inRow && this.inkClipboard && e.key.toLowerCase() === 'v' && !(document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName))) { e.preventDefault(); this.pasteInk(); }
+        else if (mod && !inRow && (this.inkClipboard || this.textClipboard) && e.key.toLowerCase() === 'v' && !(document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName))) { e.preventDefault(); this.pasteInk(); }
         else if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && !inRow && !(document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName))) { e.preventDefault(); this.turnPage(e.key === 'ArrowRight' ? 1 : -1); }
       });
       document.addEventListener('visibilitychange', () => { if (document.hidden) this.flush(); });

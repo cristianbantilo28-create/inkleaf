@@ -171,6 +171,37 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 20px; margin
 .cover-spine.rings::before { content: ""; position: absolute; left: 2.2cqw; top: 6cqh; bottom: 6cqh; width: 4.5cqw; background-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,.45) 0 1.6cqw, rgba(230,232,240,.95) 1.6cqw 2.4cqw, transparent 2.5cqw); background-size: 4.5cqw 8cqh; background-repeat: repeat-y; }
 .cover-spine.stitch::before { content: ""; position: absolute; left: 4cqw; top: 3cqh; bottom: 3cqh; width: 0; border-left: 0.6cqw dashed rgba(255,255,255,.55); }
 .cover-sheen { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, rgba(255,255,255,.14), transparent 40%, rgba(0,0,0,.08)); }
+.cover-sheen.matte { background: linear-gradient(115deg, rgba(255,255,255,.07), transparent 45%, rgba(0,0,0,.12)); }
+/* ---- materials: leather = fine grain (SVG noise, multiplied), worn edges and a stitched border ---- */
+.cover-material { position: absolute; inset: 0; pointer-events: none; }
+.cover-material.leather { mix-blend-mode: overlay; opacity: .95;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' seed='7' stitchTiles='stitch'/><feColorMatrix values='1.6 0 0 0 -0.3 1.6 0 0 0 -0.3 1.6 0 0 0 -0.3 0 0 0 0 1'/></filter><rect width='240' height='240' filter='url(%23g)'/></svg>"),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2' seed='11' stitchTiles='stitch'/><feColorMatrix values='1.2 0 0 0 -0.1 1.2 0 0 0 -0.1 1.2 0 0 0 -0.1 0 0 0 0 0.55'/></filter><rect width='120' height='120' filter='url(%23f)'/></svg>");
+  background-size: 46cqw 46cqw, 18cqw 18cqw; }
+.cover-material.leather::before { content: ""; position: absolute; inset: 4.2cqw; border: .65cqw dashed rgba(255,236,205,.55); border-radius: 2.6cqw; }
+.cover-material.leather::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, transparent 50%, rgba(40,20,10,.5) 100%); box-shadow: inset 0 0 7cqw rgba(0,0,0,.45), inset 0 0 1cqw rgba(0,0,0,.3); }
+/* ---- closures on the fore-edge (drawn in cover units, so they scale with the cover) ---- */
+.cover-clasp { position: absolute; inset: 0; pointer-events: none; perspective: 160cqw; perspective-origin: 100% 50%; }
+.cover-clasp .strap, .cover-clasp .hasp { position: absolute; right: -1cqw; transform-origin: 100% 50%; transform-style: preserve-3d; box-shadow: 0 1.3cqw 2.6cqw rgba(0,0,0,.45), 0 .3cqw .6cqw rgba(0,0,0,.3), inset 0 .35cqw 0 rgba(255,255,255,.14), inset 0 -.35cqw 0 rgba(0,0,0,.25); }
+.cover-clasp .strap { top: 46%; width: 29cqw; height: 13cqh; border-radius: 6.5cqh 0 0 6.5cqh; }
+.cover-clasp .strap::after { content: ""; position: absolute; inset: 1.5cqh 0 1.5cqh 1.6cqw; border: .4cqw dashed rgba(255,236,205,.38); border-right: 0; border-radius: 5cqh 0 0 5cqh; }
+.cover-clasp .stud { position: absolute; left: 3.4cqw; top: 50%; width: 5.4cqw; height: 5.4cqw; margin-top: -2.7cqw; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FFFFFF 0%, #D5DAE2 40%, #7E8794 100%); box-shadow: 0 .35cqw .9cqw rgba(0,0,0,.55), inset 0 -.3cqw .5cqw rgba(0,0,0,.25); }
+.cover-clasp .hasp { top: 43.5%; width: 21cqw; height: 8.5cqh; border-radius: 4.25cqh 0 0 4.25cqh; z-index: 2; }
+.cover-clasp .hasp::after { content: ""; position: absolute; inset: 1.2cqh 0 1.2cqh 7.5cqw; border: .4cqw dashed rgba(255,236,205,.38); border-right: 0; border-radius: 3cqh 0 0 3cqh; }
+.cover-clasp .tongue { position: absolute; left: 0; top: 50%; width: 7cqw; height: 6.2cqh; margin-top: -3.1cqh; border-radius: 3.5cqh 0 0 3.5cqh; background: linear-gradient(180deg, #F3F5F8 0%, #B7BEC9 45%, #868E9B 70%, #D3D8E0 100%); box-shadow: 0 .4cqw 1cqw rgba(0,0,0,.4), inset 0 0 0 .3cqw rgba(255,255,255,.45); }
+.cover-clasp .lockplate { position: absolute; right: 6cqw; top: 41%; width: 15cqw; height: 21cqh; border-radius: 2.6cqw; z-index: 1;
+  background: linear-gradient(135deg, #F6F8FB 0%, #C2C9D3 32%, #8F97A4 58%, #DCE0E7 100%); box-shadow: 0 1.1cqw 2.6cqw rgba(0,0,0,.48), 0 .3cqw .5cqw rgba(0,0,0,.3), inset 0 0 0 .45cqw rgba(255,255,255,.55), inset 0 -.8cqw 1cqw rgba(0,0,0,.22); }
+.cover-clasp .lockplate::before { content: ""; position: absolute; inset: 1.4cqw; border-radius: 1.6cqw; border: .3cqw solid rgba(60,70,90,.25); }
+.cover-clasp .lockplate { overflow: hidden; }
+.cover-clasp .lockplate .gleam { position: absolute; inset: -20%; background: linear-gradient(115deg, transparent 38%, rgba(255,255,255,.85) 50%, transparent 62%); transform: translateX(-130%); pointer-events: none; }
+/* the "focus pull" while the key works: the rest of the cover falls away softly, the lock stays lit */
+.bo-focus { position: absolute; inset: 0; opacity: 0; pointer-events: none; background: radial-gradient(circle at var(--fx, 85%) var(--fy, 50%), transparent 9%, rgba(8,10,22,.12) 22%, rgba(8,10,22,.5) 60%); }
+.cover-clasp .keyhole { position: absolute; left: 50%; top: 62%; width: 3.6cqw; height: 3.6cqw; margin: -1.8cqw 0 0 -1.8cqw; border-radius: 50%; background: #12161E; box-shadow: inset 0 .3cqw .6cqw rgba(0,0,0,.95), 0 .25cqw 0 rgba(255,255,255,.55); }
+.cover-clasp .keyhole::after { content: ""; position: absolute; left: 50%; top: 62%; width: 1.7cqw; height: 4.6cqh; margin-left: -.85cqw; background: #12161E; border-radius: 0 0 .6cqw .6cqw; box-shadow: 0 .25cqw 0 rgba(255,255,255,.45); }
+/* the key that opens a locked notebook (drawn by bookopen.js in a fixed layer over the scene) */
+.bo-fx { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+.bo-key { position: absolute; transform-origin: 20% 50%; filter: drop-shadow(0 6px 10px rgba(20,24,40,.45)); will-change: transform, opacity; }
+.bo-key svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .cel { position: absolute; transform-origin: center center; touch-action: none; }
 .cel-sticker { display: flex; align-items: center; justify-content: center; line-height: 1; }
 .cel-sticker .emoji { font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 1.5px #fff) drop-shadow(0 2px 2px rgba(0,0,0,.3)); line-height: 1; }
@@ -639,6 +670,11 @@ label.field { display: block; font-size: 13px; color: var(--fg-2); margin: 6px 0
           <div id="pattern-row" class="chip-row"></div>
           <h3 class="panel-h">Binding</h3>
           <div id="spine-row" class="chip-row"></div>
+          <h3 class="panel-h">Material</h3>
+          <div id="material-row" class="chip-row"></div>
+          <h3 class="panel-h">Closure</h3>
+          <div id="clasp-row" class="chip-row"></div>
+          <p class="muted small-text">A magnetic strap flips open before the cover; a key lock gets its key turned first.</p>
         </section>
         <section id="panel-stickers" class="panel" role="tabpanel" hidden>
           <div id="sticker-cats" class="chip-row scroll-x"></div>
@@ -2945,6 +2981,8 @@ window.__INKLEAF_NO_SW = true;
   ];
   const PATTERNS = [['none', 'Plain'], ['dots', 'Dots'], ['grid', 'Grid'], ['stripes', 'Stripes'], ['checks', 'Checks'], ['waves', 'Waves'], ['confetti', 'Confetti']];
   const SPINES = [['rings', 'Spiral rings'], ['band', 'Cloth spine'], ['stitch', 'Stitched'], ['none', 'None']];
+  const MATERIALS = [['none', 'Standard'], ['leather', 'Leather']];
+  const CLASPS = [['none', 'None'], ['magnet', 'Magnetic strap'], ['lock', 'Key lock']];
   const TITLE_FONTS = [['Fraunces', "'Fraunces', Georgia, serif"], ['Figtree', "'Figtree', system-ui, sans-serif"], ['Caveat', "'Caveat', cursive"], ['Patrick Hand', "'Patrick Hand', cursive"], ['Kalam', "'Kalam', cursive"], ['Gloria Hallelujah', "'Gloria Hallelujah', cursive"], ['Homemade Apple', "'Homemade Apple', cursive"], ['Lora', "'Lora', Georgia, serif"], ['Courier Prime', "'Courier Prime', monospace"]];
   const TITLE_COLORS = ['#FFFFFF', '#F3E9C8', '#1B1F2A', '#2D4FC9', '#E63946', '#F6B93B', '#3CCB92', '#FF6B9D'];
   const LAYOUTS = [['free', 'Free'], ['full', 'Whole cover'], ['top', 'Top half'], ['bottom', 'Bottom half'], ['left', 'Left half'], ['right', 'Right half']];
@@ -2971,7 +3009,7 @@ window.__INKLEAF_NO_SW = true;
   function defaultCover(title) {
     const theme = THEMES[Math.floor(Math.random() * THEMES.length)];
     return {
-      theme: theme.id, color: '#2d4fc9', pattern: 'none', spine: 'rings', showTitle: true,
+      theme: theme.id, color: '#2d4fc9', pattern: 'none', spine: 'rings', material: 'none', clasp: 'none', showTitle: true,
       elements: [{ id: IL.uid(), type: 'text', role: 'title', text: title || 'Untitled', font: 'Fraunces', color: theme.title, x: 48, y: 150, w: 220, fs: 30, rot: 0, align: 'center' }]
     };
   }
@@ -2988,13 +3026,25 @@ window.__INKLEAF_NO_SW = true;
     el.style.background = bgFor(cover);
     el.innerHTML = '';
     const pat = document.createElement('div'); pat.className = 'cover-pattern ' + (cover.pattern || 'none'); el.appendChild(pat);
-    const sheen = document.createElement('div'); sheen.className = 'cover-sheen'; el.appendChild(sheen);
+    if (cover.material && cover.material !== 'none') { const mat = document.createElement('div'); mat.className = 'cover-material ' + cover.material; el.appendChild(mat); }
+    const sheen = document.createElement('div'); sheen.className = 'cover-sheen' + (cover.material === 'leather' ? ' matte' : ''); el.appendChild(sheen);
     for (const e of cover.elements || []) {
       if (e.type === 'text' && e.role === 'title' && cover.showTitle === false) continue;
       el.appendChild(renderElement(e));
     }
     const spine = document.createElement('div'); spine.className = 'cover-spine ' + (cover.spine || 'none'); el.appendChild(spine);
+    if (cover.clasp && cover.clasp !== 'none') el.appendChild(renderClasp(cover));
     return el;
+  }
+  /* The closure on the fore-edge: a magnetic strap (leather tab with a steel stud) or a diary lock (strap with a steel
+     tongue into a lock plate with a keyhole). The strap takes a darker shade of the cover's own colour. */
+  function renderClasp(cover) {
+    const rgb = tintOf(cover); const dark = mix(rgb, [0, 0, 0], 0.62), mid = mix(rgb, [0, 0, 0], 0.45), light = mix(rgb, [255, 255, 255], 0.08);
+    const strapBg = `linear-gradient(180deg, ${light} 0%, ${mid} 18%, ${dark} 62%, ${mid} 100%)`;
+    const node = document.createElement('div'); node.className = 'cover-clasp c-' + cover.clasp;   // (not plain "lock": that is the lock screen's class)
+    if (cover.clasp === 'magnet') node.innerHTML = `<div class="strap" style="background:${strapBg}"><div class="stud"></div></div>`;
+    else node.innerHTML = `<div class="lockplate"><div class="keyhole"></div></div><div class="hasp" style="background:${strapBg}"><div class="tongue"></div></div>`;
+    return node;
   }
   function applyElementStyle(node, e) {
     node.style.left = (e.x / CW * 100) + '%'; node.style.top = (e.y / CH * 100) + '%';
@@ -3070,6 +3120,10 @@ window.__INKLEAF_NO_SW = true;
       PATTERNS.forEach(([id, name]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.pattern = id; b.textContent = name; b.addEventListener('click', () => { this.cover.pattern = id; this.paint(); this.saveSoon(); }); pr.appendChild(b); });
       const sr = document.getElementById('spine-row');
       SPINES.forEach(([id, name]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.spine = id; b.textContent = name; b.addEventListener('click', () => { this.cover.spine = id; this.paint(); this.saveSoon(); }); sr.appendChild(b); });
+      const mr = document.getElementById('material-row');
+      MATERIALS.forEach(([id, name]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.material = id; b.textContent = name; b.addEventListener('click', () => { this.cover.material = id; this.paint(); this.saveSoon(); }); mr.appendChild(b); });
+      const cr = document.getElementById('clasp-row');
+      CLASPS.forEach(([id, name]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.clasp = id; b.textContent = name; b.addEventListener('click', () => { this.cover.clasp = id; this.paint(); this.saveSoon(); }); cr.appendChild(b); });
       // stickers
       const cats = document.getElementById('sticker-cats');
       IL.stickers.categories.forEach((c, i) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (i === 0 ? ' is-active' : ''); b.dataset.cat = c.id; b.textContent = c.name; b.addEventListener('click', () => this.showStickers(c.id)); cats.appendChild(b); });
@@ -3129,6 +3183,8 @@ window.__INKLEAF_NO_SW = true;
       document.querySelectorAll('#theme-grid .swatch').forEach(b => b.classList.toggle('is-active', b.dataset.theme === this.cover.theme));
       document.querySelectorAll('#pattern-row .chip').forEach(b => b.classList.toggle('is-active', b.dataset.pattern === (this.cover.pattern || 'none')));
       document.querySelectorAll('#spine-row .chip').forEach(b => b.classList.toggle('is-active', b.dataset.spine === (this.cover.spine || 'none')));
+      document.querySelectorAll('#material-row .chip').forEach(b => b.classList.toggle('is-active', b.dataset.material === (this.cover.material || 'none')));
+      document.querySelectorAll('#clasp-row .chip').forEach(b => b.classList.toggle('is-active', b.dataset.clasp === (this.cover.clasp || 'none')));
       const t = this.titleEl();
       document.querySelectorAll('#title-fonts .font-opt').forEach(b => b.classList.toggle('is-active', !!t && b.dataset.font === t.font));
       document.querySelectorAll('#title-colors .color-dot').forEach(b => b.classList.toggle('is-active', !!t && b.dataset.color.toLowerCase() === (t.color || '').toLowerCase()));
@@ -3192,7 +3248,7 @@ window.__INKLEAF_NO_SW = true;
     async finish() { clearTimeout(this._t); this.tf.select(null); await this.app.saveNotebook(this.nb); const cb = this.onDone; this.onDone = null; cb && cb(); }
   }
 
-  IL.cover = { THEMES, PATTERNS, SPINES, TITLE_FONTS, LAYOUTS, FILTERS, MASKS, CW, CH, defaultCover, render, bgFor, tintOf, applyLayout, Editor: CoverEditor };
+  IL.cover = { THEMES, PATTERNS, SPINES, MATERIALS, CLASPS, TITLE_FONTS, LAYOUTS, FILTERS, MASKS, CW, CH, defaultCover, render, bgFor, tintOf, applyLayout, Editor: CoverEditor };
 })();
 
 ;
@@ -3350,7 +3406,7 @@ window.__INKLEAF_NO_SW = true;
       this.stage = document.getElementById('page-stage');
       this.mediaActions = document.getElementById('media-actions');
       this.lassoActions = document.getElementById('lasso-actions');
-      this.lassoSel = null; this.lassoDraw = null; this.lassoDrag = null; this.inkClipboard = null;   // lasso: picked-up strokes, the loop being drawn, a drag in progress, copied ink
+      this.lassoSel = null; this.lassoDraw = null; this.lassoDrag = null; this.inkClipboard = null; this.textClipboard = null;   // lasso: picked-up strokes/words/photos, the loop being drawn, a drag in progress, copied ink and words
       this.tool = 'pen'; this.penColor = PEN_COLORS[0]; this.penWidth = PEN_WIDTHS[1]; this.hlColor = HL_COLORS[0]; this.penStyle = 'ball';
       this.zoom = 1; this.s = 1; this.dpr = Math.min(3, window.devicePixelRatio || 1);
       this.nb = null; this.pages = []; this._pageIndex = 0;
@@ -3906,8 +3962,8 @@ window.__INKLEAF_NO_SW = true;
       const [x, y] = this.pagePoint(e); const sel = this.lassoSel;
       if (sel && sel.sheet === this.sheet) {
         const b = sel.box, pad = 6 / this.s;
-        if (e.target.closest('.lasso-h')) { this.lassoDrag = { id: e.pointerId, mode: 'scale', ax: b.x0, ay: b.y0, d0: Math.max(4, Math.hypot(x - b.x0, y - b.y0)), orig: this.lassoSnapshot(sel.strokes), moved: false }; this.lassoBoxEl().classList.add('moving'); return; }
-        if (x >= b.x0 - pad && x <= b.x1 + pad && y >= b.y0 - pad && y <= b.y1 + pad) { this.lassoDrag = { id: e.pointerId, mode: 'move', x, y, dx: 0, dy: 0, orig: this.lassoSnapshot(sel.strokes), moved: false }; this.lassoBoxEl().classList.add('moving'); this.lassoActions.hidden = true; return; }
+        if (e.target.closest('.lasso-h')) { this.lassoDrag = { id: e.pointerId, mode: 'scale', ax: b.x0, ay: b.y0, d0: Math.max(4, Math.hypot(x - b.x0, y - b.y0)), orig: this.lassoSnapshot(sel.strokes, sel.media), moved: false }; this.lassoBoxEl().classList.add('moving'); return; }
+        if (x >= b.x0 - pad && x <= b.x1 + pad && y >= b.y0 - pad && y <= b.y1 + pad) { this.lassoDrag = { id: e.pointerId, mode: 'move', x, y, dx: 0, dy: 0, orig: this.lassoSnapshot(sel.strokes, sel.media), moved: false }; this.lassoBoxEl().classList.add('moving'); this.lassoActions.hidden = true; return; }
       }
       const hadSel = !!(sel && sel.sheet === this.sheet); this.clearLasso();
       this.lassoDraw = { id: e.pointerId, pts: [[x, y]], pointerType: e.pointerType, t0: performance.now(), deselect: hadSel };
@@ -3926,14 +3982,17 @@ window.__INKLEAF_NO_SW = true;
         const dx = x - d.x, dy = y - d.y; if (!dx && !dy) return;
         d.x = x; d.y = y; d.dx += dx; d.dy += dy; d.moved = true;
         for (const st of sel.strokes) for (const p of st.pts) { p[0] += dx; p[1] += dy; }
-        sel.box = { x0: sel.box.x0 + dx, y0: sel.box.y0 + dy, x1: sel.box.x1 + dx, y1: sel.box.y1 + dy };
+        for (const m of sel.media || []) { m.x += dx; m.y += dy; this.applyMediaNode(m); }
+        sel.box = { x0: sel.box.x0 + dx, y0: sel.box.y0 + dy, x1: sel.box.x1 + dx, y1: sel.box.y1 + dy };   // typed words follow on drop (they live in rows)
       } else {
         const k = Math.max(0.12, Math.min(8, Math.hypot(x - d.ax, y - d.ay) / d.d0)); d.k = k; d.moved = true;
-        for (const o of d.orig) { o.st.pts = o.pts.map(p => [d.ax + (p[0] - d.ax) * k, d.ay + (p[1] - d.ay) * k, p[2], p[3]]); o.st.width = Math.max(0.4, Math.min(60, o.width * k)); }
-        sel.box = this.lassoBounds(sel.strokes);
+        for (const o of d.orig.strokes) { o.st.pts = o.pts.map(p => [d.ax + (p[0] - d.ax) * k, d.ay + (p[1] - d.ay) * k, p[2], p[3]]); o.st.width = Math.max(0.4, Math.min(60, o.width * k)); }
+        for (const o of d.orig.media) { o.m.x = d.ax + (o.x - d.ax) * k; o.m.y = d.ay + (o.y - d.ay) * k; o.m.w = Math.max(20, o.w * k); if (o.h != null) o.m.h = Math.max(20, o.h * k); this.applyMediaNode(o.m); }
+        sel.box = this.lassoBounds(sel.strokes, sel.words, sel.media);
       }
       this.renderLassoBox(); this.scheduleRedraw();
     }
+    applyMediaNode(m) { const node = this.mediaLayer && this.mediaLayer.querySelector(`.pm[data-id="${m.id}"]`); if (node) this.applyMediaStyle(node, m); }
     lassoUp(e) {
       if (this.lassoDraw) {
         const draw = this.lassoDraw; this.lassoDraw = null;
@@ -3944,23 +4003,58 @@ window.__INKLEAF_NO_SW = true;
       const d = this.lassoDrag, sel = this.lassoSel; this.lassoDrag = null; if (!sel) return;
       this.lassoBoxEl().classList.remove('moving');
       if (d.moved) {
-        this.roundStrokes(sel.strokes); const after = this.lassoSnapshot(sel.strokes);
-        this.pushUndo({ type: 'xform', before: d.orig, after });
-        for (const st of sel.strokes) st.lineKey = null;
-        sel.box = this.lassoBounds(sel.strokes); this.renderLassoBox();
+        const page = this.page; const entries = [];
+        this.roundStrokes(sel.strokes); for (const st of sel.strokes) st.lineKey = null;
+        if (sel.strokes.length || (sel.media && sel.media.length)) entries.push({ type: 'xform', before: d.orig, after: this.lassoSnapshot(sel.strokes, sel.media) });
+        if (d.mode === 'move' && sel.words && sel.words.length) {
+          // typed words move by whole rows: the row under the frame's new position takes them (at its end)
+          const shift = Math.round(d.dy / this.L);
+          if (shift) {
+            const rowsBefore = page.rows.slice(); const moved = this.takeWords(sel.words);
+            const groups = new Map(); for (const w of moved) { const r = Math.max(0, Math.min(page.rows.length - 1, w.row + shift)); groups.set(r, (groups.get(r) || []).concat(w.text)); }
+            let last = 0; for (const [r, texts] of [...groups.entries()].sort((a, b) => a[0] - b[0])) { const t = page.rows[r] || ''; page.rows[r] = (t && !/\s$/.test(t) ? t + ' ' : t) + texts.join(' '); last = Math.max(last, this.reflowFrom(r, null)); }
+            entries.push({ type: 'rows', before: rowsBefore, after: page.rows.slice() });
+            sel.words = this.findWords(moved.map(w => ({ ...w, row: Math.max(0, Math.min(page.rows.length - 1, w.row + shift)) })));
+            this.refreshRows(); this.renderCaret(); this.app.onTextChanged && this.app.onTextChanged();
+          }
+        }
+        if (entries.length) this.pushUndo(entries.length === 1 ? entries[0] : { type: 'multi', entries });
+        sel.box = this.lassoBounds(sel.strokes, sel.words, sel.media); this.renderLassoBox();
         this.markDirty(); this.redraw(); this.liveRefresh();
       }
       this.lassoActions.hidden = false; this.positionLassoActions();
     }
+    /* removes the given typed words from their rows (right to left so offsets stay valid); returns them with their text */
+    takeWords(words) {
+      const page = this.page; const byRow = new Map(); for (const w of words) byRow.set(w.row, (byRow.get(w.row) || []).concat(w));
+      for (const [r, list] of byRow) {
+        let t = page.rows[r] || '';
+        for (const w of list.sort((a, b) => b.start - a.start)) { let s0 = w.start, e0 = w.end; if (t.slice(s0, e0) !== w.text) { const i = t.indexOf(w.text); if (i < 0) continue; s0 = i; e0 = i + w.text.length; } if (t[e0] === ' ') e0++; else if (s0 > 0 && t[s0 - 1] === ' ') s0--; t = t.slice(0, s0) + t.slice(e0); }
+        page.rows[r] = t.replace(/\s+$/, ''); if (this.lv) this.lv.commits = this.lv.commits.filter(c => c.row !== r);
+      }
+      return words.map(w => ({ row: w.row, text: w.text }));
+    }
+    /* finds typed words again after a text change (same row, same text, in order) so the selection can keep pointing at them */
+    findWords(list) {
+      const out = []; const used = new Map();
+      for (const w of list) { const cands = this.rowWords(w.row); const from = used.get(w.row) || 0; const i = cands.findIndex((c, k) => k >= from && c.text === w.text); if (i < 0) continue; used.set(w.row, i + 1); const c = cands[i]; out.push({ row: w.row, start: c.start, end: c.end, text: c.text, x0: c.x0, x1: c.x1 }); }
+      return out;
+    }
     cancelLasso() { this.lassoDraw = null; this.renderLassoPath(null); }
     scheduleRedraw() { if (this._redrawRaf) return; const sh = this.sheet; this._redrawRaf = requestAnimationFrame(() => { this._redrawRaf = null; if (this.sheetLive(sh)) this.using(this.sheets.indexOf(sh), () => this.redraw()); }); }
     roundStrokes(strokes) { for (const st of strokes) st.pts = st.pts.map(p => [Math.round(p[0] * 10) / 10, Math.round(p[1] * 10) / 10, p[2], p[3]]); }
-    lassoSnapshot(strokes) { return strokes.map(st => ({ st, pts: st.pts.map(p => p.slice()), width: st.width, color: st.color })); }
-    lassoRestore(snap) { for (const o of snap) { o.st.pts = o.pts.map(p => p.slice()); o.st.width = o.width; if (o.color) o.st.color = o.color; o.st.lineKey = null; } }
+    lassoSnapshot(strokes, media) { return { strokes: strokes.map(st => ({ st, pts: st.pts.map(p => p.slice()), width: st.width, color: st.color })), media: (media || []).map(m => ({ m, x: m.x, y: m.y, w: m.w, h: m.h })) }; }
+    lassoRestore(snap) {
+      for (const o of snap.strokes || []) { o.st.pts = o.pts.map(p => p.slice()); o.st.width = o.width; if (o.color) o.st.color = o.color; o.st.lineKey = null; }
+      for (const o of snap.media || []) { o.m.x = o.x; o.m.y = o.y; o.m.w = o.w; if (o.h != null) o.m.h = o.h; }
+      if (snap.media && snap.media.length) this.renderMedia();
+    }
     lassoBoxEl() { return this.lassoLayer ? this.lassoLayer.querySelector('.lasso-box') : null; }
-    lassoBounds(strokes) {
+    lassoBounds(strokes, words, media) {
       let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
       for (const st of strokes) { const b = strokeBox(st); const w = (st.width || 2) / 2; x0 = Math.min(x0, b.x0 - w); y0 = Math.min(y0, b.y0 - w); x1 = Math.max(x1, b.x1 + w); y1 = Math.max(y1, b.y1 + w); }
+      const L = this.L; for (const w of words || []) { x0 = Math.min(x0, w.x0); x1 = Math.max(x1, w.x1); y0 = Math.min(y0, PAGE.top + w.row * L + L * 0.08); y1 = Math.max(y1, PAGE.top + (w.row + 1) * L - L * 0.06); }
+      for (const m of media || []) { const h = m.h != null ? m.h : m.w; x0 = Math.min(x0, m.x); y0 = Math.min(y0, m.y); x1 = Math.max(x1, m.x + m.w); y1 = Math.max(y1, m.y + h); }
       const pad = 4; return { x0: x0 - pad, y0: y0 - pad, x1: x1 + pad, y1: y1 + pad };
     }
     renderLassoPath(pts, closed) {
@@ -3979,14 +4073,14 @@ window.__INKLEAF_NO_SW = true;
       const sel = this.lassoSel; if (!sel || this.lassoActions.hidden || this.lassoActions.dataset.mode === 'paste') return;
       const el = sel.sheet.lassoLayer.querySelector('.lasso-box'); if (!el || el.hidden) return;
       const r = el.getBoundingClientRect(), sr = this.scroller.getBoundingClientRect();
-      this.lassoActions.querySelector('[data-act="paste"]').hidden = !this.inkClipboard;
+      this.lassoActions.querySelector('[data-act="paste"]').hidden = !this.inkClipboard && !this.textClipboard;
       const left = Math.max(8, Math.min(sr.width - this.lassoActions.offsetWidth - 8, r.left - sr.left + r.width / 2 - this.lassoActions.offsetWidth / 2));
       let top = r.top - sr.top - 54; if (top < 6) top = r.bottom - sr.top + 14;
       this.lassoActions.style.left = left + 'px'; this.lassoActions.style.top = top + 'px';
     }
     /* finishes the loop: picks the strokes that are (mostly) inside it; a short tap picks the word under the finger */
     lassoSelect(pts, ms, quiet) {
-      const page = this.page; let picked = [];
+      const page = this.page; let picked = []; const words = [], media = [];
       const span = pts.reduce((m, p) => Math.max(m, Math.hypot(p[0] - pts[0][0], p[1] - pts[0][1])), 0);
       if (span < 4 && ms < 500) {
         const [x, y] = pts[0]; const r = 10 / Math.sqrt(this.s) + 3;
@@ -4001,22 +4095,33 @@ window.__INKLEAF_NO_SW = true;
         for (const st of page.strokes) {
           const b = strokeBox(st); if (b.x1 < bx0 || b.x0 > bx1 || b.y1 < by0 || b.y0 > by1) continue;
           let inside = 0; for (const p of st.pts) if (pointInPoly(p[0], p[1], pts)) inside++;
-          if (inside >= Math.max(1, Math.ceil(st.pts.length * 0.5))) picked.push(st);
+          if (inside >= Math.max(1, Math.ceil(st.pts.length * 0.35))) picked.push(st);
         }
+        // typed words whose middle lies in the loop, and photos / video chips
+        const L = this.L; const r0 = Math.max(0, Math.floor((by0 - PAGE.top) / L)), r1 = Math.min(page.rows.length - 1, Math.floor((by1 - PAGE.top) / L));
+        for (let r = r0; r <= r1; r++) { if (!(page.rows[r] || '').trim()) continue; const cy = PAGE.top + (r + 0.55) * L; for (const w of this.rowWords(r)) if (pointInPoly((w.x0 + w.x1) / 2, cy, pts)) words.push({ row: r, start: w.start, end: w.end, text: w.text, x0: w.x0, x1: w.x1 }); }
+        for (const m of page.media || []) { const h = m.h != null ? m.h : m.w; if (pointInPoly(m.x + m.w / 2, m.y + h / 2, pts)) media.push(m); }
+      }
+      if (!picked.length && !words.length && !media.length && span < 4) {   // a tap on a typed word or a photo picks it
+        const [x, y] = pts[0]; const r = Math.floor((y - PAGE.top) / this.L);
+        if (r >= 0 && r < page.rows.length) { const w = this.rowWords(r).find(w => x >= w.x0 - 2 && x <= w.x1 + 2); if (w) words.push({ row: r, start: w.start, end: w.end, text: w.text, x0: w.x0, x1: w.x1 }); }
+        if (!words.length) { const hit = this.hitMedia(x, y); if (hit) media.push(hit); }
       }
       this.renderLassoPath(null);
-      if (!picked.length) {
-        if (span < 4 && this.inkClipboard) { this.showPasteBar(pts[0][0], pts[0][1]); return; }   // a tap on empty paper with ink on the clipboard: offer to paste here
+      if (!picked.length && !words.length && !media.length) {
+        if (span < 4 && (this.inkClipboard || this.textClipboard)) { this.showPasteBar(pts[0][0], pts[0][1]); return; }   // a tap on empty paper with something on the clipboard: offer to paste here
         if (quiet) return;
-        if (span >= 4) this.app.toast('Nothing inside the loop. Draw it around the handwriting you want to pick up.', 2400);
-        else this.app.toast('Draw a loop around handwriting to pick it up, or tap a word.', 2400);
+        if (span >= 4) this.app.toast('Nothing inside the loop. Draw it around handwriting, typed words or a photo to pick them up.', 2600);
+        else this.app.toast('Draw a loop around handwriting or words to pick them up, or tap a word.', 2400);
         return;
       }
-      this.lassoSel = { sheet: this.sheet, pageIndex: this.pageIndex, strokes: picked, box: this.lassoBounds(picked) };
+      this.lassoSel = { sheet: this.sheet, pageIndex: this.pageIndex, strokes: picked, words, media, box: null };
+      this.lassoSel.box = this.lassoBounds(picked, words, media);
       this.renderLassoBox(); this.lassoActions.hidden = false; this.positionLassoActions();
       try { if (navigator.vibrate) navigator.vibrate(6); } catch (err) {}
       this._lassoHints = (this._lassoHints || 0) + 1;
-      if (this._lassoHints <= 2) this.app.toast(`${picked.length} stroke${picked.length > 1 ? 's' : ''} picked up. Drag to move, corner handle resizes, an ink colour recolours.`, 2800);
+      const parts = []; if (picked.length) parts.push(`${picked.length} stroke${picked.length > 1 ? 's' : ''}`); if (words.length) parts.push(`${words.length} word${words.length > 1 ? 's' : ''}`); if (media.length) parts.push(`${media.length} photo${media.length > 1 ? 's' : ''}`);
+      if (this._lassoHints <= 3) this.app.toast(`${parts.join(', ')} picked up. Drag to move, corner handle resizes, the bar cuts, copies, converts or deletes.`, 2800);
     }
     /* a "Paste" button where the person tapped; the pasted ink is centred there */
     showPasteBar(x, y) {
@@ -4037,43 +4142,64 @@ window.__INKLEAF_NO_SW = true;
     lassoAction(act) {
       if (act === 'paste') { this.pasteInk(); return; }
       const sel = this.lassoSel; if (!sel) return;
+      const words = sel.words || [], media = sel.media || [];
       if (act === 'copy' || act === 'cut') {
-        this.inkClipboard = { strokes: sel.strokes.map(st => ({ pts: st.pts.map(p => p.slice()), color: st.color, width: st.width, kind: st.kind, pen: st.pen })), box: { ...sel.box }, pageId: this.withLasso((s, p) => p.id) };
-        if (act === 'copy') { this.app.toast('Copied. Paste lands it on any page.', 2000); this.positionLassoActions(); return; }
+        if (sel.strokes.length) this.inkClipboard = { strokes: sel.strokes.map(st => ({ pts: st.pts.map(p => p.slice()), color: st.color, width: st.width, kind: st.kind, pen: st.pen })), box: { ...sel.box }, pageId: this.withLasso((s, p) => p.id) };
+        else if (words.length) this.inkClipboard = null;
+        this.textClipboard = words.length ? words.map(w => w.text).join(' ') : null;
+        if (this.textClipboard) { try { navigator.clipboard && navigator.clipboard.writeText(this.textClipboard).catch(() => {}); } catch (e) {} }
+        if (act === 'copy') { this.app.toast(media.length && !sel.strokes.length && !words.length ? 'Photos cannot be copied yet — move or delete them.' : 'Copied. Paste lands it on any page.', 2000); this.positionLassoActions(); return; }
       }
       if (act === 'del' || act === 'cut') {
+        const n = sel.strokes.length + words.length + media.length;
         this.withLasso((s, page) => {
-          const removed = s.strokes.map(st => ({ stroke: st, index: page.strokes.indexOf(st) })).filter(it => it.index >= 0).sort((a, b) => a.index - b.index);
-          const set = new Set(s.strokes); page.strokes = page.strokes.filter(st => !set.has(st));
-          this.pushUndo({ type: 'erase', removed }); this.markDirty(); this.redraw(); this.liveRefresh();
+          const entries = [];
+          if (s.strokes.length) { const removed = s.strokes.map(st => ({ stroke: st, index: page.strokes.indexOf(st) })).filter(it => it.index >= 0).sort((a, b) => a.index - b.index); const set = new Set(s.strokes); page.strokes = page.strokes.filter(st => !set.has(st)); entries.push({ type: 'erase', removed }); }
+          if (words.length) { const before = page.rows.slice(); this.takeWords(words); entries.push({ type: 'rows', before, after: page.rows.slice() }); this.refreshRows(); this.renderCaret(); this.app.onTextChanged && this.app.onTextChanged(); }
+          if (media.length) { const before = this.cloneMedia(); const ids = new Set(media.map(m => m.id)); page.media = page.media.filter(m => !ids.has(m.id)); entries.push({ type: 'media', before, after: this.cloneMedia() }); this.renderMedia(); }
+          if (entries.length) this.pushUndo(entries.length === 1 ? entries[0] : { type: 'multi', entries });
+          this.markDirty(); this.redraw(); this.liveRefresh();
         });
-        const n = sel.strokes.length; this.clearLasso();
-        this.app.toast(act === 'cut' ? 'Cut. Paste lands it on any page.' : `Deleted ${n} stroke${n > 1 ? 's' : ''}. Undo brings them back.`, 2000);
+        this.clearLasso();
+        this.app.toast(act === 'cut' ? 'Cut. Paste lands it on any page.' : `Deleted ${n} item${n > 1 ? 's' : ''}. Undo brings them back.`, 2000);
         return;
       }
       if (act === 'convert') {
-        const strokes = sel.strokes.filter(st => st.kind !== 'hl'); if (!strokes.length) { this.app.toast('Only highlighter marks in the selection — nothing to convert.', 2200); return; }
+        const strokes = sel.strokes.filter(st => st.kind !== 'hl');
+        if (!strokes.length) { this.app.toast(words.length ? 'That is already text.' : 'Only highlighter marks or photos in the selection — nothing to convert.', 2200); return; }
         const slot = this.sheets.indexOf(sel.sheet); this.clearLasso();
         this.using(slot, () => this.convert(null, false, strokes));
       }
     }
-    /* pastes copied ink: on the same page a little below-right of the original, elsewhere at the same spot (kept on the page) */
+    /* pastes copied ink (and copied words, at the end of the row under the paste point): on the same page a little
+       below-right of the original, elsewhere at the same spot (kept on the page) */
     pasteInk() {
-      const clip = this.inkClipboard; if (!clip) return;
+      const clip = this.inkClipboard, text = this.textClipboard; if (!clip && !text) return;
       const at = this.pasteAt && this.sheetLive(this.pasteAt.sheet) ? this.pasteAt : null;
       const sh = at ? at.sheet : this.sheets[this.focus]; if (!sh) return;
       this.using(this.sheets.indexOf(sh), () => {
-        const page = this.page; const L = this.L; const w = clip.box.x1 - clip.box.x0, h = clip.box.y1 - clip.box.y0;
-        let x0 = clip.box.x0, y0 = clip.box.y0;
-        if (at) { x0 = at.x - w / 2; y0 = at.y - h / 2; } else if (page.id === clip.pageId) { x0 += L * 0.6; y0 += L * 0.6; }
-        x0 = Math.max(2, Math.min(PAGE.W - w - 2, x0)); y0 = Math.max(2, Math.min(PAGE.H - h - 2, y0));
-        const dx = x0 - clip.box.x0, dy = y0 - clip.box.y0; const now = Date.now();
-        const clones = clip.strokes.map((st, i) => ({ pts: st.pts.map(p => [Math.round((p[0] + dx) * 10) / 10, Math.round((p[1] + dy) * 10) / 10, p[2], p[3]]), color: st.color, width: st.width, kind: st.kind, pen: st.pen, at: now + i }));
-        clones.forEach(st => this.strokeId(st)); page.strokes.push(...clones);
-        this.pushUndo({ type: 'strokes', strokes: clones }); this.markDirty(); this.redraw(); this.liveRefresh();
+        const page = this.page; const L = this.L; const entries = []; let clones = [];
+        if (clip) {
+          const w = clip.box.x1 - clip.box.x0, h = clip.box.y1 - clip.box.y0;
+          let x0 = clip.box.x0, y0 = clip.box.y0;
+          if (at) { x0 = at.x - w / 2; y0 = at.y - h / 2; } else if (page.id === clip.pageId) { x0 += L * 0.6; y0 += L * 0.6; }
+          x0 = Math.max(2, Math.min(PAGE.W - w - 2, x0)); y0 = Math.max(2, Math.min(PAGE.H - h - 2, y0));
+          const dx = x0 - clip.box.x0, dy = y0 - clip.box.y0; const now = Date.now();
+          clones = clip.strokes.map((st, i) => ({ pts: st.pts.map(p => [Math.round((p[0] + dx) * 10) / 10, Math.round((p[1] + dy) * 10) / 10, p[2], p[3]]), color: st.color, width: st.width, kind: st.kind, pen: st.pen, at: now + i }));
+          clones.forEach(st => this.strokeId(st)); page.strokes.push(...clones);
+          entries.push({ type: 'strokes', strokes: clones });
+        }
+        let pastedWords = [];
+        if (text) {
+          const r = Math.max(0, Math.min(page.rows.length - 1, at ? Math.floor((at.y - PAGE.top) / L) : this.caret.row));
+          const before = page.rows.slice(); const t = page.rows[r] || ''; page.rows[r] = (t && !/\s$/.test(t) ? t + ' ' : t) + text; this.reflowFrom(r, null);
+          entries.push({ type: 'rows', before, after: page.rows.slice() }); this.refreshRows(); this.renderCaret(); this.app.onTextChanged && this.app.onTextChanged();
+          pastedWords = this.findWords(text.split(/\s+/).filter(Boolean).map(tx => ({ row: r, text: tx })));
+        }
+        if (entries.length) this.pushUndo(entries.length === 1 ? entries[0] : { type: 'multi', entries });
+        this.markDirty(); this.redraw(); this.liveRefresh();
         this.clearLasso(); if (this.tool !== 'lasso') this.setTool('lasso');
-        this.lassoSel = { sheet: this.sheet, pageIndex: this.pageIndex, strokes: clones, box: this.lassoBounds(clones) };
-        this.renderLassoBox(); this.lassoActions.hidden = false; this.positionLassoActions();
+        if (clones.length || pastedWords.length) { this.lassoSel = { sheet: this.sheet, pageIndex: this.pageIndex, strokes: clones, words: pastedWords, media: [], box: null }; this.lassoSel.box = this.lassoBounds(clones, pastedWords, []); this.renderLassoBox(); this.lassoActions.hidden = false; this.positionLassoActions(); }
       });
       this.app.toast('Pasted. Drag it where you want it.', 1800);
     }
@@ -4391,6 +4517,7 @@ window.__INKLEAF_NO_SW = true;
       else if (e.type === 'media') { p.media = (undo ? e.before : e.after).map(m => ({ ...m })); this.renderMedia(); if (this.tf) this.tf.select(null); this.mediaActions.hidden = true; }
       else if (e.type === 'strokes') { if (undo) { const set = new Set(e.strokes); p.strokes = p.strokes.filter(s => !set.has(s)); } else p.strokes.push(...e.strokes); }
       else if (e.type === 'xform') { this.lassoRestore(undo ? e.before : e.after); }
+      else if (e.type === 'multi') { for (const sub of (undo ? e.entries.slice().reverse() : e.entries)) this.applyEntry(sub, undo); return; }
       if (this.lassoSel) this.clearLasso();
       if (document.activeElement && document.activeElement.classList.contains('row')) document.activeElement.blur();
       this.refreshRows(); this.redraw(); this.markDirty(); this.renderCaret(); this.app.onTextChanged && this.app.onTextChanged();
@@ -4789,7 +4916,7 @@ window.__INKLEAF_NO_SW = true;
         else if ((e.key === 'Delete' || e.key === 'Backspace') && !inRow && this.lassoSel) { e.preventDefault(); this.lassoAction('del'); }
         else if ((e.key === 'Delete' || e.key === 'Backspace') && !inRow && this.tf && this.tf.selected()) { e.preventDefault(); this.mediaAction('del'); }
         else if (mod && !inRow && this.lassoSel && (e.key.toLowerCase() === 'c' || e.key.toLowerCase() === 'x')) { e.preventDefault(); this.lassoAction(e.key.toLowerCase() === 'c' ? 'copy' : 'cut'); }
-        else if (mod && !inRow && this.inkClipboard && e.key.toLowerCase() === 'v' && !(document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName))) { e.preventDefault(); this.pasteInk(); }
+        else if (mod && !inRow && (this.inkClipboard || this.textClipboard) && e.key.toLowerCase() === 'v' && !(document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName))) { e.preventDefault(); this.pasteInk(); }
         else if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && !inRow && !(document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName))) { e.preventDefault(); this.turnPage(e.key === 'ArrowRight' ? 1 : -1); }
       });
       document.addEventListener('visibilitychange', () => { if (document.hidden) this.flush(); });
@@ -4815,23 +4942,26 @@ window.__INKLEAF_NO_SW = true;
 })();
 
 ;
-/* Inkleaf — opening a notebook: the book lifts off the shelf, its cover swings open in 3D, and the open page zooms
+/* Inkleaf — opening a notebook: the book lifts off the shelf, its closure comes undone (a magnetic strap flips away,
+   or a key appears, turns in the lock and the hasp swings open), the cover swings open in 3D and the open page zooms
    toward the reader until it is exactly where the real page sits. Closing plays the same in reverse. */
 (function () {
   const IL = (window.IL = window.IL || {});
   const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const done = a => a.finished.catch(() => {});
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const sound = name => { try { const s = IL.paperSound; if (s && IL.app && IL.app.settings.pageSound !== false && s.ensure()) s[name](); } catch (e) {} };
 
   /* Builds the overlay: a backdrop plus a "book" sized like the page, with a page face and a cover hinged on its left edge. */
   function build(nb, pageW, pageH, paint) {
     const ov = document.createElement('div'); ov.className = 'bookopen'; ov.setAttribute('aria-hidden', 'true');
-    ov.innerHTML = `<div class="bo-backdrop"></div><div class="bo-scene"><div class="bo-book"><div class="bo-pages"><div class="bo-edge"></div><canvas class="bo-page"></canvas></div><div class="bo-cover"><div class="bo-cover-front"></div><div class="bo-cover-in"></div></div></div></div>`;
+    ov.innerHTML = `<div class="bo-backdrop"></div><div class="bo-scene"><div class="bo-book"><div class="bo-pages"><div class="bo-edge"></div><canvas class="bo-page"></canvas></div><div class="bo-cover"><div class="bo-cover-front"></div><div class="bo-cover-in"></div></div></div></div><div class="bo-fx"></div>`;
     const book = ov.querySelector('.bo-book'); book.style.width = pageW + 'px'; book.style.height = pageH + 'px';
     const front = ov.querySelector('.bo-cover-front'); const face = document.createElement('div'); IL.cover.render(face, nb.cover || IL.cover.defaultCover(nb.title)); front.appendChild(face);
     const inside = ov.querySelector('.bo-cover-in'); const rgb = IL.cover.tintOf(nb.cover); inside.style.background = `linear-gradient(90deg, rgba(${rgb.join(',')},.5), rgba(${rgb.join(',')},.3) 60%, rgba(${rgb.join(',')},.38))`;
     try { paint && paint(ov.querySelector('.bo-page'), Math.min(900, pageW)); } catch (e) {}
     document.body.appendChild(ov);
-    return { ov, book, cover: ov.querySelector('.bo-cover'), backdrop: ov.querySelector('.bo-backdrop'), pages: ov.querySelector('.bo-pages') };
+    return { ov, book, face, cover: ov.querySelector('.bo-cover'), backdrop: ov.querySelector('.bo-backdrop'), pages: ov.querySelector('.bo-pages'), fx: ov.querySelector('.bo-fx') };
   }
   const tf = (x, y, k) => `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) scale(${k.toFixed(4)})`;
   /* a lifted, centred pose for a page of pageW x pageH (a little right of centre so the opened cover has room) */
@@ -4841,54 +4971,107 @@ window.__INKLEAF_NO_SW = true;
     return { x: vw / 2 - w1 / 2 + Math.min(w1 * 0.22, Math.max(0, (vw - w1) / 2 - 8)), y: vh / 2 - h1 / 2, k: k1 };
   }
 
+  const KEY_SVG = `<svg viewBox="0 0 100 40" aria-hidden="true"><defs><linearGradient id="kg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF0B8"/><stop offset=".45" stop-color="#E9BE55"/><stop offset="1" stop-color="#A9771B"/></linearGradient></defs>
+    <g fill="url(#kg)" stroke="#6E4E0E" stroke-width="1.2" stroke-linejoin="round">
+      <rect x="18" y="16" width="52" height="8" rx="2"/><rect x="21" y="22" width="6" height="11" rx="1.5"/><rect x="31" y="22" width="6" height="8" rx="1.5"/>
+      <path d="M82 6a14 14 0 1 1-0.01 0z M82 13a7 7 0 1 0 0.01 0z" fill-rule="evenodd"/>
+    </g><path d="M22 18h44" stroke="#FFF6D6" stroke-width="1.4" stroke-linecap="round" opacity=".8"/></svg>`;
+
+  const SHADOW = 'drop-shadow(0 6px 10px rgba(20,24,40,.45))';
+  /* the magnetic strap lets go and flips away toward the back cover: the stud pops, then the tab swings up and over */
+  async function unstrap(face) {
+    const strap = face.querySelector('.cover-clasp .strap'); if (!strap) return;
+    const stud = strap.querySelector('.stud');
+    sound('snap');
+    if (stud) stud.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.18)', offset: .4 }, { transform: 'scale(1)' }], { duration: 160, easing: 'ease-out' });
+    await done(strap.animate([{ transform: 'rotateY(0deg)', easing: 'cubic-bezier(.5,0,.8,.4)' }, { transform: 'rotateY(18deg)', offset: .3, easing: 'cubic-bezier(.2,.6,.3,1)' }, { transform: 'rotateY(100deg)' }], { duration: 300, fill: 'forwards' }));
+  }
+  /* the key arrives on an arc, slides in with a tiny contact bump, turns the tumblers (the tongue slides clear and a
+     gleam runs over the plate), and the hasp springs open — the rest of the cover softly falls out of focus meanwhile */
+  async function unlock(face, fx, front) {
+    const plate = face.querySelector('.cover-clasp .lockplate'), hole = face.querySelector('.cover-clasp .keyhole'), hasp = face.querySelector('.cover-clasp .hasp'), tongue = face.querySelector('.cover-clasp .tongue');
+    if (!plate || !hole || !hasp) return;
+    const hr = hole.getBoundingClientRect(), pr = plate.getBoundingClientRect(), fr = fx.getBoundingClientRect(), cr = front.getBoundingClientRect();
+    const W = pr.width * 2.2, H = W * 0.4; const cx = hr.left + hr.width / 2 - fr.left, cy = hr.top + hr.height * 0.45 - fr.top;
+    // focus pull: a soft vignette on the cover, clear around the lock
+    const focus = document.createElement('div'); focus.className = 'bo-focus'; focus.style.setProperty('--fx', ((hr.left + hr.width / 2 - cr.left) / cr.width * 100).toFixed(1) + '%'); focus.style.setProperty('--fy', ((hr.top + hr.height / 2 - cr.top) / cr.height * 100).toFixed(1) + '%'); front.appendChild(focus);
+    focus.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220, fill: 'forwards', easing: 'ease-out' });
+    const key = document.createElement('div'); key.className = 'bo-key'; key.innerHTML = KEY_SVG;
+    key.style.width = W + 'px'; key.style.height = H + 'px'; key.style.left = (cx - W * 0.2) + 'px'; key.style.top = (cy - H / 2) + 'px'; fx.appendChild(key);
+    // 1. entrance along an arc from the lower right, with a touch of motion blur that clears as it slows
+    await done(key.animate([
+      { transform: 'translate(78%, 95%) rotate(-42deg) scale(.6)', opacity: 0, filter: 'blur(2.5px) ' + SHADOW, offset: 0, easing: 'cubic-bezier(.3,.6,.4,1)' },
+      { transform: 'translate(46%, 44%) rotate(-26deg) scale(.86)', opacity: 1, filter: 'blur(1.2px) ' + SHADOW, offset: .42, easing: 'cubic-bezier(.3,.5,.3,1)' },
+      { transform: 'translate(14%, 8%) rotate(-8deg) scale(1)', opacity: 1, filter: 'blur(0px) ' + SHADOW, offset: .8, easing: 'ease-out' },
+      { transform: 'translate(0, 0) rotate(0deg) scale(1)', opacity: 1, filter: 'blur(0px) ' + SHADOW, offset: 1 }
+    ], { duration: 240, fill: 'forwards' }));
+    // 2. insertion: forward along the key's own axis, then a one-frame contact bump against the back stop
+    sound('clink');
+    await done(key.animate([{ transform: 'translate(0,0) scale(1)', easing: 'ease-in' }, { transform: 'translate(-3.2%, 0) scale(.97)' }], { duration: 70, fill: 'forwards' }));
+    await done(key.animate([{ transform: 'translate(-3.2%, 0) scale(.97)' }, { transform: 'translate(-2.4%, 0) scale(.975)', offset: .35 }, { transform: 'translate(-3.3%, 0) scale(.968)', offset: .7 }, { transform: 'translate(-3%, 0) scale(.97)' }], { duration: 70, fill: 'forwards' }));
+    // 3. the turn: tumblers resist, then give; the tongue slides clear and a gleam runs across the plate
+    const gleam = document.createElement('div'); gleam.className = 'gleam'; plate.appendChild(gleam);
+    gleam.animate([{ transform: 'translateX(-130%)' }, { transform: 'translateX(130%)' }], { duration: 380, delay: 40, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' });
+    if (tongue) tongue.animate([{ transform: 'translateX(0)', easing: 'cubic-bezier(.6,0,.4,1)' }, { transform: 'translateX(0)', offset: .35 }, { transform: 'translateX(115%)' }], { duration: 200, fill: 'forwards' });
+    const turn = key.animate([{ transform: 'translate(-3%, 0) scale(.97) rotate(0deg)', easing: 'cubic-bezier(.6,0,.2,1)' }, { transform: 'translate(-3%, 0) scale(.97) rotate(96deg)', offset: .78, easing: 'cubic-bezier(.3,0,.4,1)' }, { transform: 'translate(-3%, 0) scale(.97) rotate(90deg)' }], { duration: 200, fill: 'forwards' });
+    setTimeout(() => sound('click'), 130);
+    await done(turn);
+    // 4. the hasp springs open (a quick kick, then the swing) while the key withdraws and the focus returns
+    key.animate([{ transform: 'translate(-3%, 0) scale(.97) rotate(90deg)', opacity: 1 }, { transform: 'translate(18%, 30%) scale(.9) rotate(90deg)', opacity: 0 }], { duration: 190, delay: 40, easing: 'ease-in', fill: 'forwards' });
+    focus.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, delay: 60, fill: 'forwards', easing: 'ease-in' });
+    await done(hasp.animate([{ transform: 'rotateY(0deg)', easing: 'cubic-bezier(.1,.9,.3,1.3)' }, { transform: 'rotateY(34deg)', offset: .32, easing: 'cubic-bezier(.3,0,.3,1)' }, { transform: 'rotateY(100deg)' }], { duration: 230, fill: 'forwards' }));
+  }
+
   /* fromRect: the cover card. toRect: the real page (laid out but still covered). paint(canvas, cssW) draws the page face.
      onCovered() is called once the backdrop hides everything, which is the moment to swap the views underneath. */
   async function open({ fromRect, toRect, nb, paint, onCovered }) {
     if (reduce() || !fromRect || !toRect) { onCovered && onCovered(); return; }
     const pageW = toRect.width, pageH = toRect.height;
-    const { ov, book, cover, backdrop, pages } = build(nb, pageW, pageH, paint);
+    const { ov, book, face, cover, backdrop, pages, fx } = build(nb, pageW, pageH, paint); const front = ov.querySelector('.bo-cover-front');
     const k0 = fromRect.height / pageH, x0 = fromRect.left, y0 = fromRect.top;
     const L1 = lifted(pageW, pageH, 0.56);
-    const T = 1300;
-    const bookAnim = book.animate([
-      { transform: tf(x0, y0, k0), offset: 0, easing: 'cubic-bezier(.22,.8,.26,1)' },
-      { transform: tf(L1.x, L1.y, L1.k), offset: 0.32, easing: 'linear' },
-      { transform: tf(L1.x, L1.y, L1.k), offset: 0.64, easing: 'cubic-bezier(.5,0,.15,1)' },
-      { transform: tf(toRect.left, toRect.top, 1), offset: 1 }
-    ], { duration: T, fill: 'forwards' });
-    pages.animate([
-      { boxShadow: '0 2px 6px rgba(20,24,40,.25)', offset: 0 }, { boxShadow: '0 34px 70px rgba(20,24,40,.38)', offset: 0.32 },
-      { boxShadow: '0 34px 70px rgba(20,24,40,.32)', offset: 0.64 }, { boxShadow: '0 12px 30px rgba(20,24,40,.14)', offset: 1 }
-    ], { duration: T, fill: 'forwards' });
-    cover.animate([
-      { transform: 'rotateY(0deg)', offset: 0, easing: 'linear' }, { transform: 'rotateY(0deg)', offset: 0.2, easing: 'cubic-bezier(.45,.05,.3,1)' },
-      { transform: 'rotateY(-174deg)', offset: 0.66, easing: 'ease-out' }, { transform: 'rotateY(-180deg)', offset: 1 }
-    ], { duration: T, fill: 'forwards' });
-    backdrop.animate([{ opacity: 0, offset: 0 }, { opacity: 1, offset: 0.28 }, { opacity: 1, offset: 0.66 }, { opacity: 0, offset: 1 }], { duration: T, fill: 'forwards' });
-    await done(ov.animate([{ opacity: 1 }, { opacity: 1 }], { duration: T * 0.3 }));   // a sentinel that follows the animation clock
+    const clasp = nb.cover && nb.cover.clasp;
+    // 1. the book lifts off the shelf
+    const TA = 330;
+    const lift = book.animate([{ transform: tf(x0, y0, k0), easing: 'cubic-bezier(.22,.8,.26,1)' }, { transform: tf(L1.x, L1.y, L1.k) }], { duration: TA, fill: 'forwards' });
+    pages.animate([{ boxShadow: '0 2px 6px rgba(20,24,40,.25)' }, { boxShadow: '0 34px 70px rgba(20,24,40,.38)' }], { duration: TA, fill: 'forwards' });
+    backdrop.animate([{ opacity: 0 }, { opacity: 1 }], { duration: TA * 0.9, fill: 'forwards' });
+    await done(lift);
     onCovered && onCovered();
-    await done(bookAnim);
-    await done(ov.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150, fill: 'forwards' }));
+    // 2. the closure comes undone
+    if (clasp === 'lock') await unlock(face, fx, front); else if (clasp === 'magnet') await unstrap(face); else await wait(40);
+    // 3. the cover swings open — heavy board: it overshoots a little and settles — and, as it nears flat, the page zooms into place
+    const TC = 460, TD = 390, overlap = 150;
+    cover.animate([{ transform: 'rotateY(0deg)', easing: 'cubic-bezier(.45,.05,.3,1)' }, { transform: 'rotateY(-171deg)', offset: .74, easing: 'cubic-bezier(.3,0,.5,1)' }, { transform: 'rotateY(-183deg)', offset: .88, easing: 'cubic-bezier(.4,0,.5,1)' }, { transform: 'rotateY(-179deg)', offset: .96, easing: 'ease-out' }, { transform: 'rotateY(-180deg)' }], { duration: TC, fill: 'forwards' });
+    setTimeout(() => sound('thud'), TC * 0.8);
+    const zoom = book.animate([{ transform: tf(L1.x, L1.y, L1.k), easing: 'cubic-bezier(.5,0,.15,1)' }, { transform: tf(toRect.left, toRect.top, 1) }], { duration: TD, delay: TC - overlap, fill: 'forwards' });
+    pages.animate([{ boxShadow: '0 34px 70px rgba(20,24,40,.32)' }, { boxShadow: '0 12px 30px rgba(20,24,40,.14)' }], { duration: TD, delay: TC - overlap, fill: 'forwards' });
+    backdrop.animate([{ opacity: 1 }, { opacity: 1, offset: .45 }, { opacity: 0 }], { duration: TD, delay: TC - overlap, fill: 'forwards' });
+    await done(zoom);
+    await done(ov.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, fill: 'forwards' }));
     ov.remove();
   }
 
-  /* Closing: the page shrinks back into the book and the cover closes; once covered, getTarget() swaps to the home screen and
-     returns the card's rect, where the book then settles. */
+  /* Closing: the page shrinks back into the book and the cover closes (then the strap or hasp snaps back on); once covered,
+     getTarget() swaps to the home screen and returns the card's rect, where the book then settles. */
   async function close({ fromRect, nb, paint, getTarget }) {
     if (reduce() || !fromRect) { getTarget && await getTarget(); return; }
     const pageW = fromRect.width, pageH = fromRect.height;
-    const { ov, book, cover, backdrop } = build(nb, pageW, pageH, paint);
+    const { ov, book, face, cover, backdrop } = build(nb, pageW, pageH, paint);
     cover.style.transform = 'rotateY(-180deg)';
+    const closure = face.querySelector('.cover-clasp .strap, .cover-clasp .hasp'); if (closure) closure.style.transform = 'rotateY(100deg)';
     const L1 = lifted(pageW, pageH, 0.5);
-    const T1 = 520, T2 = 520;
+    const T1 = 480, T2 = 480;
     const a1 = book.animate([{ transform: tf(fromRect.left, fromRect.top, 1), easing: 'cubic-bezier(.4,0,.2,1)' }, { transform: tf(L1.x, L1.y, L1.k) }], { duration: T1, fill: 'forwards' });
-    cover.animate([{ transform: 'rotateY(-180deg)', offset: 0, easing: 'linear' }, { transform: 'rotateY(-180deg)', offset: 0.35, easing: 'cubic-bezier(.5,0,.4,1)' }, { transform: 'rotateY(0deg)', offset: 1 }], { duration: T1 + 260, fill: 'forwards' });
+    const shut = cover.animate([{ transform: 'rotateY(-180deg)', offset: 0, easing: 'linear' }, { transform: 'rotateY(-180deg)', offset: 0.35, easing: 'cubic-bezier(.5,0,.4,1)' }, { transform: 'rotateY(0deg)', offset: 1 }], { duration: T1 + 240, fill: 'forwards' });
     backdrop.animate([{ opacity: 0 }, { opacity: 1 }], { duration: T1 * 0.8, fill: 'forwards' });
     await done(a1);
     const toRect = getTarget ? await getTarget() : null;
     const t = toRect || { left: window.innerWidth / 2 - 60, top: window.innerHeight + 40, height: pageH * 0.2 };
-    const a2 = book.animate([{ transform: tf(L1.x, L1.y, L1.k), easing: 'cubic-bezier(.22,.8,.26,1)' }, { transform: tf(t.left, t.top, t.height / pageH) }], { duration: T2, delay: 120, fill: 'forwards' });
-    backdrop.animate([{ opacity: 1, offset: 0 }, { opacity: 1, offset: 0.4 }, { opacity: 0, offset: 1 }], { duration: T2 + 120, fill: 'forwards' });
+    await done(shut);
+    if (closure) { sound(closure.classList.contains('hasp') ? 'click' : 'snap'); await done(closure.animate([{ transform: 'rotateY(100deg)', easing: 'cubic-bezier(.3,0,.2,1)' }, { transform: 'rotateY(0deg)' }], { duration: 220, fill: 'forwards' })); }
+    const a2 = book.animate([{ transform: tf(L1.x, L1.y, L1.k), easing: 'cubic-bezier(.22,.8,.26,1)' }, { transform: tf(t.left, t.top, t.height / pageH) }], { duration: T2, delay: 60, fill: 'forwards' });
+    backdrop.animate([{ opacity: 1, offset: 0 }, { opacity: 1, offset: 0.4 }, { opacity: 0, offset: 1 }], { duration: T2 + 60, fill: 'forwards' });
     await done(a2);
     await done(ov.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, fill: 'forwards' }));
     ov.remove();
@@ -4958,7 +5141,31 @@ window.__INKLEAF_NO_SW = true;
     const og = ctx.createGain(); og.gain.setValueAtTime(0.0001, now); og.gain.exponentialRampToValueAtTime(0.02, now + 0.01); og.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
     o.connect(og); og.connect(master); o.start(now); o.stop(now + 0.11);   // straight to the master (below the high-pass on purpose)
   }
-  IL.paperSound = { ensure, slide, flap, get ready() { return !!ctx; }, get context() { return ctx; } };
+  /* short foley for the closures: clink = key meeting the lock (bright, tiny), click = the tumblers turning (heavier
+     mechanical), snap = a magnet letting go (dull, soft), thud = the cover settling (low, felt more than heard) */
+  const FOLEY = {
+    clink: { f: 5200, q: 9, nz: 0.06, nt: 0.035, tone: 2600, tone2: 1900, tg: 0.02, tt: 0.05 },
+    click: { f: 1900, q: 4, nz: 0.10, nt: 0.06, tone: 640, tone2: 380, tg: 0.045, tt: 0.09 },
+    snap:  { f: 1400, q: 2.5, nz: 0.05, nt: 0.07, tone: 240, tone2: 120, tg: 0.03, tt: 0.08 },
+    thud:  { f: 320, q: 0.9, nz: 0.05, nt: 0.12, tone: 95, tone2: 55, tg: 0.04, tt: 0.14 }
+  };
+  function tick(kind) {
+    if (!ctx) return;
+    const now = ctx.currentTime; const p = FOLEY[kind] || FOLEY.click;
+    const src = ctx.createBufferSource(); src.buffer = noiseBuf;
+    const bp = ctx.createBiquadFilter(); bp.type = kind === 'thud' ? 'lowpass' : 'bandpass'; bp.frequency.value = p.f; bp.Q.value = p.q;
+    const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, now); g.gain.exponentialRampToValueAtTime(p.nz, now + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, now + p.nt);
+    src.connect(bp); bp.connect(g); g.connect(kind === 'thud' ? master : master.input); src.start(now, Math.random() * 1.5, 0.2);
+    const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(p.tone, now); o.frequency.exponentialRampToValueAtTime(p.tone2, now + p.tt * 0.7);
+    const og = ctx.createGain(); og.gain.setValueAtTime(0.0001, now); og.gain.exponentialRampToValueAtTime(p.tg, now + 0.006); og.gain.exponentialRampToValueAtTime(0.0001, now + p.tt);
+    o.connect(og); og.connect(master); o.start(now); o.stop(now + p.tt + 0.01);
+    if (kind === 'click') {   // a second, softer tumbler a moment later
+      const o2 = ctx.createOscillator(); o2.type = 'triangle'; o2.frequency.setValueAtTime(900, now + 0.045); o2.frequency.exponentialRampToValueAtTime(500, now + 0.1);
+      const g2 = ctx.createGain(); g2.gain.setValueAtTime(0.0001, now + 0.045); g2.gain.exponentialRampToValueAtTime(0.02, now + 0.05); g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.11);
+      o2.connect(g2); g2.connect(master); o2.start(now + 0.045); o2.stop(now + 0.12);
+    }
+  }
+  IL.paperSound = { ensure, slide, flap, click: () => tick('click'), clink: () => tick('clink'), snap: () => tick('snap'), thud: () => tick('thud'), get ready() { return !!ctx; }, get context() { return ctx; } };
 })();
 
 ;
@@ -5242,7 +5449,44 @@ window.__INKLEAF_NO_SW = true;
       this.renderHome(); this.showView('home');
       this.setupInstall(); this.setupAutoLock();
       setTimeout(() => this.gcBlobs(), 6000);
-      if ('serviceWorker' in navigator && !window.__INKLEAF_NO_SW) navigator.serviceWorker.register('./sw.js').catch(() => {});
+      this.setupUpdates();
+      await this.resumeAfterUpdate();
+    },
+    /* ---------- updates: a new version pushed to the site takes over as soon as it is downloaded ----------
+       The service worker installs the new files and claims the page; we then restart the app at the first quiet moment
+       (not mid-stroke, not mid-animation), reopening the same notebook and page. The app also looks for updates whenever
+       it comes back to the foreground and every quarter of an hour while open. */
+    setupUpdates() {
+      if (!('serviceWorker' in navigator) || window.__INKLEAF_NO_SW) return;
+      let hadController = !!navigator.serviceWorker.controller;
+      navigator.serviceWorker.addEventListener('controllerchange', () => { if (!hadController) { hadController = true; return; } this.restartWhenIdle(); });
+      navigator.serviceWorker.register('./sw.js').then(reg => {
+        this.swReg = reg;
+        const check = () => { try { reg.update().catch(() => {}); } catch (e) {} };
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
+        window.addEventListener('online', check);
+        setInterval(check, 15 * 60 * 1000);
+      }).catch(() => {});
+    },
+    restartWhenIdle() {
+      if (this._restarting) return; this._restarting = true;
+      const ed = this.editor;
+      const idle = () => !(ed && (ed.live || ed.erase || ed.lassoDraw || ed.lassoDrag || ed.flip)) && !this.opening && !document.querySelector('.bookopen') && !(document.activeElement && document.activeElement.classList.contains('row'));
+      const go = async () => {
+        try { if (ed) await ed.flush(); } catch (e) {}
+        try { await IL.db.kvSet('resumeAfterUpdate', this.view === 'notebook' && this.current ? { id: this.current.id, page: ed.pageIndex, at: Date.now() } : { at: Date.now() }); } catch (e) {}
+        this.toast('Updating Inkleaf…', 1500);
+        setTimeout(() => location.reload(), 350);
+      };
+      if (idle()) { go(); return; }
+      const t = setInterval(() => { if (idle()) { clearInterval(t); go(); } }, 1200);
+    },
+    async resumeAfterUpdate() {
+      let r = null; try { r = await IL.db.kvGet('resumeAfterUpdate', null); if (r) await IL.db.kvSet('resumeAfterUpdate', null); } catch (e) {}
+      if (!r || Date.now() - (r.at || 0) > 120000) return;
+      this.toast('Inkleaf was updated to the latest version.', 2600);
+      const nb = r.id && this.notebooks.find(n => n.id === r.id); if (!nb) return;
+      try { nb.lastPage = r.page || 0; await this.openNotebook(nb, null); } catch (e) {}
     },
 
     showView(name) {

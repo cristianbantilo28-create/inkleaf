@@ -1,5 +1,5 @@
 /* Inkleaf service worker: caches the app shell so it opens offline, and keeps fonts once they have been seen. */
-const VERSION = 'inkleaf-v1.7.3';
+const VERSION = 'inkleaf-v1.8.0';
 const SHELL = [
   './', './index.html', './manifest.webmanifest', './css/app.css',
   './js/db.js', './js/stickers.js', './js/hwr.js', './js/hwrclient.js', './js/lexicon.js', './js/crnn.js', './js/crnn-wasm.js', './js/crnn-weights.js', './js/transform.js', './js/cover.js', './js/editor.js', './js/bookopen.js', './js/paper.js', './js/search.js', './js/lock.js', './js/app.js',

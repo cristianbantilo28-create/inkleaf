@@ -47,7 +47,44 @@
       this.renderHome(); this.showView('home');
       this.setupInstall(); this.setupAutoLock();
       setTimeout(() => this.gcBlobs(), 6000);
-      if ('serviceWorker' in navigator && !window.__INKLEAF_NO_SW) navigator.serviceWorker.register('./sw.js').catch(() => {});
+      this.setupUpdates();
+      await this.resumeAfterUpdate();
+    },
+    /* ---------- updates: a new version pushed to the site takes over as soon as it is downloaded ----------
+       The service worker installs the new files and claims the page; we then restart the app at the first quiet moment
+       (not mid-stroke, not mid-animation), reopening the same notebook and page. The app also looks for updates whenever
+       it comes back to the foreground and every quarter of an hour while open. */
+    setupUpdates() {
+      if (!('serviceWorker' in navigator) || window.__INKLEAF_NO_SW) return;
+      let hadController = !!navigator.serviceWorker.controller;
+      navigator.serviceWorker.addEventListener('controllerchange', () => { if (!hadController) { hadController = true; return; } this.restartWhenIdle(); });
+      navigator.serviceWorker.register('./sw.js').then(reg => {
+        this.swReg = reg;
+        const check = () => { try { reg.update().catch(() => {}); } catch (e) {} };
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
+        window.addEventListener('online', check);
+        setInterval(check, 15 * 60 * 1000);
+      }).catch(() => {});
+    },
+    restartWhenIdle() {
+      if (this._restarting) return; this._restarting = true;
+      const ed = this.editor;
+      const idle = () => !(ed && (ed.live || ed.erase || ed.lassoDraw || ed.lassoDrag || ed.flip)) && !this.opening && !document.querySelector('.bookopen') && !(document.activeElement && document.activeElement.classList.contains('row'));
+      const go = async () => {
+        try { if (ed) await ed.flush(); } catch (e) {}
+        try { await IL.db.kvSet('resumeAfterUpdate', this.view === 'notebook' && this.current ? { id: this.current.id, page: ed.pageIndex, at: Date.now() } : { at: Date.now() }); } catch (e) {}
+        this.toast('Updating Inkleaf…', 1500);
+        setTimeout(() => location.reload(), 350);
+      };
+      if (idle()) { go(); return; }
+      const t = setInterval(() => { if (idle()) { clearInterval(t); go(); } }, 1200);
+    },
+    async resumeAfterUpdate() {
+      let r = null; try { r = await IL.db.kvGet('resumeAfterUpdate', null); if (r) await IL.db.kvSet('resumeAfterUpdate', null); } catch (e) {}
+      if (!r || Date.now() - (r.at || 0) > 120000) return;
+      this.toast('Inkleaf was updated to the latest version.', 2600);
+      const nb = r.id && this.notebooks.find(n => n.id === r.id); if (!nb) return;
+      try { nb.lastPage = r.page || 0; await this.openNotebook(nb, null); } catch (e) {}
     },
 
     showView(name) {

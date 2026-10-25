@@ -21,6 +21,8 @@
   ];
   const PATTERNS = [['none', 'Plain'], ['dots', 'Dots'], ['grid', 'Grid'], ['stripes', 'Stripes'], ['checks', 'Checks'], ['waves', 'Waves'], ['confetti', 'Confetti']];
   const SPINES = [['rings', 'Spiral rings'], ['band', 'Cloth spine'], ['stitch', 'Stitched'], ['none', 'None']];
+  const MATERIALS = [['none', 'Standard'], ['leather', 'Leather']];
+  const CLASPS = [['none', 'None'], ['magnet', 'Magnetic strap'], ['lock', 'Key lock']];
   const TITLE_FONTS = [['Fraunces', "'Fraunces', Georgia, serif"], ['Figtree', "'Figtree', system-ui, sans-serif"], ['Caveat', "'Caveat', cursive"], ['Patrick Hand', "'Patrick Hand', cursive"], ['Kalam', "'Kalam', cursive"], ['Gloria Hallelujah', "'Gloria Hallelujah', cursive"], ['Homemade Apple', "'Homemade Apple', cursive"], ['Lora', "'Lora', Georgia, serif"], ['Courier Prime', "'Courier Prime', monospace"]];
   const TITLE_COLORS = ['#FFFFFF', '#F3E9C8', '#1B1F2A', '#2D4FC9', '#E63946', '#F6B93B', '#3CCB92', '#FF6B9D'];
   const LAYOUTS = [['free', 'Free'], ['full', 'Whole cover'], ['top', 'Top half'], ['bottom', 'Bottom half'], ['left', 'Left half'], ['right', 'Right half']];
@@ -47,7 +49,7 @@
   function defaultCover(title) {
     const theme = THEMES[Math.floor(Math.random() * THEMES.length)];
     return {
-      theme: theme.id, color: '#2d4fc9', pattern: 'none', spine: 'rings', showTitle: true,
+      theme: theme.id, color: '#2d4fc9', pattern: 'none', spine: 'rings', material: 'none', clasp: 'none', showTitle: true,
       elements: [{ id: IL.uid(), type: 'text', role: 'title', text: title || 'Untitled', font: 'Fraunces', color: theme.title, x: 48, y: 150, w: 220, fs: 30, rot: 0, align: 'center' }]
     };
   }
@@ -64,13 +66,25 @@
     el.style.background = bgFor(cover);
     el.innerHTML = '';
     const pat = document.createElement('div'); pat.className = 'cover-pattern ' + (cover.pattern || 'none'); el.appendChild(pat);
-    const sheen = document.createElement('div'); sheen.className = 'cover-sheen'; el.appendChild(sheen);
+    if (cover.material && cover.material !== 'none') { const mat = document.createElement('div'); mat.className = 'cover-material ' + cover.material; el.appendChild(mat); }
+    const sheen = document.createElement('div'); sheen.className = 'cover-sheen' + (cover.material === 'leather' ? ' matte' : ''); el.appendChild(sheen);
     for (const e of cover.elements || []) {
       if (e.type === 'text' && e.role === 'title' && cover.showTitle === false) continue;
       el.appendChild(renderElement(e));
     }
     const spine = document.createElement('div'); spine.className = 'cover-spine ' + (cover.spine || 'none'); el.appendChild(spine);
+    if (cover.clasp && cover.clasp !== 'none') el.appendChild(renderClasp(cover));
     return el;
+  }
+  /* The closure on the fore-edge: a magnetic strap (leather tab with a steel stud) or a diary lock (strap with a steel
+     tongue into a lock plate with a keyhole). The strap takes a darker shade of the cover's own colour. */
+  function renderClasp(cover) {
+    const rgb = tintOf(cover); const dark = mix(rgb, [0, 0, 0], 0.62), mid = mix(rgb, [0, 0, 0], 0.45), light = mix(rgb, [255, 255, 255], 0.08);
+    const strapBg = `linear-gradient(180deg, ${light} 0%, ${mid} 18%, ${dark} 62%, ${mid} 100%)`;
+    const node = document.createElement('div'); node.className = 'cover-clasp c-' + cover.clasp;   // (not plain "lock": that is the lock screen's class)
+    if (cover.clasp === 'magnet') node.innerHTML = `<div class="strap" style="background:${strapBg}"><div class="stud"></div></div>`;
+    else node.innerHTML = `<div class="lockplate"><div class="keyhole"></div></div><div class="hasp" style="background:${strapBg}"><div class="tongue"></div></div>`;
+    return node;
   }
   function applyElementStyle(node, e) {
     node.style.left = (e.x / CW * 100) + '%'; node.style.top = (e.y / CH * 100) + '%';
@@ -146,6 +160,10 @@
       PATTERNS.forEach(([id, name]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.pattern = id; b.textContent = name; b.addEventListener('click', () => { this.cover.pattern = id; this.paint(); this.saveSoon(); }); pr.appendChild(b); });
       const sr = document.getElementById('spine-row');
       SPINES.forEach(([id, name]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.spine = id; b.textContent = name; b.addEventListener('click', () => { this.cover.spine = id; this.paint(); this.saveSoon(); }); sr.appendChild(b); });
+      const mr = document.getElementById('material-row');
+      MATERIALS.forEach(([id, name]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.material = id; b.textContent = name; b.addEventListener('click', () => { this.cover.material = id; this.paint(); this.saveSoon(); }); mr.appendChild(b); });
+      const cr = document.getElementById('clasp-row');
+      CLASPS.forEach(([id, name]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.clasp = id; b.textContent = name; b.addEventListener('click', () => { this.cover.clasp = id; this.paint(); this.saveSoon(); }); cr.appendChild(b); });
       // stickers
       const cats = document.getElementById('sticker-cats');
       IL.stickers.categories.forEach((c, i) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (i === 0 ? ' is-active' : ''); b.dataset.cat = c.id; b.textContent = c.name; b.addEventListener('click', () => this.showStickers(c.id)); cats.appendChild(b); });
@@ -205,6 +223,8 @@
       document.querySelectorAll('#theme-grid .swatch').forEach(b => b.classList.toggle('is-active', b.dataset.theme === this.cover.theme));
       document.querySelectorAll('#pattern-row .chip').forEach(b => b.classList.toggle('is-active', b.dataset.pattern === (this.cover.pattern || 'none')));
       document.querySelectorAll('#spine-row .chip').forEach(b => b.classList.toggle('is-active', b.dataset.spine === (this.cover.spine || 'none')));
+      document.querySelectorAll('#material-row .chip').forEach(b => b.classList.toggle('is-active', b.dataset.material === (this.cover.material || 'none')));
+      document.querySelectorAll('#clasp-row .chip').forEach(b => b.classList.toggle('is-active', b.dataset.clasp === (this.cover.clasp || 'none')));
       const t = this.titleEl();
       document.querySelectorAll('#title-fonts .font-opt').forEach(b => b.classList.toggle('is-active', !!t && b.dataset.font === t.font));
       document.querySelectorAll('#title-colors .color-dot').forEach(b => b.classList.toggle('is-active', !!t && b.dataset.color.toLowerCase() === (t.color || '').toLowerCase()));
@@ -268,5 +288,5 @@
     async finish() { clearTimeout(this._t); this.tf.select(null); await this.app.saveNotebook(this.nb); const cb = this.onDone; this.onDone = null; cb && cb(); }
   }
 
-  IL.cover = { THEMES, PATTERNS, SPINES, TITLE_FONTS, LAYOUTS, FILTERS, MASKS, CW, CH, defaultCover, render, bgFor, tintOf, applyLayout, Editor: CoverEditor };
+  IL.cover = { THEMES, PATTERNS, SPINES, MATERIALS, CLASPS, TITLE_FONTS, LAYOUTS, FILTERS, MASKS, CW, CH, defaultCover, render, bgFor, tintOf, applyLayout, Editor: CoverEditor };
 })();
