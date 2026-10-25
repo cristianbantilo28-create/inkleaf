@@ -581,7 +581,7 @@
       try { this.pageEl.setPointerCapture(e.pointerId); } catch (err) {}
       const erasing = tool === 'eraser' || (e.pointerType === 'pen' && (e.buttons & 32));
       const [x, y] = this.pagePoint(e);
-      this.area && this.area.classList.add('is-writing');
+      if (this.area) { clearTimeout(this._writingT); this.area.classList.add('is-writing'); }
       if (erasing) { this.erase = { id: e.pointerId, removed: [] }; this.eraseAt(x, y); return; }
       const hl = tool === 'hl';
       const stroke = hl ? { kind: 'hl', pts: [[x, y, 0.5, 0]], color: this.hlColor, width: this.L * 0.6, at: 0 } : { pts: [[x, y, e.pressure || 0.5, 0]], color: this.penColor, width: this.penWidth, pen: this.penStyle, at: 0 };
@@ -605,9 +605,9 @@
       if (st.pts.length > this.live.drawn) { if (st.kind === 'hl') { this.redraw(); } else { const ctx = this.ctx; ctx.setTransform(this.s * this.dpr, 0, 0, this.s * this.dpr, 0, 0); drawStroke(ctx, st, Math.max(1, this.live.drawn - 1)); } this.live.drawn = st.pts.length; }
     }
     onPointerUp(e) {
-      if (this.area && !this.touches.size) this.area.classList.remove('is-writing');
       if (e.pointerType === 'touch') { this.touches.delete(e.pointerId); if (this.pinch && this.touches.size < 2) { this.endPinch(); } }
       if (e.pointerType === 'pen') this.penActive = false;
+      this.writingDone(e.pointerId);
       if ((this.lassoDraw && e.pointerId === this.lassoDraw.id) || (this.lassoDrag && e.pointerId === this.lassoDrag.id)) { this.lassoUp(e); return; }
       if (this.pan && e.pointerId === this.pan.id) { this.pan = null; return; }
       if (this.erase && e.pointerId === this.erase.id) {
@@ -629,7 +629,16 @@
       if (st.kind !== 'hl' && this.editGesture(st)) return;
       this.liveStroke(st);
     }
-    cancelStroke() { this.live = null; this.redraw(); }
+    cancelStroke() { this.live = null; this.redraw(); this.writingDone(); }
+    /* the pointer that was drawing or erasing is up: the floating Enter button comes back a moment after the pen lifts
+       (so it does not flicker between the strokes of a word, and it is there as soon as the hand pauses) */
+    writingDone(pointerId, delay) {
+      clearTimeout(this._writingT);
+      this._writingT = setTimeout(() => {
+        const busy = (this.live && this.live.id !== pointerId) || (this.erase && this.erase.id !== pointerId);
+        if (!busy && this.area) this.area.classList.remove('is-writing');
+      }, delay == null ? 280 : delay);
+    }
     eraseAt(x, y) {
       const r = 11 / Math.sqrt(this.s) + 4; const strokes = this.page.strokes; let hit = false;
       if (this.erase.mode !== 'text') {
@@ -1586,6 +1595,10 @@
         else if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && !inRow && !(document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName))) { e.preventDefault(); this.turnPage(e.key === 'ArrowRight' ? 1 : -1); }
       });
       document.addEventListener('visibilitychange', () => { if (document.hidden) this.flush(); });
+      // pointers whose up/cancel never reaches the page (finger slid off it, palm, system gestures): forget them, show Enter again
+      const stray = e => { if (e.pointerType === 'touch') this.touches.delete(e.pointerId); if (!this.live && !this.erase && this.area && this.area.classList.contains('is-writing')) this.writingDone(e.pointerId); };
+      window.addEventListener('pointerup', stray, true); window.addEventListener('pointercancel', stray, true);
+      window.addEventListener('blur', () => { this.touches.clear(); if (!this.live && !this.erase) this.writingDone(); });
     }
 
     /* ---------- persistence ---------- */

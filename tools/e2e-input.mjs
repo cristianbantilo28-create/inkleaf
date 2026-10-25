@@ -119,8 +119,18 @@ await step('ENTER button: hidden while the pen is down, moves to the next line',
   await cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: x + 20, y: y + 5, button: 'left', buttons: 1, pointerType: 'pen', force: 0.5 });
   const during = await ev(() => document.getElementById('page-area').classList.contains('is-writing')); 
   await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: x + 20, y: y + 5, button: 'left', buttons: 0, clickCount: 1, pointerType: 'pen' });
+  const justAfter = await ev(() => document.getElementById('page-area').classList.contains('is-writing')); await sleep(450);
   const after = await ev(() => document.getElementById('page-area').classList.contains('is-writing'));
-  log('      is-writing during/after:', during, after); if (!during || after) throw new Error('enter button visibility while writing');
+  log('      is-writing during/just after/0.4 s later:', during, justAfter, after); if (!during || after) throw new Error('enter button visibility while writing');
+  // a finger whose lift never reaches the page (slid off it) must not keep the button hidden
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x + 100, y, id: 7 }] });
+  await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x, y: y + 60, button: 'left', buttons: 1, clickCount: 1, pointerType: 'pen', force: 0.5 });
+  await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: x + 10, y: y + 62, button: 'left', buttons: 0, clickCount: 1, pointerType: 'pen' });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await sleep(450);
+  if (await ev(() => document.getElementById('page-area').classList.contains('is-writing'))) throw new Error('enter button stayed hidden after a stray touch');
+  log('      input state after stray touch:', JSON.stringify(await ev(() => { const ed = IL.app.editor; return { touches: ed.touches.size, pan: !!ed.pan, pinch: !!ed.pinch, live: !!ed.live, strokes: ed.page.strokes.length }; })));
+  for (let i = 0; i < 3 && (await ev(() => IL.app.editor.page.strokes.length)) > 0; i++) { await page.click('#undo-btn'); await sleep(100); }
+  if ((await ev(() => IL.app.editor.page.strokes.length)) !== 0 || (await ev(() => IL.app.editor.touches.size)) !== 0) throw new Error('left-over state after the Enter test');
   await page.click('#undo-btn'); await sleep(100);
   await page.click('#enter-btn'); await sleep(300);
   if ((await ev(() => IL.app.editor.caret.row)) !== 1) throw new Error('caret did not move to line 2: ' + (await ev(() => IL.app.editor.caret.row)));
