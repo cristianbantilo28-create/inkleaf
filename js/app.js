@@ -4,7 +4,7 @@
   const $ = id => document.getElementById(id);
   const relTime = t => { const d = Date.now() - t; const m = Math.round(d / 6e4); if (m < 1) return 'just now'; if (m < 60) return m + ' min ago'; const h = Math.round(m / 60); if (h < 24) return h + ' h ago'; const days = Math.round(h / 24); if (days < 7) return days + ' d ago'; return new Date(t).toLocaleDateString(); };
 
-  const APP_VERSION = '1.8.1';   // keep in step with VERSION in sw.js (tools/build.mjs checks)
+  const APP_VERSION = '1.8.2';   // keep in step with VERSION in sw.js (tools/build.mjs checks)
   const app = {
     get version() { return APP_VERSION; },
     settings: { live: true, autoDelay: 1.2, fingerDraws: true, penSeen: false, engine: 'inkleaf', spread: true, pageSound: true, theme: 'light' },

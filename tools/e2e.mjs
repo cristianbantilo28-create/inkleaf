@@ -3,14 +3,18 @@ import pw from '/opt/npm-tools/node_modules/playwright/index.js'; const { chromi
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import { netlifyHeaders, FAKE_BADGE } from './headers.mjs';
 
 const root = path.resolve(new URL('..', import.meta.url).pathname);
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.webmanifest': 'application/manifest+json', '.json': 'application/json' };
+const headersFor = netlifyHeaders(root);
 const server = http.createServer((req, res) => {
   let p = decodeURIComponent(req.url.split('?')[0]); if (p === '/') p = '/index.html';
   const f = path.join(root, p);
   if (!f.startsWith(root) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); res.end(); return; }
-  res.writeHead(200, { 'content-type': types[path.extname(f)] || 'application/octet-stream' }); res.end(fs.readFileSync(f));
+  // served as Netlify serves it: with the headers from netlify.toml and, on the app page, the injected badge script
+  let body = fs.readFileSync(f); if (p === '/index.html') body = Buffer.from(body.toString().replace('</body>', FAKE_BADGE + '\n</body>'));
+  res.writeHead(200, { 'content-type': types[path.extname(f)] || 'application/octet-stream', ...headersFor(p) }); res.end(body);
 });
 await new Promise(r => server.listen(0, r));
 const port = server.address().port;
@@ -32,6 +36,13 @@ await page.goto(target, { waitUntil: 'domcontentloaded', timeout: 20000 }); cons
 await page.waitForTimeout(600);
 
 await step('first-run lock screen shows', async () => { await page.waitForSelector('#view-lock:not([hidden])', { timeout: 5000 }); });
+if (!/artifact/.test(target)) await step('content-security-policy: injected badge script is refused, own scripts run', async () => {
+  const r = await page.evaluate(() => ({ badge: !!window.__netlifyBadge || !!document.getElementById('netlify-badge'), theme: document.documentElement.getAttribute('data-theme'), app: !!(window.IL && IL.app) }));
+  if (r.badge) throw new Error('the injected badge script ran');
+  if (r.theme !== 'light' || !r.app) throw new Error('own scripts blocked: ' + JSON.stringify(r));
+  const refused = errors.filter(e => /Refused to execute inline script|Executing inline script violates/.test(e)); if (refused.length !== 1) throw new Error('expected exactly one refused inline script, saw ' + refused.length);
+  errors.splice(errors.indexOf(refused[0]), 1);   // the expected refusal is not a problem to report
+});
 await step('set a PIN 1234 and confirm', async () => {
   await page.click('#lock-setup-start');
   for (const k of '1234') await page.click(`#pin-pad [data-k="${k}"]`);

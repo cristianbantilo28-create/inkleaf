@@ -3,16 +3,20 @@ import pw from '/opt/npm-tools/node_modules/playwright/index.js';
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import { netlifyHeaders, FAKE_BADGE } from './headers.mjs';
 import os from 'node:os';
 const { chromium } = pw;
 
 const root = path.resolve(new URL('..', import.meta.url).pathname);
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.webmanifest': 'application/manifest+json', '.json': 'application/json' };
+const headersFor = netlifyHeaders(root);
 const server = http.createServer((req, res) => {
   let p = decodeURIComponent(req.url.split('?')[0]); if (p === '/') p = '/index.html';
   const f = path.join(root, p);
   if (!f.startsWith(root) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); res.end(); return; }
-  res.writeHead(200, { 'content-type': types[path.extname(f)] || 'application/octet-stream' }); res.end(fs.readFileSync(f));
+  // served as Netlify serves it: with the headers from netlify.toml and, on the app page, the injected badge script
+  let body = fs.readFileSync(f); if (p === '/index.html') body = Buffer.from(body.toString().replace('</body>', FAKE_BADGE + '\n</body>'));
+  res.writeHead(200, { 'content-type': types[path.extname(f)] || 'application/octet-stream', ...headersFor(p) }); res.end(body);
 });
 await new Promise(r => server.listen(0, r));
 const url = `http://localhost:${server.address().port}/index.html`;
@@ -23,7 +27,7 @@ const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 900, height: 1300 }, hasTouch: true, deviceScaleFactor: 2 });
 const page = await ctx.newPage(); page.setDefaultTimeout(8000);
 const errors = [];
-page.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') { const t = m.text(); if (!/ERR_FAILED|fonts\.|GL Driver Message/.test(t)) errors.push(`[${m.type()}] ${t}`); } });
+page.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') { const t = m.text(); if (!/ERR_FAILED|fonts\.|GL Driver Message|Refused to execute inline script|Executing inline script violates/.test(t)) errors.push(`[${m.type()}] ${t}`); } });
 page.on('pageerror', e => errors.push('[pageerror] ' + e.message + '\n' + (e.stack || '').split('\n').slice(0, 3).join('\n')));
 await page.route(/fonts\.(googleapis|gstatic)\.com/, r => r.abort());
 const cdp = await ctx.newCDPSession(page);

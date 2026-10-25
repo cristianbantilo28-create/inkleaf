@@ -4640,7 +4640,7 @@ window.__INKLEAF_NO_SW = true;
       const target = this.turnTarget(dir);
       if (target == null) { this.app.toast(dir > 0 ? 'Last page. Use "Add page" for a new one.' : 'This is the first page.'); return; }
       e.preventDefault(); const z = this.zones[dir]; try { z.setPointerCapture(e.pointerId); } catch (err) {}
-      z.classList.add('is-active'); if (IL.paperSound && this.app.settings.pageSound !== false) IL.paperSound.ensure();
+      z.classList.add('is-active'); if (IL.paperSound && this.app.settings.pageSound !== false && IL.paperSound.ensure()) IL.paperSound.lift();
       const now = e.timeStamp || performance.now();
       const f = { dir, target, zone: dir, pointerId: e.pointerId, x0: e.clientX, p0: 0, t0: now, progress: 0, velocity: 0, goal: null, width: this.area.clientWidth, lastX: e.clientX, lastT: now, vx: 0, ready: false, grabbed: false };
       this.flip = f; this.flipBusy = true;
@@ -4653,7 +4653,7 @@ window.__INKLEAF_NO_SW = true;
       const raw = f.p0 + (-dx * f.dir) / (f.width * 0.55);
       f.progress = raw < 0 ? raw * 0.15 : raw > 1 ? 1 + (raw - 1) * 0.15 : raw;     // rubber-banding past the ends
       if (f.ready) this.setFlipProgress(Math.max(0, Math.min(1, f.progress)));
-      if (IL.paperSound && this.app.settings.pageSound !== false) IL.paperSound.slide(Math.abs(f.vx) / 1.4);
+      if (IL.paperSound && this.app.settings.pageSound !== false) IL.paperSound.slide(Math.abs(f.vx) / 1.8);
     }
     flipUp(e, cancelled) {
       const f = this.flip; if (!f || e.pointerId !== f.pointerId) return;
@@ -4670,14 +4670,14 @@ window.__INKLEAF_NO_SW = true;
       const f = this.flip; if (!f || f.looping) return;
       f.looping = true; let last = performance.now(); const snd = IL.paperSound;
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const k = 1.95e-4, c = 0.0251;                                   // ~450 ms period, damping ratio 0.9: a quick fall with a soft settle
+      const k = 1.6e-4, c = 0.0262;                                    // ~500 ms period, damping ratio ~1.04: a graceful fall that settles without a bounce
       const tick = () => {
         if (this.flip !== f) { f.looping = false; return; }
         const now = performance.now(); let dt = Math.min(120, now - last); last = now;   // slow frames (weak GPUs) still advance the physics at real speed
         if (f.pointerId == null && f.goal != null) {
           if (reduce) { f.progress = f.goal; }
           else { const n = Math.max(1, Math.ceil(dt / 8)), h = dt / n; for (let i = 0; i < n; i++) { const a = -k * (f.progress - f.goal) - c * f.velocity; f.velocity += a * h; f.progress += f.velocity * h; } }
-          if (snd && this.app.settings.pageSound !== false) snd.slide(Math.abs(f.velocity) * 900);
+          if (snd && this.app.settings.pageSound !== false) snd.slide(Math.abs(f.velocity) * 700);
           if (Math.abs(f.progress - f.goal) < 0.002 && Math.abs(f.velocity) < 0.0002 || reduce) {
             f.progress = f.goal; this.setFlipProgress(f.progress); f.looping = false;
             this.endFlip(f.goal === 1 ? f.target : null).finally(() => { this.flipBusy = false; }); return;
@@ -4700,7 +4700,7 @@ window.__INKLEAF_NO_SW = true;
           vec2 p = aPos * uQuadSize + (uQuadOff - uOff);                 /* position in the frame of the turning sheet */
           vec3 pos = vec3(p, 0.0); vec3 nrm = vec3(0.0, 0.0, 1.0);
           vec2 tdir = vec2(-uN.y, uN.x); float along = clamp((dot(p, tdir) - uTmin) / max(1.0, uTmax - uTmin), 0.0, 1.0);
-          float R = uR * mix(1.3, 0.78, along); vR = R;                 /* a cone: tighter toward the corner that peels first */
+          float R = uR * mix(1.18, 0.86, along); vR = R;                /* a gentle cone: only a little tighter toward the corner that peels first */
           float d = dot(p, uN) - uA; vD = d;
           if (uIsUnder < 0.5 && d > 0.0) { float t = d / R;
             if (t < 3.14159265) { float s = sin(t), c = cos(t); pos = vec3(p - uN * d + uN * (R * s), R * (1.0 - c)); nrm = vec3(-uN * s, c); }
@@ -4718,29 +4718,30 @@ window.__INKLEAF_NO_SW = true;
           float g1 = texture2D(uNoise, vP / 96.0).r, g2 = texture2D(uNoise, vP / 23.0 + 0.37).r; float grain = g1 * 0.6 + g2 * 0.4;   /* paper fibre */
           if (vIsUnder > 0.5) {
             vec3 c = texture2D(uTex, vUV).rgb;
-            float lift = clamp(vD / (1.6 * vR), 0.0, 1.0); float w = mix(0.1, 0.9, lift) * vR;                         /* contact-hardening: sharp at the fold, soft where the sheet is high */
-            float arch = (1.0 - smoothstep(0.0, 2.1 * vR, vD)) * smoothstep(-0.5 * w, 0.04 * vR, vD);
-            float over = smoothstep(PI * vR - 0.55 * vR, PI * vR + 0.1 * vR, vD);                                      /* under the part lying over */
-            float ao = 0.3 * arch + 0.1 * over;
-            float gutter = uSpread > 0.5 ? 0.16 * exp(-abs(vP.x) / (0.06 * vFrameW)) : 0.0;                                /* the spine's own shadow */
-            gl_FragColor = vec4(c * (1.0 - ao * settle) * (1.0 - gutter), 1.0);
+            float lift = clamp(vD / (1.6 * vR), 0.0, 1.0); float w = mix(0.35, 1.4, lift) * vR;                        /* contact-hardening, but soft-edged everywhere: a little crisper at the fold, wide where the sheet is high */
+            float arch = (1.0 - smoothstep(0.0, 2.4 * vR, vD)) * smoothstep(-0.6 * w, 0.08 * vR, vD);
+            float over = smoothstep(PI * vR - 0.8 * vR, PI * vR + 0.2 * vR, vD);                                       /* under the part lying over */
+            float ao = (0.17 * arch + 0.05 * over) * settle;                                                           /* never more than ~22% */
+            float gutter = uSpread > 0.5 ? 0.09 * exp(-abs(vP.x) / (0.07 * vFrameW)) : 0.0;                                /* the spine's own shadow */
+            vec3 charcoal = vec3(0.11, 0.11, 0.13);
+            gl_FragColor = vec4(mix(c, charcoal, ao) * (1.0 - gutter), 1.0);
           } else {
             float fade = uSpread > 0.5 ? 1.0 : smoothstep(-60.0, -6.0, vSX);                                             /* a single page dissolves past the spine */
             if (fade <= 0.002) discard;
             vec3 n = normalize(normalize(vNrm) + vec3((grain - 0.5) * 0.07, (g2 - 0.5) * 0.07, 0.0));                  /* fibre micro-normals catch the sheen */
-            float diff = max(dot(n, L), 0.0); float spec = pow(max(dot(reflect(-L, n), V), 0.0), 24.0) * (0.55 + 0.45 * grain);
+            float diff = max(dot(n, L), 0.0); float spec = pow(max(dot(reflect(-L, n), V), 0.0), 10.0) * (0.7 + 0.3 * grain);   /* broad, matte */
             float lift = clamp(vZ / (vR + 1.0), 0.0, 1.0);
-            float edge = (smoothstep(0.992, 1.0, vUV.x) + smoothstep(0.995, 1.0, vUV.y) + smoothstep(0.995, 1.0, 1.0 - vUV.y)) * lift * 0.16;  /* the paper's thickness */
+            float edge = (smoothstep(0.992, 1.0, vUV.x) + smoothstep(0.995, 1.0, vUV.y) + smoothstep(0.995, 1.0, 1.0 - vUV.y)) * lift * 0.09;  /* the paper's thickness */
             float tone = 0.985 + 0.03 * grain;
             bool front = gl_FrontFacing != (vMirror > 0.5);
             vec3 col;
-            if (front) { vec3 c = texture2D(uTex, vUV).rgb; float light = min(1.05, 0.60 + 0.40 * diff / flatDiff); col = c * light * tone + spec * 0.07 + edge; }
+            if (front) { vec3 c = texture2D(uTex, vUV).rgb; float light = min(1.03, 0.76 + 0.24 * diff / flatDiff); col = mix(c * light * tone, vec3(1.0), spec * 0.12) + edge; }   /* soft-light sheen, 12% at most */
             else {
-              float diffB = max(dot(-n, L), 0.0); float trans = max(dot(n, L), 0.0) * 0.16;                            /* light coming through the paper */
+              float diffB = max(dot(-n, L), 0.0); float trans = max(dot(n, L), 0.0) * 0.10;                            /* light coming through the paper */
               float lum = dot(texture2D(uTex, vUV).rgb, vec3(0.3, 0.59, 0.11));
-              float light = min(1.05, 0.62 + 0.38 * diffB / flatDiff) + trans;
-              if (uHasBack > 0.5) { vec3 c = texture2D(uTexBack, vec2(1.0 - vUV.x, vUV.y)).rgb; col = (c - (1.0 - lum) * 0.06) * light * tone + spec * 0.05 + edge; }
-              else { vec3 back = vec3(0.962, 0.952, 0.93); float line = step(0.965, fract(vUV.y * uRows)) * 0.05; col = (back - line - (1.0 - lum) * 0.10) * light * tone + spec * 0.04 + edge; } }
+              float light = min(1.03, 0.76 + 0.24 * diffB / flatDiff) + trans;
+              if (uHasBack > 0.5) { vec3 c = texture2D(uTexBack, vec2(1.0 - vUV.x, vUV.y)).rgb; col = mix((c - (1.0 - lum) * 0.05) * light * tone, vec3(1.0), spec * 0.08) + edge; }
+              else { vec3 back = vec3(0.962, 0.952, 0.93); float line = step(0.965, fract(vUV.y * uRows)) * 0.05; col = mix((back - line - (1.0 - lum) * 0.08) * light * tone, vec3(1.0), spec * 0.07) + edge; } }
             gl_FragColor = vec4(col * fade, fade); } }`;
       const sh = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) { console.warn(gl.getShaderInfoLog(o)); return null; } return o; };
       const prog = gl.createProgram(); const v = sh(gl.VERTEX_SHADER, VS), f = sh(gl.FRAGMENT_SHADER, FS);
@@ -4821,16 +4822,16 @@ window.__INKLEAF_NO_SW = true;
       const extents = n => { const corners = [[0, 0], [W, 0], [0, H], [W, H]]; const dots = corners.map(c => c[0] * n[0] + c[1] * n[1]); const tdir = [-n[1], n[0]]; const ts = corners.map(c => c[0] * tdir[0] + c[1] * tdir[1]); return { dmax: Math.max(...dots), dmin: Math.min(...dots), tmin: Math.min(...ts), tmax: Math.max(...ts) }; };
       if (fp.spread) {
         phi = 0.30 * Math.pow(1 - q, 1.4);                              // lifts from the lower corner, lands square on the spine
-        R = W * (0.25 * Math.pow(Math.sin(Math.PI * q), 0.8) + 0.004);  // opens up mid-flight, flattens out to land
+        R = W * (0.34 * Math.pow(Math.sin(Math.PI * q), 0.7) + 0.006);  // a wide, sweeping arc that opens mid-flight and flattens out to land
       } else {
-        phi = 0.26 - 0.16 * q; R = W * (0.23 - 0.09 * q);
+        phi = 0.26 - 0.16 * q; R = W * (0.30 - 0.10 * q);
       }
       const n = n0(phi); const ex = extents(n);
       A = fp.spread ? ex.dmax - q * (ex.dmax + Math.PI * R / 2) : ex.dmax - q * (ex.dmax - ex.dmin + Math.PI * R * 1.3);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.uniform2f(u.uArea, fp.area[0], fp.area[1]); gl.uniform2f(u.uOff, fp.off[0], fp.off[1]); gl.uniform2f(u.uSize, W, H);
       gl.uniform2f(u.uN, n[0], n[1]); gl.uniform1f(u.uA, A); gl.uniform1f(u.uR, R); gl.uniform1f(u.uF, 4.2 * Math.max(W, H)); gl.uniform1f(u.uRows, fp.rows); gl.uniform1f(u.uTmin, ex.tmin); gl.uniform1f(u.uTmax, ex.tmax); gl.uniform1f(u.uQ, q);
-      gl.uniform1f(u.uMirror, fp.mirror ? 1 : 0); gl.uniform1f(u.uSpineX, fp.spineX); gl.uniform1f(u.uSag, fp.spread ? 0.028 * H : 0.012 * H); gl.uniform1f(u.uSpread, fp.spread ? 1 : 0); gl.uniform1f(u.uHasBack, fp.hasBack ? 1 : 0);
+      gl.uniform1f(u.uMirror, fp.mirror ? 1 : 0); gl.uniform1f(u.uSpineX, fp.spineX); gl.uniform1f(u.uSag, fp.spread ? 0.016 * H : 0.007 * H); gl.uniform1f(u.uSpread, fp.spread ? 1 : 0); gl.uniform1f(u.uHasBack, fp.hasBack ? 1 : 0);
       gl.uniform1i(u.uTex, 0); gl.uniform1i(u.uTexBack, 1); gl.uniform1i(u.uNoise, 2);
       gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, texNoise);
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, texBack);
@@ -5092,7 +5093,7 @@ window.__INKLEAF_NO_SW = true;
 (function () {
   const IL = (window.IL = window.IL || {});
   let ctx = null, master = null, hiss = null, hissGain = null, hissFilter = null, grain = null, noiseBuf = null, lastSlide = 0, lastFlap = 0;
-  const MASTER = 0.55;        // overall level: clearly audible on a tablet speaker, never intrusive
+  const MASTER = 0.30;        // overall level: a quiet background cue, well below the app's other sounds
   function noise(ac, seconds) {
     const buf = ac.createBuffer(1, Math.floor(ac.sampleRate * seconds), ac.sampleRate); const d = buf.getChannelData(0);
     let b0 = 0, b1 = 0, b2 = 0;
@@ -5106,40 +5107,53 @@ window.__INKLEAF_NO_SW = true;
     try {
       ctx = new AC(); noiseBuf = noise(ctx, 2);
       // master: tone shaping (no rumble, no harsh top) → soft compressor → volume
-      const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 260; hp.Q.value = 0.7;
-      const shelf = ctx.createBiquadFilter(); shelf.type = 'highshelf'; shelf.frequency.value = 6500; shelf.gain.value = -9;
-      const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -30; comp.knee.value = 18; comp.ratio.value = 3; comp.attack.value = 0.004; comp.release.value = 0.12;
+      const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 170; hp.Q.value = 0.6;            // keep the low-mid warmth, lose rumble
+      const dip = ctx.createBiquadFilter(); dip.type = 'peaking'; dip.frequency.value = 1500; dip.Q.value = 0.9; dip.gain.value = -4;   // no boxy mid resonance
+      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 5500; lp.Q.value = 0.6;             // nothing sharp above 5.5 kHz
+      const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -34; comp.knee.value = 20; comp.ratio.value = 3; comp.attack.value = 0.004; comp.release.value = 0.14;
       master = ctx.createGain(); master.gain.value = MASTER;
-      hp.connect(shelf); shelf.connect(comp); comp.connect(master); master.connect(ctx.destination);
+      hp.connect(dip); dip.connect(lp); lp.connect(comp); comp.connect(master); master.connect(ctx.destination);
       master.input = hp;
       // the sliding whisper: pink noise → band-pass that opens with speed → fibre "grain" (slow random wobble) → gain
       hiss = ctx.createBufferSource(); hiss.buffer = noiseBuf; hiss.loop = true;
-      hissFilter = ctx.createBiquadFilter(); hissFilter.type = 'bandpass'; hissFilter.frequency.value = 1800; hissFilter.Q.value = 0.55;
+      hissFilter = ctx.createBiquadFilter(); hissFilter.type = 'bandpass'; hissFilter.frequency.value = 1300; hissFilter.Q.value = 0.5;
       grain = ctx.createGain(); grain.gain.value = 1;
-      const lfo = ctx.createOscillator(); lfo.type = 'triangle'; lfo.frequency.value = 11; const lfoG = ctx.createGain(); lfoG.gain.value = 0.22; lfo.connect(lfoG); lfoG.connect(grain.gain); lfo.start();
+      const lfo = ctx.createOscillator(); lfo.type = 'triangle'; lfo.frequency.value = 9; const lfoG = ctx.createGain(); lfoG.gain.value = 0.18; lfo.connect(lfoG); lfoG.connect(grain.gain); lfo.start();
       hissGain = ctx.createGain(); hissGain.gain.value = 0;
       hiss.connect(hissFilter); hissFilter.connect(grain); grain.connect(hissGain); hissGain.connect(master.input); hiss.start();
       return true;
     } catch (e) { ctx = null; return false; }
   }
-  /* speed: roughly 0 (still) … 1 (fast swipe). Slow drags are nearly silent; a quick turn gives a short airy sweep. */
+  let pitch = 1;   // ±4% per turn so consecutive turns never sound identical
+  /* speed: roughly 0 (still) … 1 (fast swipe). Slow drags are nearly silent, a medium turn is a soft sweep, and a
+     fast fling is not louder — just shorter. */
   function slide(speed) {
     if (!ctx || !hissGain) return;
     const v = Math.max(0, Math.min(1, speed)); const now = ctx.currentTime;
-    hissGain.gain.setTargetAtTime(Math.pow(v, 1.6) * 0.036, now, v > lastSlide ? 0.03 : 0.09);
-    hissFilter.frequency.setTargetAtTime(1300 + 2200 * v, now, 0.06);
+    const shaped = Math.pow(Math.min(1, v / 0.6), 1.5) * (1 - 0.3 * Math.max(0, v - 0.6) / 0.4);
+    hissGain.gain.setTargetAtTime(shaped * 0.03, now, v > lastSlide ? 0.035 : 0.1);
+    hissFilter.frequency.setTargetAtTime((900 + 1400 * v) * pitch, now, 0.07);
     lastSlide = v;
+  }
+  /* the edge being lifted: a short, very soft rustle at the start of a turn (and a fresh pitch for this turn) */
+  function lift() {
+    if (!ctx) return;
+    pitch = 0.96 + Math.random() * 0.08; const now = ctx.currentTime;
+    const src = ctx.createBufferSource(); src.buffer = noiseBuf; src.playbackRate.value = pitch;
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 0.7; bp.frequency.value = 700 * pitch;
+    const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, now); g.gain.exponentialRampToValueAtTime(0.02, now + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+    src.connect(bp); bp.connect(g); g.connect(master.input); src.start(now, Math.random() * 1.4, 0.2);
   }
   /* the page comes to rest: the whisper fades out and a short, soft "fff" with a faint body plays */
   function flap() {
     if (!ctx) return;
     const now = ctx.currentTime; if (now - lastFlap < 0.08) return; lastFlap = now;
     hissGain.gain.setTargetAtTime(0, now, 0.05); lastSlide = 0;
-    const vary = 0.85 + Math.random() * 0.3;
-    // airy brush of the sheet meeting the page
+    const vary = pitch * (0.97 + Math.random() * 0.06);
+    // airy brush of the sheet meeting the page — one of many slightly different takes
     const src = ctx.createBufferSource(); src.buffer = noiseBuf; src.playbackRate.value = vary;
-    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 0.5; bp.frequency.setValueAtTime(3200 * vary, now); bp.frequency.exponentialRampToValueAtTime(700, now + 0.16);
-    const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, now); g.gain.exponentialRampToValueAtTime(0.062, now + 0.018); g.gain.exponentialRampToValueAtTime(0.014, now + 0.09); g.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 0.45; bp.frequency.setValueAtTime(2200 * vary, now); bp.frequency.exponentialRampToValueAtTime(500, now + 0.18);
+    const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, now); g.gain.exponentialRampToValueAtTime(0.045, now + 0.022); g.gain.exponentialRampToValueAtTime(0.012, now + 0.1); g.gain.exponentialRampToValueAtTime(0.0001, now + 0.26);
     src.connect(bp); bp.connect(g); g.connect(master.input); src.start(now, Math.random() * 1.2, 0.3);
     // the faintest low body — the paper settling, felt more than heard
     const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(120, now); o.frequency.exponentialRampToValueAtTime(65, now + 0.09);
@@ -5149,10 +5163,10 @@ window.__INKLEAF_NO_SW = true;
   /* short foley for the closures: clink = key meeting the lock (bright, tiny), click = the tumblers turning (heavier
      mechanical), snap = a magnet letting go (dull, soft), thud = the cover settling (low, felt more than heard) */
   const FOLEY = {
-    clink: { f: 5200, q: 9, nz: 0.06, nt: 0.035, tone: 2600, tone2: 1900, tg: 0.02, tt: 0.05 },
-    click: { f: 1900, q: 4, nz: 0.10, nt: 0.06, tone: 640, tone2: 380, tg: 0.045, tt: 0.09 },
-    snap:  { f: 1400, q: 2.5, nz: 0.05, nt: 0.07, tone: 240, tone2: 120, tg: 0.03, tt: 0.08 },
-    thud:  { f: 320, q: 0.9, nz: 0.05, nt: 0.12, tone: 95, tone2: 55, tg: 0.04, tt: 0.14 }
+    clink: { f: 4600, q: 8, nz: 0.09, nt: 0.035, tone: 2400, tone2: 1800, tg: 0.03, tt: 0.05 },
+    click: { f: 1900, q: 4, nz: 0.14, nt: 0.06, tone: 640, tone2: 380, tg: 0.065, tt: 0.09 },
+    snap:  { f: 1400, q: 2.5, nz: 0.07, nt: 0.07, tone: 240, tone2: 120, tg: 0.045, tt: 0.08 },
+    thud:  { f: 320, q: 0.9, nz: 0.06, nt: 0.12, tone: 95, tone2: 55, tg: 0.05, tt: 0.14 }
   };
   function tick(kind) {
     if (!ctx) return;
@@ -5170,7 +5184,7 @@ window.__INKLEAF_NO_SW = true;
       o2.connect(g2); g2.connect(master); o2.start(now + 0.045); o2.stop(now + 0.12);
     }
   }
-  IL.paperSound = { ensure, slide, flap, click: () => tick('click'), clink: () => tick('clink'), snap: () => tick('snap'), thud: () => tick('thud'), get ready() { return !!ctx; }, get context() { return ctx; } };
+  IL.paperSound = { ensure, lift, slide, flap, click: () => tick('click'), clink: () => tick('clink'), snap: () => tick('snap'), thud: () => tick('thud'), get ready() { return !!ctx; }, get context() { return ctx; } };
 })();
 
 ;
@@ -5411,7 +5425,7 @@ window.__INKLEAF_NO_SW = true;
   const $ = id => document.getElementById(id);
   const relTime = t => { const d = Date.now() - t; const m = Math.round(d / 6e4); if (m < 1) return 'just now'; if (m < 60) return m + ' min ago'; const h = Math.round(m / 60); if (h < 24) return h + ' h ago'; const days = Math.round(h / 24); if (days < 7) return days + ' d ago'; return new Date(t).toLocaleDateString(); };
 
-  const APP_VERSION = '1.8.1';   // keep in step with VERSION in sw.js (tools/build.mjs checks)
+  const APP_VERSION = '1.8.2';   // keep in step with VERSION in sw.js (tools/build.mjs checks)
   const app = {
     get version() { return APP_VERSION; },
     settings: { live: true, autoDelay: 1.2, fingerDraws: true, penSeen: false, engine: 'inkleaf', spread: true, pageSound: true, theme: 'light' },

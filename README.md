@@ -22,6 +22,8 @@ A PWA has to be served from an `https://` address. Two free ways:
 2. **Finder / File Explorer:** drag the whole `inkleaf` folder onto the drop area in the browser.
 3. **Web browser:** Netlify shows a link like `https://random-name.netlify.app`. That link is your app. (Create a free account if you want to keep the link permanently or rename it.)
 
+`netlify.toml` is included: it keeps `sw.js` and the manifest from being cached stale, and it sends a Content-Security-Policy for the app page that allows only the app's own scripts. A side effect worth having: the "Powered by Netlify" badge that Netlify adds to free-plan sites is an injected inline script, so the policy keeps it off the page (the official switch is **Project configuration → General → Powered by Netlify badge** in the Netlify dashboard). `tools/build.mjs` keeps the policy's script hash in step with the one inline script in `index.html`.
+
 ### Option B — GitHub Pages
 1. **Web browser:** sign in at `https://github.com`, click **New repository**, name it `inkleaf`, keep it public, click **Create**.
 2. **Web browser:** on the empty repository page click **uploading an existing file**, drag in everything inside the `inkleaf` folder (`index.html`, `manifest.webmanifest`, `sw.js`, the `css`, `js`, `icons` folders), then click **Commit changes**.

@@ -1381,7 +1381,7 @@
       const target = this.turnTarget(dir);
       if (target == null) { this.app.toast(dir > 0 ? 'Last page. Use "Add page" for a new one.' : 'This is the first page.'); return; }
       e.preventDefault(); const z = this.zones[dir]; try { z.setPointerCapture(e.pointerId); } catch (err) {}
-      z.classList.add('is-active'); if (IL.paperSound && this.app.settings.pageSound !== false) IL.paperSound.ensure();
+      z.classList.add('is-active'); if (IL.paperSound && this.app.settings.pageSound !== false && IL.paperSound.ensure()) IL.paperSound.lift();
       const now = e.timeStamp || performance.now();
       const f = { dir, target, zone: dir, pointerId: e.pointerId, x0: e.clientX, p0: 0, t0: now, progress: 0, velocity: 0, goal: null, width: this.area.clientWidth, lastX: e.clientX, lastT: now, vx: 0, ready: false, grabbed: false };
       this.flip = f; this.flipBusy = true;
@@ -1394,7 +1394,7 @@
       const raw = f.p0 + (-dx * f.dir) / (f.width * 0.55);
       f.progress = raw < 0 ? raw * 0.15 : raw > 1 ? 1 + (raw - 1) * 0.15 : raw;     // rubber-banding past the ends
       if (f.ready) this.setFlipProgress(Math.max(0, Math.min(1, f.progress)));
-      if (IL.paperSound && this.app.settings.pageSound !== false) IL.paperSound.slide(Math.abs(f.vx) / 1.4);
+      if (IL.paperSound && this.app.settings.pageSound !== false) IL.paperSound.slide(Math.abs(f.vx) / 1.8);
     }
     flipUp(e, cancelled) {
       const f = this.flip; if (!f || e.pointerId !== f.pointerId) return;
@@ -1411,14 +1411,14 @@
       const f = this.flip; if (!f || f.looping) return;
       f.looping = true; let last = performance.now(); const snd = IL.paperSound;
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const k = 1.95e-4, c = 0.0251;                                   // ~450 ms period, damping ratio 0.9: a quick fall with a soft settle
+      const k = 1.6e-4, c = 0.0262;                                    // ~500 ms period, damping ratio ~1.04: a graceful fall that settles without a bounce
       const tick = () => {
         if (this.flip !== f) { f.looping = false; return; }
         const now = performance.now(); let dt = Math.min(120, now - last); last = now;   // slow frames (weak GPUs) still advance the physics at real speed
         if (f.pointerId == null && f.goal != null) {
           if (reduce) { f.progress = f.goal; }
           else { const n = Math.max(1, Math.ceil(dt / 8)), h = dt / n; for (let i = 0; i < n; i++) { const a = -k * (f.progress - f.goal) - c * f.velocity; f.velocity += a * h; f.progress += f.velocity * h; } }
-          if (snd && this.app.settings.pageSound !== false) snd.slide(Math.abs(f.velocity) * 900);
+          if (snd && this.app.settings.pageSound !== false) snd.slide(Math.abs(f.velocity) * 700);
           if (Math.abs(f.progress - f.goal) < 0.002 && Math.abs(f.velocity) < 0.0002 || reduce) {
             f.progress = f.goal; this.setFlipProgress(f.progress); f.looping = false;
             this.endFlip(f.goal === 1 ? f.target : null).finally(() => { this.flipBusy = false; }); return;
@@ -1441,7 +1441,7 @@
           vec2 p = aPos * uQuadSize + (uQuadOff - uOff);                 /* position in the frame of the turning sheet */
           vec3 pos = vec3(p, 0.0); vec3 nrm = vec3(0.0, 0.0, 1.0);
           vec2 tdir = vec2(-uN.y, uN.x); float along = clamp((dot(p, tdir) - uTmin) / max(1.0, uTmax - uTmin), 0.0, 1.0);
-          float R = uR * mix(1.3, 0.78, along); vR = R;                 /* a cone: tighter toward the corner that peels first */
+          float R = uR * mix(1.18, 0.86, along); vR = R;                /* a gentle cone: only a little tighter toward the corner that peels first */
           float d = dot(p, uN) - uA; vD = d;
           if (uIsUnder < 0.5 && d > 0.0) { float t = d / R;
             if (t < 3.14159265) { float s = sin(t), c = cos(t); pos = vec3(p - uN * d + uN * (R * s), R * (1.0 - c)); nrm = vec3(-uN * s, c); }
@@ -1459,29 +1459,30 @@
           float g1 = texture2D(uNoise, vP / 96.0).r, g2 = texture2D(uNoise, vP / 23.0 + 0.37).r; float grain = g1 * 0.6 + g2 * 0.4;   /* paper fibre */
           if (vIsUnder > 0.5) {
             vec3 c = texture2D(uTex, vUV).rgb;
-            float lift = clamp(vD / (1.6 * vR), 0.0, 1.0); float w = mix(0.1, 0.9, lift) * vR;                         /* contact-hardening: sharp at the fold, soft where the sheet is high */
-            float arch = (1.0 - smoothstep(0.0, 2.1 * vR, vD)) * smoothstep(-0.5 * w, 0.04 * vR, vD);
-            float over = smoothstep(PI * vR - 0.55 * vR, PI * vR + 0.1 * vR, vD);                                      /* under the part lying over */
-            float ao = 0.3 * arch + 0.1 * over;
-            float gutter = uSpread > 0.5 ? 0.16 * exp(-abs(vP.x) / (0.06 * vFrameW)) : 0.0;                                /* the spine's own shadow */
-            gl_FragColor = vec4(c * (1.0 - ao * settle) * (1.0 - gutter), 1.0);
+            float lift = clamp(vD / (1.6 * vR), 0.0, 1.0); float w = mix(0.35, 1.4, lift) * vR;                        /* contact-hardening, but soft-edged everywhere: a little crisper at the fold, wide where the sheet is high */
+            float arch = (1.0 - smoothstep(0.0, 2.4 * vR, vD)) * smoothstep(-0.6 * w, 0.08 * vR, vD);
+            float over = smoothstep(PI * vR - 0.8 * vR, PI * vR + 0.2 * vR, vD);                                       /* under the part lying over */
+            float ao = (0.17 * arch + 0.05 * over) * settle;                                                           /* never more than ~22% */
+            float gutter = uSpread > 0.5 ? 0.09 * exp(-abs(vP.x) / (0.07 * vFrameW)) : 0.0;                                /* the spine's own shadow */
+            vec3 charcoal = vec3(0.11, 0.11, 0.13);
+            gl_FragColor = vec4(mix(c, charcoal, ao) * (1.0 - gutter), 1.0);
           } else {
             float fade = uSpread > 0.5 ? 1.0 : smoothstep(-60.0, -6.0, vSX);                                             /* a single page dissolves past the spine */
             if (fade <= 0.002) discard;
             vec3 n = normalize(normalize(vNrm) + vec3((grain - 0.5) * 0.07, (g2 - 0.5) * 0.07, 0.0));                  /* fibre micro-normals catch the sheen */
-            float diff = max(dot(n, L), 0.0); float spec = pow(max(dot(reflect(-L, n), V), 0.0), 24.0) * (0.55 + 0.45 * grain);
+            float diff = max(dot(n, L), 0.0); float spec = pow(max(dot(reflect(-L, n), V), 0.0), 10.0) * (0.7 + 0.3 * grain);   /* broad, matte */
             float lift = clamp(vZ / (vR + 1.0), 0.0, 1.0);
-            float edge = (smoothstep(0.992, 1.0, vUV.x) + smoothstep(0.995, 1.0, vUV.y) + smoothstep(0.995, 1.0, 1.0 - vUV.y)) * lift * 0.16;  /* the paper's thickness */
+            float edge = (smoothstep(0.992, 1.0, vUV.x) + smoothstep(0.995, 1.0, vUV.y) + smoothstep(0.995, 1.0, 1.0 - vUV.y)) * lift * 0.09;  /* the paper's thickness */
             float tone = 0.985 + 0.03 * grain;
             bool front = gl_FrontFacing != (vMirror > 0.5);
             vec3 col;
-            if (front) { vec3 c = texture2D(uTex, vUV).rgb; float light = min(1.05, 0.60 + 0.40 * diff / flatDiff); col = c * light * tone + spec * 0.07 + edge; }
+            if (front) { vec3 c = texture2D(uTex, vUV).rgb; float light = min(1.03, 0.76 + 0.24 * diff / flatDiff); col = mix(c * light * tone, vec3(1.0), spec * 0.12) + edge; }   /* soft-light sheen, 12% at most */
             else {
-              float diffB = max(dot(-n, L), 0.0); float trans = max(dot(n, L), 0.0) * 0.16;                            /* light coming through the paper */
+              float diffB = max(dot(-n, L), 0.0); float trans = max(dot(n, L), 0.0) * 0.10;                            /* light coming through the paper */
               float lum = dot(texture2D(uTex, vUV).rgb, vec3(0.3, 0.59, 0.11));
-              float light = min(1.05, 0.62 + 0.38 * diffB / flatDiff) + trans;
-              if (uHasBack > 0.5) { vec3 c = texture2D(uTexBack, vec2(1.0 - vUV.x, vUV.y)).rgb; col = (c - (1.0 - lum) * 0.06) * light * tone + spec * 0.05 + edge; }
-              else { vec3 back = vec3(0.962, 0.952, 0.93); float line = step(0.965, fract(vUV.y * uRows)) * 0.05; col = (back - line - (1.0 - lum) * 0.10) * light * tone + spec * 0.04 + edge; } }
+              float light = min(1.03, 0.76 + 0.24 * diffB / flatDiff) + trans;
+              if (uHasBack > 0.5) { vec3 c = texture2D(uTexBack, vec2(1.0 - vUV.x, vUV.y)).rgb; col = mix((c - (1.0 - lum) * 0.05) * light * tone, vec3(1.0), spec * 0.08) + edge; }
+              else { vec3 back = vec3(0.962, 0.952, 0.93); float line = step(0.965, fract(vUV.y * uRows)) * 0.05; col = mix((back - line - (1.0 - lum) * 0.08) * light * tone, vec3(1.0), spec * 0.07) + edge; } }
             gl_FragColor = vec4(col * fade, fade); } }`;
       const sh = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) { console.warn(gl.getShaderInfoLog(o)); return null; } return o; };
       const prog = gl.createProgram(); const v = sh(gl.VERTEX_SHADER, VS), f = sh(gl.FRAGMENT_SHADER, FS);
@@ -1562,16 +1563,16 @@
       const extents = n => { const corners = [[0, 0], [W, 0], [0, H], [W, H]]; const dots = corners.map(c => c[0] * n[0] + c[1] * n[1]); const tdir = [-n[1], n[0]]; const ts = corners.map(c => c[0] * tdir[0] + c[1] * tdir[1]); return { dmax: Math.max(...dots), dmin: Math.min(...dots), tmin: Math.min(...ts), tmax: Math.max(...ts) }; };
       if (fp.spread) {
         phi = 0.30 * Math.pow(1 - q, 1.4);                              // lifts from the lower corner, lands square on the spine
-        R = W * (0.25 * Math.pow(Math.sin(Math.PI * q), 0.8) + 0.004);  // opens up mid-flight, flattens out to land
+        R = W * (0.34 * Math.pow(Math.sin(Math.PI * q), 0.7) + 0.006);  // a wide, sweeping arc that opens mid-flight and flattens out to land
       } else {
-        phi = 0.26 - 0.16 * q; R = W * (0.23 - 0.09 * q);
+        phi = 0.26 - 0.16 * q; R = W * (0.30 - 0.10 * q);
       }
       const n = n0(phi); const ex = extents(n);
       A = fp.spread ? ex.dmax - q * (ex.dmax + Math.PI * R / 2) : ex.dmax - q * (ex.dmax - ex.dmin + Math.PI * R * 1.3);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.uniform2f(u.uArea, fp.area[0], fp.area[1]); gl.uniform2f(u.uOff, fp.off[0], fp.off[1]); gl.uniform2f(u.uSize, W, H);
       gl.uniform2f(u.uN, n[0], n[1]); gl.uniform1f(u.uA, A); gl.uniform1f(u.uR, R); gl.uniform1f(u.uF, 4.2 * Math.max(W, H)); gl.uniform1f(u.uRows, fp.rows); gl.uniform1f(u.uTmin, ex.tmin); gl.uniform1f(u.uTmax, ex.tmax); gl.uniform1f(u.uQ, q);
-      gl.uniform1f(u.uMirror, fp.mirror ? 1 : 0); gl.uniform1f(u.uSpineX, fp.spineX); gl.uniform1f(u.uSag, fp.spread ? 0.028 * H : 0.012 * H); gl.uniform1f(u.uSpread, fp.spread ? 1 : 0); gl.uniform1f(u.uHasBack, fp.hasBack ? 1 : 0);
+      gl.uniform1f(u.uMirror, fp.mirror ? 1 : 0); gl.uniform1f(u.uSpineX, fp.spineX); gl.uniform1f(u.uSag, fp.spread ? 0.016 * H : 0.007 * H); gl.uniform1f(u.uSpread, fp.spread ? 1 : 0); gl.uniform1f(u.uHasBack, fp.hasBack ? 1 : 0);
       gl.uniform1i(u.uTex, 0); gl.uniform1i(u.uTexBack, 1); gl.uniform1i(u.uNoise, 2);
       gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, texNoise);
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, texBack);

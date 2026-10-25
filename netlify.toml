@@ -11,3 +11,17 @@
   for = "/manifest.webmanifest"
   [headers.values]
     Cache-Control = "no-cache"
+
+# The app page runs only its own scripts: the files it ships ('self'), its recognition worker (blob:),
+# the WebAssembly kernels (eval keywords) and the one inline appearance script, allowed by hash
+# (tools/build.mjs keeps the hash current). Everything else is refused — which also keeps the
+# "Powered by Netlify" badge, injected as an inline script on free-plan sites, off the page.
+# artifact.html (the single-file build for the claude.ai viewer) is deliberately not covered.
+[[headers]]
+  for = "/"
+  [headers.values]
+    Content-Security-Policy = "script-src 'self' blob: 'unsafe-eval' 'wasm-unsafe-eval' 'sha256-brirrvG6iTzyCcgz//BD9y+iV0euZSam2LklMh5WpNw='; object-src 'none'; base-uri 'self'"
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Content-Security-Policy = "script-src 'self' blob: 'unsafe-eval' 'wasm-unsafe-eval' 'sha256-brirrvG6iTzyCcgz//BD9y+iV0euZSam2LklMh5WpNw='; object-src 'none'; base-uri 'self'"

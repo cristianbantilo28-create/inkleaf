@@ -1,6 +1,7 @@
 // Builds index.html (installable PWA, separate files) and artifact.html (single file for the claude.ai artifact viewer).
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 const root = path.resolve(new URL('..', import.meta.url).pathname);
 const read = p => fs.readFileSync(path.join(root, p), 'utf8');
 const JS = ['js/db.js', 'js/stickers.js', 'js/hwr.js', 'js/hwrclient.js', 'js/transform.js', 'js/cover.js', 'js/editor.js', 'js/bookopen.js', 'js/paper.js', 'js/search.js', 'js/lock.js', 'js/app.js'];
@@ -9,6 +10,16 @@ const swVersion = (read('sw.js').match(/VERSION = 'inkleaf-v([\d.]+)'/) || [])[1
 if (!swVersion || swVersion !== appVersion) throw new Error(`version mismatch: sw.js ${swVersion} vs js/app.js ${appVersion}`);
 const shell = read('src/shell.html');
 const css = read('css/app.css');
+// Applies the saved appearance before the first paint. It is the only inline script in index.html: the
+// Content-Security-Policy in netlify.toml allows it by hash and so blocks every other inline script —
+// including the "Powered by Netlify" badge that Netlify injects into pages of free-plan sites.
+const THEME = `(function(){try{var t=localStorage.getItem('inkleafTheme')||'light';if(t!=='auto')document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();`;
+const themeHash = `'sha256-${crypto.createHash('sha256').update(THEME, 'utf8').digest('base64')}'`;
+{
+  const toml = read('netlify.toml'), hashes = toml.match(/'sha256-[A-Za-z0-9+/=]+'/g) || [];
+  if (!hashes.length) throw new Error('netlify.toml has no script hash in its Content-Security-Policy');
+  if (hashes.some(h => h !== themeHash)) { fs.writeFileSync(path.join(root, 'netlify.toml'), toml.replace(/'sha256-[A-Za-z0-9+/=]+'/g, themeHash)); console.log('netlify.toml: updated the inline-script hash to', themeHash); }
+}
 // the single-file build has no icons folder: inline the images the stylesheet refers to
 const cssInline = css.replace(/url\(\.\.\/icons\/([\w.-]+)\)/g, (m, f) => `url(data:image/png;base64,${fs.readFileSync(path.join(root, 'icons', f)).toString('base64')})`);
 
@@ -21,7 +32,7 @@ const index = `<!doctype html>
 <meta name="description" content="Offline notebooks with custom covers, handwriting that turns into typed text, photos, video links and search.">
 <meta name="theme-color" content="#FFFFFF">
 <meta name="color-scheme" content="light dark">
-<script>(function(){try{var t=localStorage.getItem('inkleafTheme')||'light';if(t!=='auto')document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
+<script>${THEME}</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -48,7 +59,7 @@ for (const f of ['js/lexicon.js', 'js/hwr.js', 'js/crnn.js', 'js/crnn-wasm.js', 
 if (/<\/script/i.test(js)) throw new Error('JS contains a closing script tag');
 const artifact = `<meta charset="utf-8">
 <title>Inkleaf</title>
-<script>(function(){try{var t=localStorage.getItem('inkleafTheme')||'light';if(t!=='auto')document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
+<script>${THEME}</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="${FONTS}">
 <style>
