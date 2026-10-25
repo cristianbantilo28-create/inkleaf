@@ -184,7 +184,10 @@ def word_texts(rng, n, gen):
         elif p < 0.10: t = '"' + t + '"'
         elif p < 0.12: t = '(' + t + ')'
         elif p < 0.14 and t.isalpha(): t = t + "'s"
-        if not valid_text(t) or len(t) > 14: continue
+        if rng.random() < float(os.environ.get('HW_PHRASE_SHARE', 0.0)) and t.isalpha():   # short phrases: joined-up writing across a space
+            t2 = gen.pick_word(rng, 'en' if rng.random() < 0.7 else 'de')
+            if valid_text(t2) and len(t) + 1 + len(t2) <= 16: t = t + ' ' + t2
+        if not valid_text(t) or len(t) > 16: continue
         out.append(t)
     return out
 
@@ -196,7 +199,7 @@ def generate(repo, out_path, n_words, seed=1, B=96, log=print):
         batch = word_texts(rng, B, gen)
         use_style = rng.random() < 0.45 and hand.styles
         style = int(rng.integers(0, len(hand.styles))) if use_style else None
-        bias = rng.uniform(0.4, 1.8, B).astype(np.float32)
+        bias = rng.uniform(float(os.environ.get('HW_BIAS_LO', 0.4)), float(os.environ.get('HW_BIAS_HI', 1.8)), B).astype(np.float32)
         res = hand.sample(batch, rng, bias=bias, style=style)
         for t, (coords, ci) in zip(batch, res):
             if len(coords) < 4 * len(t) or len(coords) > 45 * len(t) + 30: continue   # gave up / collapsed / ran on

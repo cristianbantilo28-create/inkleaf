@@ -78,6 +78,12 @@ def load_words(lang, n=50000):
     weights = np.array(weights); weights /= weights.sum()
     return words, weights
 
+_CURSIVE = None
+def cursive_fonts():
+    global _CURSIVE
+    if _CURSIVE is None: _CURSIVE = [f for f in fonts() if f.cursive]
+    return _CURSIVE
+
 _WORDS = None
 def word_pools():
     global _WORDS
@@ -437,7 +443,9 @@ def make_sample(rng, text=None, font=None):
             out = augment(rng, img, size)
             if out is None or out.shape[1] < 6: continue
             return out, t
-        f = font or fs[rng.integers(0, len(fs))]
+        if font is None and rng.random() < float(os.environ.get('CRNN_CURSIVE_FONT_SHARE', 0.35)):   # joined-up writing gets extra weight
+            cf = cursive_fonts(); f = cf[rng.integers(0, len(cf))] if cf else fs[rng.integers(0, len(fs))]
+        else: f = font or fs[rng.integers(0, len(fs))]
         if not f.supports(t):
             if text: f = None; continue
             continue

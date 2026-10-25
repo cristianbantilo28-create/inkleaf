@@ -6,3 +6,4 @@ tools/artifact-host.html
 tools/shot-*.png
 tools/fail-*.png
 .DS_Store
+tools/crnn/out4/
