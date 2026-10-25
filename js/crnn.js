@@ -34,7 +34,7 @@
       } else { const n = t.shape.reduce((a, b) => a * b, 1); T[t.name] = { data: new Float32Array(buf.slice(off, off + 4 * n)), shape: t.shape }; off += 4 * n; }
       off = (off + 3) & ~3;
     }
-    M = { chars: meta.chars, Hn: meta.Hn, chans: meta.chans, layers: meta.layers || 1, pools: meta.pools || [[2, 2], [2, 2], [2, 1], [2, 1]], T, meta };
+    M = { id: meta.id || ('step' + meta.step), chars: meta.chars, Hn: meta.Hn, chans: meta.chans, layers: meta.layers || 1, pools: meta.pools || [[2, 2], [2, 2], [2, 1], [2, 1]], T, meta };
     if (wasm) uploadWeights();
     return M;
   }
@@ -329,5 +329,5 @@
     const best = alts[0] || greedy(logp, T, C);
     return { text: best.text, score: best.score, alts, T, C, logp: opts.keepLogits ? logp : null };
   }
-  IL.crnn = { load, ready, initWasm, rasterize, forward, forwardJS, features, denseLogp, ctcGrad, adapt, setDense, adapted, greedy, beam, score, recognize, get model() { return M; }, get wasm() { return !!wasm; }, get version() { return version; } };
+  IL.crnn = { load, ready, initWasm, rasterize, forward, forwardJS, features, denseLogp, ctcGrad, adapt, setDense, adapted, greedy, beam, score, recognize, get model() { return M; }, get modelId() { return M ? M.id : null; }, get wasm() { return !!wasm; }, get version() { return version; } };
 })();

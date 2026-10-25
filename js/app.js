@@ -4,7 +4,7 @@
   const $ = id => document.getElementById(id);
   const relTime = t => { const d = Date.now() - t; const m = Math.round(d / 6e4); if (m < 1) return 'just now'; if (m < 60) return m + ' min ago'; const h = Math.round(m / 60); if (h < 24) return h + ' h ago'; const days = Math.round(h / 24); if (days < 7) return days + ' d ago'; return new Date(t).toLocaleDateString(); };
 
-  const APP_VERSION = '1.8.2';   // keep in step with VERSION in sw.js (tools/build.mjs checks)
+  const APP_VERSION = '1.8.3';   // keep in step with VERSION in sw.js (tools/build.mjs checks)
   const app = {
     get version() { return APP_VERSION; },
     settings: { live: true, autoDelay: 1.2, fingerDraws: true, penSeen: false, engine: 'inkleaf', spread: true, pageSound: true, theme: 'light' },
@@ -34,7 +34,8 @@
       IL.hwrClient.setMode(this.settings.engine === 'inkleaf' ? 'classic' : 'neural');
       IL.hwrClient.onNeural = () => { if (!$('sheet-settings').hidden) this.syncSettings(); };
       IL.hwrClient.setUserTemplates(await IL.db.all('templates'));
-      try { const d = await IL.db.kvGet('neuralDense', null); if (d && d.ow && d.ob) IL.hwrClient.setDense(d.ow, d.ob); } catch (e) {}   // the person's adapted output layer
+      try { const d = await IL.db.kvGet('neuralDense', null); if (d && d.ow && d.ob) IL.hwrClient.setDense(d.ow, d.ob, d.model); } catch (e) {}   // the person's adapted output layer
+      IL.hwrClient.onModelChanged = () => this.relearnHandwriting();   // the recognizer was updated: an adaptation learned on the old one is dropped and learned again
       this.editor = new IL.editor.Editor(this);
       this.search = new IL.Search(this.editor);
       this.coverEditor = new IL.cover.Editor(this);
@@ -76,6 +77,29 @@
       if (!this.swReg) { st.textContent = 'Updates arrive through the installed app; open the Netlify address again to get the newest version.'; return; }
       try { await this.swReg.update(); } catch (e) { st.textContent = 'Could not reach the server — are you online?'; return; }
       setTimeout(() => { if (!this.updateFound && !this._restarting) st.textContent = 'You have the latest version (' + APP_VERSION + ').'; }, 2500);
+    },
+    /* After a recognizer update the saved adaptation no longer fits; re-learn it from the saved word samples once the
+       person is not writing, quietly, and keep it only when it helps (the same hold-out check as the Adapt button). */
+    relearnHandwriting() {
+      if (this._relearning) return; this._relearning = true;
+      (async () => {
+        try { await IL.db.kvSet('neuralDense', null); } catch (e) {}
+        const list = await IL.db.kvGet('neuralSamples', []); if (!list || list.length < 8 || this.settings.engine !== 'neural') { this._relearning = false; return; }
+        const ed = () => this.editor;
+        const idle = () => !(ed() && (ed().live || ed().erase || ed().lassoDraw || ed().lassoDrag || ed().flip)) && !this.opening && !(document.activeElement && document.activeElement.classList.contains('row'));
+        const run = async () => {
+          try {
+            const r = await IL.hwrClient.adapt(list.map(s => ({ strokes: s.strokes.map(pts => ({ pts })), text: s.text })), {});
+            if (r && r.n && r.setting !== 'none') {
+              await IL.db.kvSet('neuralDense', { ow: r.ow, ob: r.ob, model: r.model || IL.hwrClient.modelId, at: Date.now(), n: r.n, before: r.before, after: r.after, setting: r.setting, holdout: r.holdout });
+              this.toast('Inkleaf updated its recognizer and learned your handwriting again from your saved words.', 3600);
+            } else { await IL.hwrClient.setDense(null, null); this.toast('Inkleaf updated its recognizer; it reads your saved words well as trained.', 3200); }
+            if (this.twStatus && !$('sheet-training').hidden) this.twStatus();
+          } catch (e) { console.warn('re-learning the handwriting adaptation failed', e); }
+          this._relearning = false;
+        };
+        const wait = setInterval(() => { if (idle()) { clearInterval(wait); setTimeout(run, 1500); } }, 2000);
+      })();
     },
     restartWhenIdle() {
       if (this._restarting) return; this._restarting = true;
@@ -379,7 +403,7 @@
             await status(); $('tw-status').textContent = `Checked on ${r.holdout.n} of your words it had not trained on: adapting did not read them any better (${r.holdout.before} of ${r.holdout.n} right either way), so the engine stays as trained. Your words are in its dictionary already; add more samples and try again later.`;
             this.toast('No change: adapting did not help on words it had not seen.', 3000); btn.disabled = false; return;
           }
-          await IL.db.kvSet('neuralDense', { ow: r.ow, ob: r.ob, at: Date.now(), n: r.n, before: r.before, after: r.after, setting: r.setting, holdout: r.holdout });
+          await IL.db.kvSet('neuralDense', { ow: r.ow, ob: r.ob, model: r.model || IL.hwrClient.modelId, at: Date.now(), n: r.n, before: r.before, after: r.after, setting: r.setting, holdout: r.holdout });
           await status(); this.toast(r.holdout ? `Adapted. On ${r.holdout.n} words it had not trained on: ${r.holdout.before} → ${r.holdout.after} read right.` : `Adapted. Of your ${r.n} words it read ${r.before} right before and ${r.after} now.`, 3600);
         } catch (e) { $('tw-status').textContent = 'Adapting did not work: ' + (e && e.message ? e.message : e) + '. Is the Neural engine loaded?'; }
         btn.disabled = false;

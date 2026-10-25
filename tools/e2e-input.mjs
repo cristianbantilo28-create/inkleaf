@@ -541,6 +541,15 @@ await step('TRAIN words: write prompted words, save 8, adapt the neural engine o
   const st = await page.textContent('#tw-status'); log('      status:', st); if (!/Adapted on/.test(st)) throw new Error('adaptation failed: ' + st);
   const d = await ev(async () => { const d = await IL.db.kvGet('neuralDense', null); return d && { n: d.n, ow: d.ow && d.ow.length, ob: d.ob && d.ob.length, before: d.before, after: d.after }; }); log('      saved weights:', JSON.stringify(d));
   if (!d || !d.ow || d.ow !== d.ob * 256) throw new Error('adapted weights not saved'); if (!(await ev(() => IL.hwrClient.adapted))) throw new Error('client does not know about the adaptation');
+  // the saved layer names the model it was learned on; one from another model (or an old record without a name) is dropped and re-learned from the saved words
+  const model = await ev(async () => { const d = await IL.db.kvGet('neuralDense', null); return { saved: d.model, live: IL.hwrClient.modelId }; }); log('      model id:', JSON.stringify(model));
+  if (!model.live || model.saved !== model.live) throw new Error('adaptation not tied to the model');
+  await ev(async () => { const d = await IL.db.kvGet('neuralDense', null); IL.app._relearning = false; await IL.hwrClient.setDense(d.ow, d.ob, 'older-model'); });
+  if (await ev(() => IL.hwrClient.adapted)) throw new Error('a layer from another model was kept');
+  if (!(await ev(() => IL.app._relearning))) throw new Error('re-learning did not start');
+  if (!(await waitFor(() => !IL.app._relearning, null, 90000))) throw new Error('re-learning did not finish');
+  const again = await ev(async () => { const d = await IL.db.kvGet('neuralDense', null); return { saved: d ? d.model : null, setting: d ? d.setting : 'none', adapted: IL.hwrClient.adapted, live: IL.hwrClient.modelId }; }); log('      re-learned:', JSON.stringify(again));
+  if (again.adapted ? again.saved !== again.live : again.saved) throw new Error('re-learned layer not tied to the current model');
   await page.click('#tw-reset'); await page.waitForSelector('#sheet-confirm:not([hidden])'); await page.click('#confirm-ok'); await sleep(300);
   if ((await ev(() => IL.db.kvGet('neuralSamples', []))).length !== 0 || await ev(() => IL.hwrClient.adapted)) throw new Error('reset failed');
   await page.click('#nb-settings-btn'); await page.waitForSelector('#sheet-settings:not([hidden])'); await page.click('#train-btn'); await page.waitForSelector('#sheet-training:not([hidden])');
