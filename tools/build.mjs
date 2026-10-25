@@ -7,6 +7,8 @@ const JS = ['js/db.js', 'js/stickers.js', 'js/hwr.js', 'js/hwrclient.js', 'js/tr
 const FONTS = 'https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Caveat:wght@400;600&family=Patrick+Hand&family=Kalam&family=Indie+Flower&family=Architects+Daughter&family=Shadows+Into+Light&family=Gloria+Hallelujah&family=Homemade+Apple&family=Nanum+Pen+Script&family=Lora:ital@0;1&family=Courier+Prime&display=swap';
 const shell = read('src/shell.html');
 const css = read('css/app.css');
+// the single-file build has no icons folder: inline the images the stylesheet refers to
+const cssInline = css.replace(/url\(\.\.\/icons\/([\w.-]+)\)/g, (m, f) => `url(data:image/png;base64,${fs.readFileSync(path.join(root, 'icons', f)).toString('base64')})`);
 
 const index = `<!doctype html>
 <html lang="en">
@@ -47,7 +49,7 @@ const artifact = `<meta charset="utf-8">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="${FONTS}">
 <style>
-${css}
+${cssInline}
 </style>
 ${shell}
 <script type="text/plain" id="lexicon-src">

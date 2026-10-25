@@ -1,9 +1,9 @@
 /* Inkleaf service worker: caches the app shell so it opens offline, and keeps fonts once they have been seen. */
-const VERSION = 'inkleaf-v1.7.1';
+const VERSION = 'inkleaf-v1.7.2';
 const SHELL = [
   './', './index.html', './manifest.webmanifest', './css/app.css',
   './js/db.js', './js/stickers.js', './js/hwr.js', './js/hwrclient.js', './js/lexicon.js', './js/crnn.js', './js/crnn-wasm.js', './js/crnn-weights.js', './js/transform.js', './js/cover.js', './js/editor.js', './js/bookopen.js', './js/paper.js', './js/search.js', './js/lock.js', './js/app.js',
-  './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'
+  './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png', './icons/mark-128.png', './icons/mark-320.png'
 ];
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
