@@ -5,3 +5,4 @@ tools/artifact-host.html
 tools/shot-*.png
 tools/fail-*.png
 .DS_Store
+tools/word-export-preview.pdf
