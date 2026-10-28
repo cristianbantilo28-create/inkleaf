@@ -528,6 +528,7 @@ await step('TRAIN words: write prompted words, save 8, adapt the neural engine o
   await ev(() => { IL.app.settings.engine = 'neural'; IL.hwrClient.setMode('neural'); });
   await page.click('#train-btn'); await page.waitForSelector('#sheet-training:not([hidden])');
   if (await page.isHidden('#train-words')) await page.click('#train-modes .chip[data-mode="words"]');
+  await waitFor(() => /saved so far|words saved|Ready to adapt/.test(document.getElementById('tw-status').textContent));   // the status line is filled in once the samples are read
   if (!(await ev(() => document.getElementById('tw-adapt').disabled))) throw new Error('adapt enabled without samples');
   const r = await ev(() => { const b = document.getElementById('tw-canvas').getBoundingClientRect(); return { x: b.left, y: b.top, w: b.width, h: b.height }; });
   const writeOnCanvas = async word => { let x = r.x + r.w * 0.1; const base = r.y + r.h * (140 / 190); for (const ch of word) { const tall = 'hl'.includes(ch); const hh = (tall ? 0.42 : 0.24) * r.h; const w = (ch === 'l' ? 0.3 : 0.9) * hh; for (const sh of SHAPES[ch]) await pen(densify(sh, 6).map(([px, py]) => [x + px / 100 * w, base - (100 - py) / 100 * hh])); x += w + 0.04 * r.w; } };
