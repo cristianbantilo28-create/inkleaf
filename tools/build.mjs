@@ -4,7 +4,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 const root = path.resolve(new URL('..', import.meta.url).pathname);
 const read = p => fs.readFileSync(path.join(root, p), 'utf8');
-const JS = ['js/db.js', 'js/stickers.js', 'js/hwr.js', 'js/hwrclient.js', 'js/transform.js', 'js/cover.js', 'js/editor.js', 'js/bookopen.js', 'js/paper.js', 'js/search.js', 'js/lock.js', 'js/app.js'];
+const JS = ['js/db.js', 'js/stickers.js', 'js/hwr.js', 'js/hwrclient.js', 'js/transform.js', 'js/cover.js', 'js/editor.js', 'js/bookopen.js', 'js/paper.js', 'js/search.js', 'js/lock.js', 'js/dictate.js', 'js/docx.js', 'js/app.js'];
 const FONTS = 'https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Caveat:wght@400;600&family=Patrick+Hand&family=Kalam&family=Indie+Flower&family=Architects+Daughter&family=Shadows+Into+Light&family=Gloria+Hallelujah&family=Homemade+Apple&family=Nanum+Pen+Script&family=Lora:ital@0;1&family=Courier+Prime&display=swap';
 const swVersion = (read('sw.js').match(/VERSION = 'inkleaf-v([\d.]+)'/) || [])[1]; const appVersion = (read('js/app.js').match(/APP_VERSION = '([\d.]+)'/) || [])[1];
 if (!swVersion || swVersion !== appVersion) throw new Error(`version mismatch: sw.js ${swVersion} vs js/app.js ${appVersion}`);

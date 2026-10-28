@@ -4,7 +4,7 @@
   const $ = id => document.getElementById(id);
   const relTime = t => { const d = Date.now() - t; const m = Math.round(d / 6e4); if (m < 1) return 'just now'; if (m < 60) return m + ' min ago'; const h = Math.round(m / 60); if (h < 24) return h + ' h ago'; const days = Math.round(h / 24); if (days < 7) return days + ' d ago'; return new Date(t).toLocaleDateString(); };
 
-  const APP_VERSION = '1.8.3';   // keep in step with VERSION in sw.js (tools/build.mjs checks)
+  const APP_VERSION = '1.9.0';   // keep in step with VERSION in sw.js (tools/build.mjs checks)
   const app = {
     get version() { return APP_VERSION; },
     settings: { live: true, autoDelay: 1.2, fingerDraws: true, penSeen: false, engine: 'inkleaf', spread: true, pageSound: true, theme: 'light' },
@@ -51,6 +51,7 @@
       this.setupInstall(); this.setupAutoLock();
       setTimeout(() => this.gcBlobs(), 6000);
       this.setupUpdates();
+      this.setupDictation();
       await this.resumeAfterUpdate();
     },
     /* ---------- updates: a new version pushed to the site takes over as soon as it is downloaded ----------
@@ -124,7 +125,27 @@
 
     showView(name) {
       ['lock', 'home', 'cover', 'notebook'].forEach(v => { const el = $('view-' + v); el.hidden = v !== name; el.classList.remove('measuring'); });
+      if (name !== 'notebook' && IL.dictation) IL.dictation.stop();
       this.view = name; this.closeSheets(); $('popover').hidden = true;
+    },
+    /* ---------- dictation: the toolbar microphone types what is said at the caret ---------- */
+    setupDictation() {
+      const d = IL.dictation; if (!d) return;
+      const btn = $('dictate-btn'), pill = $('dictate-pill'), txt = $('dictate-text');
+      d.lang = this.settings.dictationLang || 'auto';
+      let queue = Promise.resolve(); const later = fn => { queue = queue.then(fn).catch(e => console.warn('dictation', e)); return queue; };
+      d.bind({
+        onState: s => { const on = s === 'listening'; btn.classList.toggle('is-listening', on); btn.setAttribute('aria-pressed', on ? 'true' : 'false'); pill.hidden = !on; if (!on) txt.textContent = 'Listening…'; },
+        onInterim: t => { txt.textContent = t || 'Listening…'; },
+        onText: t => later(async () => { const ed = this.editor; if (!ed || this.view !== 'notebook' || !ed.page) return; await ed.typeText(d.capitalise(t, ed.textBeforeCaret())); }),
+        onEnter: () => later(async () => { const ed = this.editor; if (ed && this.view === 'notebook' && ed.page) await ed.enter(); }),
+        onProblem: m => this.toast(m, 5200)
+      });
+      btn.addEventListener('click', () => { if (this.view !== 'notebook') return; if (!d.supported) { this.toast('Dictation is not available in this browser. On an iPad or iPhone use Safari; on Android use Chrome. The microphone key on the keyboard always works.', 6000); return; } if (!navigator.onLine) { this.toast('Dictation needs an internet connection — the speech is understood by Apple’s or Google’s service.', 5000); return; } d.toggle(); });
+      $('dictate-stop').addEventListener('click', () => d.stop());
+      document.addEventListener('visibilitychange', () => { if (document.hidden) d.stop(); });
+      const row = $('dictation-langs'); row.innerHTML = '';
+      d.LANGS.forEach(([k, n]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.lang = k; b.textContent = n; b.addEventListener('click', () => { this.settings.dictationLang = k; d.lang = k; this.saveSettings(); this.syncSettings(); }); row.appendChild(b); });
     },
     saveSettings() { return IL.db.kvSet('settings', this.settings); },
     async saveNotebook(nb) { nb.updatedAt = nb.updatedAt || Date.now(); await IL.db.put('notebooks', nb); if (this.view === 'home') this.renderHome(); },
@@ -157,7 +178,7 @@
         { label: 'Edit cover', icon: 'i-palette', run: () => this.editCover(nb, () => { this.renderHome(); this.showView('home'); }) },
         { label: 'Rename', icon: 'i-edit', run: () => this.prompt('Rename notebook', nb.title, v => { if (v && v.trim()) { nb.title = v.trim(); const t = (nb.cover.elements || []).find(e => e.role === 'title'); if (t) t.text = nb.title; nb.updatedAt = Date.now(); this.saveNotebook(nb); } }) },
         { label: 'Duplicate', icon: 'i-copy', run: () => this.duplicateNotebook(nb) },
-        { label: 'Export backup', icon: 'i-download', run: () => this.exportNotebook(nb) },
+        { label: 'Share or export', icon: 'i-download', run: () => this.exportNotebook(nb) },
         { label: 'Delete', icon: 'i-trash', danger: true, run: () => this.confirm('Delete this notebook?', `"${nb.title}" and all of its pages, photos and videos will be removed from this device.`, 'Delete', () => this.deleteNotebook(nb)) }
       ], x, y, nb.title);
     },
@@ -301,6 +322,7 @@
     setNbSetting(k, v) { const nb = this.current; nb.settings[k] = v; IL.db.kvSet('lastStyle', { font: nb.settings.font, size: nb.settings.size, color: nb.settings.color, paper: nb.settings.paper, spacing: nb.settings.spacing, marginLine: nb.settings.marginLine }); this.editor.settingsChanged(); this.syncSettings(); },
     async syncSettings() {
       const st = this.current ? this.current.settings : IL.editor.defaultSettings();
+      document.querySelectorAll('#dictation-langs .chip').forEach(b => b.classList.toggle('is-active', b.dataset.lang === (this.settings.dictationLang || 'auto')));
       document.querySelectorAll('#font-grid .font-opt').forEach(b => b.classList.toggle('is-active', b.dataset.font === st.font));
       document.querySelectorAll('#size-row .chip').forEach(b => b.classList.toggle('is-active', b.dataset.size === st.size));
       document.querySelectorAll('#text-colors .color-dot').forEach(b => b.classList.toggle('is-active', b.dataset.color.toLowerCase() === (st.color || '').toLowerCase()));
@@ -431,10 +453,29 @@
       $('train-count').textContent = counts[this.trainLabel] ? `(${counts[this.trainLabel]} saved)` : '';
     },
 
-    /* ---------- backup ---------- */
+    /* ---------- sharing files: the share sheet where there is one, otherwise a download ---------- */
+    /* resolves 'shared' (share sheet used or dismissed), 'download' (handed to the browser's downloads) or false */
+    async shareFile(file, title) {
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title }); return 'shared'; } catch (e) { if (e.name === 'AbortError') return 'shared'; } }
+      try { const url = URL.createObjectURL(file); const a = document.createElement('a'); a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000); } catch (e) { return false; }
+      return 'download';
+    },
+    /* ---------- backup and Word export ---------- */
     async exportNotebook(nb) {
       this.openSheet('sheet-export'); const status = $('export-status'); status.textContent = 'Preparing…';
+      $('export-share').onclick = $('export-copy').onclick = () => { status.textContent = 'Still preparing the backup…'; };
       const pages = (await IL.db.allBy('pages', 'byNotebook', nb.id)).sort((a, b) => a.index - b.index);
+      $('export-docx').onclick = async () => {
+        const btn = $('export-docx'); if (btn.disabled) return; btn.disabled = true;
+        try {
+          status.textContent = 'Preparing the Word document…';
+          const blob = await IL.docx.build(nb, pages, (i, n) => { status.textContent = `Preparing the Word document… page ${Math.min(i + 1, n)} of ${n}`; });
+          const doc = new File([blob], IL.docx.fileName(nb), { type: IL.docx.MIME });
+          const how = await this.shareFile(doc, nb.title);
+          status.textContent = `Word document ready (${(doc.size / 1e6).toFixed(1)} MB)` + (how === 'download' ? ' — it went to the browser’s downloads.' : how ? '.' : '. If no file appeared, this window does not allow downloads — export from the installed app or from Safari.') + (blob.skipped ? ` ${blob.skipped} picture${blob.skipped > 1 ? 's' : ''} could not be included.` : '');
+        } catch (e) { console.warn('docx', e); status.textContent = 'The Word document could not be made: ' + (e && e.message ? e.message : e); }
+        btn.disabled = false;
+      };
       const blobs = {}; const skipped = [];
       const addBlob = async (key) => { if (!key || blobs[key]) return; const rec = await IL.blobs.get(key); if (!rec) return; if (rec.blob.size > 40e6) { skipped.push(rec.name || key); return; } blobs[key] = { type: rec.blob.type, kind: rec.kind, name: rec.name, data: await blobToDataUrl(rec.blob) }; };
       for (const e of (nb.cover && nb.cover.elements) || []) if (e.type === 'image') await addBlob(e.key);
@@ -443,9 +484,9 @@
       const json = JSON.stringify(data); const file = new File([json], `${nb.title.replace(/[^\w\- ]+/g, '').trim() || 'notebook'}.inkleaf.json`, { type: 'application/json' });
       status.textContent = `Backup ready (${(file.size / 1e6).toFixed(1)} MB).` + (skipped.length ? ` Videos over 40 MB were left out: ${skipped.join(', ')}.` : '');
       $('export-share').onclick = async () => {
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: nb.title }); return; } catch (e) { if (e.name === 'AbortError') return; } }
-        const url = URL.createObjectURL(file); const a = document.createElement('a'); a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
-        status.textContent = 'If no file appeared, this window does not allow downloads. Use "Copy as text" and paste it into a file, or export from the installed app.';
+        const how = await this.shareFile(file, nb.title);
+        if (how === 'download') status.textContent = 'The backup went to the browser’s downloads.';
+        else if (!how) status.textContent = 'If no file appeared, this window does not allow downloads. Use "Copy backup as text" and paste it into a file, or export from the installed app.';
       };
       $('export-copy').onclick = async () => { try { await navigator.clipboard.writeText(json); status.textContent = 'Copied. Paste it into a text file ending in .json to keep it.'; } catch (e) { status.textContent = 'Copying is blocked here. Try "Save or share file".'; } };
     },

@@ -57,7 +57,9 @@ The first time you open the app it asks you to set a PIN and offers Face ID / fi
   On an iPad, the **Keyboard** tool also accepts Apple Pencil Scribble directly on a line.
 - **Search:** the magnifier searches every page of the open notebook; use the up/down arrows to jump between results, which are highlighted on the page.
 - **Photos and videos:** **Insert** → photo from gallery, video from gallery, or a video link. Videos appear as a small link chip on the page; tapping it plays the video in the phone's player. Tap any photo or chip (with the pen, a finger or the Select tool) to select it: drag to move, corner handle to resize, top handle to rotate, trash to remove. A pen stroke on empty paper goes straight back to writing.
-- **Backups:** Settings → *Export backup* saves a file with the notebook, its pages, cover and photos. Import it on another device from the home screen (upload icon).
+- **Dictate:** the microphone button on the toolbar types what you say at the caret — in the pen tools at the page caret, in the Keyboard tool at the text cursor — without opening the keyboard. Say “comma”, “period”, “question mark”, “new line” and so on for punctuation (English, German, Spanish, French, Italian, Portuguese, Dutch and Filipino are understood; pick the language under Settings → Dictation, or leave it on the device language). It uses the browser's speech recognition (Apple's or Google's service), so it needs an internet connection and a microphone permission; where a browser does not offer it, the app says so and the keyboard's microphone key still works.
+- **Share as Word:** Settings → *Share or export* → *Word document (.docx)* writes the whole notebook as a Word file on the device: the typed text of every page as paragraphs, photos and any handwriting still in ink as pictures (placed where they sit on the page), video links as links. It opens in Word, Pages, Google Docs or LibreOffice.
+- **Backups:** Settings → *Share or export* → *Backup file* saves a file with the notebook, its pages, cover and photos. Import it on another device from the home screen (upload icon).
 
 ## Good to know
 
@@ -74,6 +76,7 @@ The first time you open the app it asks you to set a PIN and offers Face ID / fi
 node tools/build.mjs        # rebuilds index.html and artifact.html from src/shell.html + css + js
 node tools/test-hwr.mjs     # recognizer test on synthetic handwriting
 node tools/e2e.mjs          # end-to-end test in headless Chromium (needs Playwright)
+node tools/e2e-dictation-word.mjs   # dictation (with a stand-in speech recognizer) and the Word export, checked with python-docx, pandoc and LibreOffice
 python3 tools/icons.py      # regenerates the icons
 ```
 

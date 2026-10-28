@@ -1036,6 +1036,42 @@
       page.caret = { row: endRow }; this.renderCaret();
       return placed;
     }
+    /* Dictated (or otherwise typed-in) text: goes where the keyboard would put it — at the selection of a focused row,
+       otherwise at the page caret like recognized words. Returns the row it ended on. */
+    async typeText(text) {
+      text = String(text || '').replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim(); if (!text) return null;
+      const page = this.page;
+      const d = document.activeElement && document.activeElement.classList.contains('row') && this.rowsEl.contains(document.activeElement) ? document.activeElement : null;
+      if (d) {
+        const before = page.rows.slice();
+        const i = +d.dataset.i; const cur = page.rows[i] || ''; let at = this.caretOffset(d); if (at == null) at = cur.length;
+        const head = cur.slice(0, at), tail = cur.slice(at);
+        const sep = head && !/\s$/.test(head) && !/^[,.;:!?)]/.test(text) ? ' ' : ''; const sep2 = tail && !/^\s/.test(tail) ? ' ' : '';
+        page.rows[i] = head + sep + text + sep2 + tail;
+        const caret = head.length + sep.length + text.length;
+        const moved = this.reflowFrom(i, caret); this.fillRow(d, i);
+        if (moved && typeof moved === 'object') this.focusRow(moved.row, moved.offset); else this.setCaretIn(d, Math.min(caret, page.rows[i].length));
+        this._rowsBefore = null; this.pushUndo({ type: 'rows', before, after: page.rows.slice() });
+        IL.hwrClient.learnWords(text); this.markDirty(); this.app.onTextChanged && this.app.onTextChanged();
+        return moved && typeof moved === 'object' ? moved.row : i;
+      }
+      this.liveCommitAll(); await this.liveFlush();
+      const before = page.rows.slice(); const caretBefore = { ...this.caret };
+      if (/^[,.;:!?)]/.test(text)) {   // punctuation said on its own attaches to the word before it
+        const r = this.caret.row; page.rows[r] = (page.rows[r] || '').replace(/\s+$/, '') + text;
+        const last = this.reflowFrom(r, null); page.caret = { row: typeof last === 'number' ? last : r };
+      } else { const words = text.split(' '); this.insertAtCaret(words); words.forEach(w => IL.hwrClient.learnWords(w)); }
+      this.pushUndo({ type: 'convert', before, after: page.rows.slice(), removed: [], caretBefore });
+      this.refreshRows(); this.redraw(); this.markDirty(); this.renderCaret(); this.app.onTextChanged && this.app.onTextChanged();
+      const row = this.rowsEl.children[this.caret.row]; if (row) { row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash'); }
+      return this.caret.row;
+    }
+    /* what precedes the insertion point: '' at the start of a row, otherwise the text before it (for capitalisation) */
+    textBeforeCaret() {
+      const d = document.activeElement && document.activeElement.classList.contains('row') && this.rowsEl.contains(document.activeElement) ? document.activeElement : null;
+      if (d) { const at = this.caretOffset(d); const t = this.page.rows[+d.dataset.i] || ''; return at == null ? t : t.slice(0, at); }
+      return this.page.rows[this.caret.row] || '';
+    }
     /* Converts every line of ink on the page (in writing order) into text at the caret. */
     async convert(rowFilter, silent, subset) {
       this.liveCommitAll();

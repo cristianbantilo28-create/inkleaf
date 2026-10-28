@@ -342,6 +342,16 @@ label.field { display: block; font-size: 13px; color: var(--fg-2); margin: 6px 0
 .fab.enter svg { width: 26px; height: 26px; }
 .fab.enter .fab-label { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-2); }
 .fab.enter:active { transform: scale(.96); }
+/* dictation */
+.tool.is-listening { background: var(--danger-soft, #F8E3DF); color: var(--danger); }
+.tool.is-listening svg { animation: mic-pulse 1.2s ease-in-out infinite; }
+@keyframes mic-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.12); opacity: .75; } }
+.dictate-pill { position: absolute; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 7; display: flex; align-items: center; gap: 10px; max-width: min(70vw, 520px); padding: 8px 8px 8px 14px; border-radius: 999px; background: var(--surface); color: var(--fg); box-shadow: var(--shadow); font-size: 14px; }
+.dictate-pill .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--danger); flex: none; animation: mic-dot 1.1s ease-in-out infinite; }
+@keyframes mic-dot { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(200, 64, 46, .45); } 50% { opacity: .8; box-shadow: 0 0 0 6px rgba(200, 64, 46, 0); } }
+.dictate-pill #dictate-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--fg-2); font-style: italic; }
+.dictate-pill .stop { border: 0; border-radius: 999px; padding: 6px 12px; background: var(--danger); color: #fff; font: inherit; font-weight: 700; font-size: 13px; cursor: pointer; flex: none; }
+@media (max-width: 640px) { .dictate-pill { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); max-width: calc(100vw - 32px); } }   /* above the Enter button on a phone */
 .page-area.is-writing .fab.enter { opacity: 0; pointer-events: none; transform: translateY(8px); }
 .caret { position: absolute; left: calc(var(--cx) * var(--s) * 1px); top: calc(var(--i) * var(--L) * var(--s) * 1px + var(--L) * var(--s) * 0.14px); width: 2px; height: calc(var(--L) * var(--s) * 0.72px); background: var(--accent); border-radius: 1px; pointer-events: none; animation: caretblink 1.1s steps(1) infinite; }
 @keyframes caretblink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0; } }
@@ -542,6 +552,8 @@ label.field { display: block; font-size: 13px; color: var(--fg-2); margin: 6px 0
   <symbol id="i-marker" viewBox="0 0 24 24"><path d="M4 21h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity=".45"/><path d="M8 17l-1.5-1.5 8.5-8.5a2.1 2.1 0 0 1 3 3L9.5 18.5 8 17z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5 20l3-3M14 7.5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   <symbol id="i-enter" viewBox="0 0 24 24"><path d="M19 5v7a2 2 0 0 1-2 2H6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.5 10.5L6 14l3.5 3.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-eraser" viewBox="0 0 24 24"><path d="M4.5 15.5l9-9a2 2 0 0 1 2.8 0l3.2 3.2a2 2 0 0 1 0 2.8l-7 7H8l-3.5-3.5a1.5 1.5 0 0 1 0-2.1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 11l5 5M6 20h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v5h5M10 13h6M10 17h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   <symbol id="i-type" viewBox="0 0 24 24"><path d="M5 6h14M12 6v13M9 19h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   <symbol id="i-undo" viewBox="0 0 24 24"><path d="M8 7H4V3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 7A8 8 0 1 1 6 17.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   <symbol id="i-redo" viewBox="0 0 24 24"><path d="M16 7h4V3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.5 7A8 8 0 1 0 18 17.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
@@ -747,6 +759,7 @@ label.field { display: block; font-size: 13px; color: var(--fg-2); margin: 6px 0
         <div class="tool-group" id="pen-styles" role="group" aria-label="Pen style"></div>
         <div class="tool-group">
           <button id="insert-btn" class="tool" type="button" title="Insert a photo or video"><svg><use href="#i-image"/></svg><span>Insert</span></button>
+          <button id="dictate-btn" class="tool" type="button" title="Dictate: what you say is typed at the caret" aria-pressed="false"><svg><use href="#i-mic"/></svg><span>Dictate</span></button>
         </div>
         <div class="tool-group" id="pen-colors" role="group" aria-label="Ink color"></div>
         <div class="tool-group" id="hl-colors" role="group" aria-label="Highlighter color" hidden></div>
@@ -790,6 +803,7 @@ label.field { display: block; font-size: 13px; color: var(--fg-2); margin: 6px 0
     <div id="flip-right" class="flip-zone right" role="button" aria-label="Next page" title="Next page"><svg><use href="#i-next"/></svg></div>
     <div id="flip-layer" class="flip-layer" hidden></div>
     <button id="enter-btn" class="fab enter" type="button" title="New line (Enter)" aria-label="New line"><svg><use href="#i-enter"/></svg><span class="fab-label">Enter</span></button>
+    <div id="dictate-pill" class="dictate-pill" role="status" hidden><span class="dot" aria-hidden="true"></span><span id="dictate-text">Listening…</span><button id="dictate-stop" class="stop" type="button">Stop</button></div>
     </div>
 
     <footer class="pager">
@@ -819,6 +833,11 @@ label.field { display: block; font-size: 13px; color: var(--fg-2); margin: 6px 0
         <div class="field-row"><label for="auto-delay">Last word after a pause of</label><input id="auto-delay" type="range" min="0.6" max="3" step="0.2" value="1.2"><span id="auto-delay-val">1.2 s</span></div>
         <label class="check"><input id="finger-toggle" type="checkbox"> Finger draws (otherwise the finger scrolls and only a pen draws)</label>
         <button id="train-btn" class="btn block" type="button"><svg><use href="#i-pen"/></svg><span>Teach it my handwriting</span></button>
+      </section>
+      <section>
+        <h3 class="panel-h">Dictation</h3>
+        <p class="muted small-text">The <b>Dictate</b> button on the toolbar types what you say, where the caret is. Say “comma”, “period”, “question mark” or “new line” for punctuation and line breaks. It needs an internet connection; the microphone key on the keyboard works offline too.</p>
+        <div class="field-row"><span>Language</span><div id="dictation-langs" class="chip-row"></div></div>
       </section>
       <section class="nb-only">
         <h3 class="panel-h">Text style for converted and typed text</h3>
@@ -857,7 +876,7 @@ label.field { display: block; font-size: 13px; color: var(--fg-2); margin: 6px 0
         <h3 class="panel-h">This notebook</h3>
         <div class="btn-row">
           <button id="nb-cover-btn" class="btn" type="button"><svg><use href="#i-palette"/></svg><span>Edit cover</span></button>
-          <button id="nb-export-btn" class="btn" type="button"><svg><use href="#i-download"/></svg><span>Export backup</span></button>
+          <button id="nb-export-btn" class="btn" type="button"><svg><use href="#i-download"/></svg><span>Share or export</span></button>
         </div>
       </section>
       <section>
@@ -970,12 +989,13 @@ label.field { display: block; font-size: 13px; color: var(--fg-2); margin: 6px 0
 
   <div id="sheet-export" class="sheet small" role="dialog" aria-label="Export" hidden>
     <div class="sheet-handle"></div>
-    <div class="sheet-head"><h2>Export backup</h2><button class="icon-btn sheet-close" type="button" aria-label="Close"><svg><use href="#i-close"/></svg></button></div>
+    <div class="sheet-head"><h2>Share or export</h2><button class="icon-btn sheet-close" type="button" aria-label="Close"><svg><use href="#i-close"/></svg></button></div>
     <div class="sheet-body">
-      <p class="muted">A backup file holds every page, the cover and its photos. Import it on another device from the home screen.</p>
+      <p class="muted">A <b>Word document</b> has the typed text of every page, with photos and any handwriting still in ink as pictures — it opens in Word, Pages or Google Docs. A <b>backup file</b> holds everything exactly as it is, to import on another device from the home screen.</p>
       <div class="btn-row">
-        <button id="export-share" class="btn primary" type="button"><svg><use href="#i-download"/></svg><span>Save or share file</span></button>
-        <button id="export-copy" class="btn" type="button"><svg><use href="#i-copy"/></svg><span>Copy as text</span></button>
+        <button id="export-docx" class="btn primary" type="button"><svg><use href="#i-doc"/></svg><span>Word document (.docx)</span></button>
+        <button id="export-share" class="btn" type="button"><svg><use href="#i-download"/></svg><span>Backup file</span></button>
+        <button id="export-copy" class="btn" type="button"><svg><use href="#i-copy"/></svg><span>Copy backup as text</span></button>
       </div>
       <p id="export-status" class="muted small-text"></p>
     </div>
@@ -4300,6 +4320,42 @@ window.__INKLEAF_NO_SW = true;
       page.caret = { row: endRow }; this.renderCaret();
       return placed;
     }
+    /* Dictated (or otherwise typed-in) text: goes where the keyboard would put it — at the selection of a focused row,
+       otherwise at the page caret like recognized words. Returns the row it ended on. */
+    async typeText(text) {
+      text = String(text || '').replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim(); if (!text) return null;
+      const page = this.page;
+      const d = document.activeElement && document.activeElement.classList.contains('row') && this.rowsEl.contains(document.activeElement) ? document.activeElement : null;
+      if (d) {
+        const before = page.rows.slice();
+        const i = +d.dataset.i; const cur = page.rows[i] || ''; let at = this.caretOffset(d); if (at == null) at = cur.length;
+        const head = cur.slice(0, at), tail = cur.slice(at);
+        const sep = head && !/\s$/.test(head) && !/^[,.;:!?)]/.test(text) ? ' ' : ''; const sep2 = tail && !/^\s/.test(tail) ? ' ' : '';
+        page.rows[i] = head + sep + text + sep2 + tail;
+        const caret = head.length + sep.length + text.length;
+        const moved = this.reflowFrom(i, caret); this.fillRow(d, i);
+        if (moved && typeof moved === 'object') this.focusRow(moved.row, moved.offset); else this.setCaretIn(d, Math.min(caret, page.rows[i].length));
+        this._rowsBefore = null; this.pushUndo({ type: 'rows', before, after: page.rows.slice() });
+        IL.hwrClient.learnWords(text); this.markDirty(); this.app.onTextChanged && this.app.onTextChanged();
+        return moved && typeof moved === 'object' ? moved.row : i;
+      }
+      this.liveCommitAll(); await this.liveFlush();
+      const before = page.rows.slice(); const caretBefore = { ...this.caret };
+      if (/^[,.;:!?)]/.test(text)) {   // punctuation said on its own attaches to the word before it
+        const r = this.caret.row; page.rows[r] = (page.rows[r] || '').replace(/\s+$/, '') + text;
+        const last = this.reflowFrom(r, null); page.caret = { row: typeof last === 'number' ? last : r };
+      } else { const words = text.split(' '); this.insertAtCaret(words); words.forEach(w => IL.hwrClient.learnWords(w)); }
+      this.pushUndo({ type: 'convert', before, after: page.rows.slice(), removed: [], caretBefore });
+      this.refreshRows(); this.redraw(); this.markDirty(); this.renderCaret(); this.app.onTextChanged && this.app.onTextChanged();
+      const row = this.rowsEl.children[this.caret.row]; if (row) { row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash'); }
+      return this.caret.row;
+    }
+    /* what precedes the insertion point: '' at the start of a row, otherwise the text before it (for capitalisation) */
+    textBeforeCaret() {
+      const d = document.activeElement && document.activeElement.classList.contains('row') && this.rowsEl.contains(document.activeElement) ? document.activeElement : null;
+      if (d) { const at = this.caretOffset(d); const t = this.page.rows[+d.dataset.i] || ''; return at == null ? t : t.slice(0, at); }
+      return this.page.rows[this.caret.row] || '';
+    }
     /* Converts every line of ink on the page (in writing order) into text at the caret. */
     async convert(rowFilter, silent, subset) {
       this.liveCommitAll();
@@ -5424,13 +5480,279 @@ window.__INKLEAF_NO_SW = true;
 })();
 
 ;
+/* Inkleaf — dictation: the browser's speech recognition types spoken words where the keyboard would, without the
+   keyboard. Safari and Chrome send the audio to Apple's / Google's speech service, so it needs a connection. */
+(function () {
+  const IL = (window.IL = window.IL || {});
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  const LANGS = [['auto', 'Device language'], ['en-US', 'English'], ['de-DE', 'Deutsch'], ['es-ES', 'Español'], ['fr-FR', 'Français'], ['it-IT', 'Italiano'], ['pt-PT', 'Português'], ['nl-NL', 'Nederlands'], ['tl-PH', 'Filipino']];
+  /* spoken punctuation and commands, by language */
+  const SPOKEN = {
+    en: { 'comma': ',', 'period': '.', 'full stop': '.', 'question mark': '?', 'exclamation mark': '!', 'exclamation point': '!', 'colon': ':', 'semicolon': ';', 'dash': '-', 'hyphen': '-', 'new line': '\n', 'newline': '\n', 'next line': '\n', 'new paragraph': '\n' },
+    de: { 'komma': ',', 'punkt': '.', 'fragezeichen': '?', 'ausrufezeichen': '!', 'doppelpunkt': ':', 'semikolon': ';', 'strichpunkt': ';', 'bindestrich': '-', 'neue zeile': '\n', 'zeilenumbruch': '\n', 'neuer absatz': '\n' },
+    es: { 'coma': ',', 'punto': '.', 'punto final': '.', 'signo de interrogación': '?', 'interrogación': '?', 'signo de exclamación': '!', 'exclamación': '!', 'dos puntos': ':', 'punto y coma': ';', 'guion': '-', 'guión': '-', 'nueva línea': '\n', 'salto de línea': '\n', 'nuevo párrafo': '\n' },
+    fr: { 'virgule': ',', 'point': '.', 'point d\'interrogation': '?', 'point d\'exclamation': '!', 'deux points': ':', 'point-virgule': ';', 'nouvelle ligne': '\n', 'à la ligne': '\n' },
+    it: { 'virgola': ',', 'punto': '.', 'punto interrogativo': '?', 'punto esclamativo': '!', 'due punti': ':', 'punto e virgola': ';', 'a capo': '\n', 'nuova riga': '\n' },
+    pt: { 'vírgula': ',', 'ponto': '.', 'ponto final': '.', 'ponto de interrogação': '?', 'ponto de exclamação': '!', 'dois pontos': ':', 'ponto e vírgula': ';', 'nova linha': '\n', 'novo parágrafo': '\n' },
+    nl: { 'komma': ',', 'punt': '.', 'vraagteken': '?', 'uitroepteken': '!', 'dubbele punt': ':', 'puntkomma': ';', 'nieuwe regel': '\n', 'nieuwe alinea': '\n' },
+    tl: { 'kuwit': ',', 'tuldok': '.', 'tandang pananong': '?', 'tandang padamdam': '!', 'bagong linya': '\n' }
+  };
+  const MESSAGES = {
+    'not-allowed': 'Microphone access was refused. Allow the microphone for Inkleaf in the browser settings, then try again.',
+    'service-not-allowed': 'Dictation is not available here. Open Inkleaf in Safari (same address) to dictate, or use the microphone key on the keyboard.',
+    'network': 'Dictation needs an internet connection — the speech is understood by Apple’s or Google’s service.',
+    'audio-capture': 'No microphone was found.',
+    'language-not-supported': 'That language is not available for dictation on this device. Pick another one under Settings → Dictation.',
+    'unsupported': 'Dictation is not available in this browser. On an iPad or iPhone use Safari; on Android use Chrome. The microphone key on the keyboard always works.'
+  };
+  let rec = null, wanted = false, listening = false, restarts = 0, silent = 0, lang = 'auto';
+  let handlers = {};
+  const emit = (name, ...a) => { try { handlers[name] && handlers[name](...a); } catch (e) { console.warn('dictation handler', e); } };
+
+  function language() {
+    if (lang && lang !== 'auto') return lang;
+    const l = navigator.language || 'en-US'; return /^[a-z]{2,3}(-[A-Za-z0-9]{2,})?$/.test(l) ? l : 'en-US';
+  }
+  /* "hello comma how are you question mark" → "hello, how are you?"; "new line" becomes a line break */
+  function clean(text, lng) {
+    let t = ' ' + String(text || '').replace(/\s+/g, ' ').trim() + ' ';
+    const table = SPOKEN[String(lng || 'en').slice(0, 2).toLowerCase()] || SPOKEN.en;
+    for (const k of Object.keys(table).sort((a, b) => b.length - a.length)) {
+      const re = new RegExp(' ' + k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' ', 'gi');
+      t = t.replace(re, table[k] === '\n' ? ' \n ' : table[k] + ' ');
+    }
+    return t.replace(/ ([,.;:!?])/g, '$1').replace(/ *\n */g, '\n').replace(/ {2,}/g, ' ').replace(/^ +| +$/g, '');
+  }
+  /* a sentence start gets a capital: at the beginning of a line or after . ! ? */
+  function capitalise(text, before) {
+    if (!text || !/^[a-zà-ÿ]/.test(text)) return text;
+    const b = (before || '').replace(/\s+$/, '');
+    return !b || /[.!?]$/.test(b) ? text[0].toUpperCase() + text.slice(1) : text;
+  }
+  function setState(s) { listening = s === 'listening'; emit('onState', s); }
+  function problem(code) { emit('onProblem', MESSAGES[code] || ('Dictation stopped: ' + code)); }
+
+  function build() {
+    const r = new SR(); r.continuous = true; r.interimResults = true; r.maxAlternatives = 1; r.lang = language();
+    r.onstart = () => setState('listening');
+    r.onresult = ev => {
+      let interim = ''; const finals = [];
+      for (let i = ev.resultIndex; i < ev.results.length; i++) { const res = ev.results[i]; const t = (res[0] && res[0].transcript) || ''; if (res.isFinal) finals.push(t); else interim += t; }
+      if (finals.length) {
+        silent = 0;
+        const parts = clean(finals.join(' '), r.lang).split('\n');
+        parts.forEach((part, i) => { const p = part.trim(); if (p) emit('onText', p); if (i < parts.length - 1) emit('onEnter'); });
+      }
+      emit('onInterim', interim.trim());
+    };
+    r.onerror = ev => {
+      const code = (ev && ev.error) || 'unknown';
+      if (code === 'no-speech') { silent++; return; }        // the session ends after it; onend decides whether to carry on
+      if (code === 'aborted') return;
+      wanted = false; problem(code);
+    };
+    r.onend = () => {
+      emit('onInterim', '');
+      if (wanted && silent < 2 && restarts < 60) { restarts++; try { r.lang = language(); r.start(); return; } catch (e) {} }   // browsers end a session after a while: carry on until stopped
+      if (wanted && silent >= 2) emit('onProblem', 'Stopped listening — nothing was said for a while.');
+      wanted = false; setState('idle');
+    };
+    return r;
+  }
+  function start() {
+    if (!SR) { problem('unsupported'); return false; }
+    if (listening || wanted) return true;
+    try { rec = build(); wanted = true; restarts = 0; silent = 0; rec.start(); return true; }
+    catch (e) { wanted = false; rec = null; problem(e && e.name === 'NotAllowedError' ? 'not-allowed' : 'unsupported'); return false; }
+  }
+  function stop() { const was = wanted || listening; wanted = false; if (rec) { try { rec.stop(); } catch (e) {} } if (!was || !listening) setState('idle'); }
+
+  IL.dictation = {
+    LANGS, clean, capitalise, language,
+    get supported() { return !!SR; },
+    get listening() { return listening || wanted; },
+    get lang() { return lang; }, set lang(v) { lang = v || 'auto'; },
+    start, stop, toggle() { return (listening || wanted) ? (stop(), false) : start(); },
+    /* handlers: onState('listening'|'idle'), onInterim(text), onText(finalText), onEnter(), onProblem(message) */
+    bind(h) { handlers = h || {}; }
+  };
+})();
+
+;
+/* Inkleaf — "Share as Word": builds a .docx (a zip of XML parts) from a notebook, on the device, with no library.
+   Typed and converted text becomes paragraphs; photos, video posters and any handwriting still in ink become pictures,
+   placed in the order they sit on the page; video links become links. */
+(function () {
+  const IL = (window.IL = window.IL || {});
+  const MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  const PAGE = () => IL.editor.PAGE;
+  const CONTENT_W = 9638 * 635;      // A4 minus 2 cm margins, in EMU (635 EMU per twip)
+  const MAX_H = 13800 * 635;
+  const esc = s => String(s == null ? '' : s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  /* ---------- zip writer (deflate when the browser can, otherwise stored) ---------- */
+  const CRC = (() => { const t = new Uint32Array(256); for (let i = 0; i < 256; i++) { let c = i; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[i] = c >>> 0; } return t; })();
+  function crc32(u8) { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = CRC[(c ^ u8[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+  async function deflate(u8) {
+    if (typeof CompressionStream === 'undefined') return null;
+    try { const cs = new CompressionStream('deflate-raw'); const w = cs.writable.getWriter(); w.write(u8); w.close(); return new Uint8Array(await new Response(cs.readable).arrayBuffer()); } catch (e) { return null; }
+  }
+  async function zip(entries) {
+    const enc = new TextEncoder(); const parts = [], central = []; let offset = 0;
+    const d = new Date(); const time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1); const date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+    for (const e of entries) {
+      const name = enc.encode(e.name); const data = e.data instanceof Uint8Array ? e.data : enc.encode(e.data); const crc = crc32(data);
+      let method = 0, payload = data;
+      if (e.compress !== false && data.length > 80) { const z = await deflate(data); if (z && z.length < data.length) { method = 8; payload = z; } }
+      const lh = new DataView(new ArrayBuffer(30));
+      lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, method, true); lh.setUint16(10, time, true); lh.setUint16(12, date, true);
+      lh.setUint32(14, crc, true); lh.setUint32(18, payload.length, true); lh.setUint32(22, data.length, true); lh.setUint16(26, name.length, true); lh.setUint16(28, 0, true);
+      parts.push(new Uint8Array(lh.buffer), name, payload);
+      const cd = new DataView(new ArrayBuffer(46));
+      cd.setUint32(0, 0x02014b50, true); cd.setUint16(4, 20, true); cd.setUint16(6, 20, true); cd.setUint16(8, 0x0800, true); cd.setUint16(10, method, true); cd.setUint16(12, time, true); cd.setUint16(14, date, true);
+      cd.setUint32(16, crc, true); cd.setUint32(20, payload.length, true); cd.setUint32(24, data.length, true); cd.setUint16(28, name.length, true); cd.setUint32(42, offset, true);
+      central.push(new Uint8Array(cd.buffer), name);
+      offset += 30 + name.length + payload.length;
+    }
+    const cdSize = central.reduce((n, p) => n + p.length, 0);
+    const eocd = new DataView(new ArrayBuffer(22));
+    eocd.setUint32(0, 0x06054b50, true); eocd.setUint16(8, entries.length, true); eocd.setUint16(10, entries.length, true); eocd.setUint32(12, cdSize, true); eocd.setUint32(16, offset, true);
+    return new Blob([...parts, ...central, new Uint8Array(eocd.buffer)], { type: MIME });
+  }
+
+  /* ---------- pictures ---------- */
+  async function loadImage(blob) { const url = URL.createObjectURL(blob); try { const img = new Image(); img.src = url; await img.decode(); return img; } finally { setTimeout(() => URL.revokeObjectURL(url), 1000); } }
+  function canvasBytes(canvas, type, q) { return new Promise((res, rej) => canvas.toBlob(b => b ? b.arrayBuffer().then(a => res(new Uint8Array(a))) : rej(new Error('encode')), type, q)); }
+  /* a photo as it sits on the page (rotation baked in), at most 1600 px on its longer side */
+  async function photoBytes(blob, rot) {
+    const img = await loadImage(blob); const w = img.naturalWidth || 1, h = img.naturalHeight || 1;
+    const k = Math.min(1, 1600 / Math.max(w, h)); const rw = Math.round(w * k), rh = Math.round(h * k);
+    const a = ((rot || 0) % 360) * Math.PI / 180; const c = Math.abs(Math.cos(a)), s = Math.abs(Math.sin(a));
+    const cw = Math.max(1, Math.round(rw * c + rh * s)), ch = Math.max(1, Math.round(rw * s + rh * c));
+    const cv = document.createElement('canvas'); cv.width = cw; cv.height = ch; const ctx = cv.getContext('2d');
+    ctx.translate(cw / 2, ch / 2); ctx.rotate(a); ctx.drawImage(img, -rw / 2, -rh / 2, rw, rh);
+    const png = rot || /png|gif|webp/i.test(blob.type);
+    return { data: await canvasBytes(cv, png ? 'image/png' : 'image/jpeg', 0.86), ext: png ? 'png' : 'jpeg', w: cw, h: ch };
+  }
+  /* the page's ink (highlighter and pen) cropped to what was written, 2 px per page unit, transparent background */
+  async function inkBytes(strokes) {
+    const P = PAGE(); let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const st of strokes) { const pad = (st.width || 2) * 1.5 + 4; for (const p of st.pts) { if (p[0] - pad < x0) x0 = p[0] - pad; if (p[0] + pad > x1) x1 = p[0] + pad; if (p[1] - pad < y0) y0 = p[1] - pad; if (p[1] + pad > y1) y1 = p[1] + pad; } }
+    if (!isFinite(x0)) return null;
+    x0 = Math.max(0, Math.floor(x0)); y0 = Math.max(0, Math.floor(y0)); x1 = Math.min(P.W, Math.ceil(x1)); y1 = Math.min(P.H, Math.ceil(y1));
+    const bw = Math.max(8, x1 - x0), bh = Math.max(8, y1 - y0); const k = 2;
+    const cv = document.createElement('canvas'); cv.width = Math.round(bw * k); cv.height = Math.round(bh * k); const ctx = cv.getContext('2d');
+    ctx.setTransform(k, 0, 0, k, -x0 * k, -y0 * k);
+    for (const st of strokes) if (st.kind === 'hl') IL.editor.drawStroke(ctx, st);
+    for (const st of strokes) if (st.kind !== 'hl') IL.editor.drawStroke(ctx, st);
+    return { data: await canvasBytes(cv, 'image/png'), ext: 'png', w: cv.width, h: cv.height, box: { x: x0, y: y0, w: bw, h: bh } };
+  }
+
+  /* ---------- the document ---------- */
+  function paragraph(text, style) { return `<w:p>${style ? `<w:pPr><w:pStyle w:val="${style}"/></w:pPr>` : ''}<w:r><w:t xml:space="preserve">${esc(text)}</w:t></w:r></w:p>`; }
+  function picture(rId, n, cx, cy, name) {
+    return `<w:p><w:pPr><w:spacing w:before="60" w:after="120"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="${n}" name="${esc(name)}"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="${n}" name="${esc(name)}"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="${rId}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`;
+  }
+  function link(rId, text) { return `<w:p><w:hyperlink r:id="${rId}"><w:r><w:rPr><w:rStyle w:val="Hyperlink"/></w:rPr><w:t xml:space="preserve">${esc(text)}</w:t></w:r></w:hyperlink></w:p>`; }
+  const pageBreak = () => '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
+  /* picture size in EMU: everything is scaled by the same factor, the page width → the text width, so a photo or a line of
+     ink is as large in Word as it is on the page */
+  function fit(unitsW, unitsH) {
+    let cx = Math.round(unitsW / PAGE().W * CONTENT_W), cy = Math.round(unitsH / PAGE().W * CONTENT_W);
+    if (cx > CONTENT_W) { cy = Math.round(cy * CONTENT_W / cx); cx = CONTENT_W; }
+    if (cy > MAX_H) { cx = Math.round(cx * MAX_H / cy); cy = MAX_H; }
+    return { cx: Math.max(cx, 12700), cy: Math.max(cy, 12700) };
+  }
+  const STYLES = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri" w:eastAsia="Calibri"/><w:sz w:val="23"/><w:szCs w:val="23"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="40" w:line="264" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>
+<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style>
+<w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:basedOn w:val="Normal"/><w:qFormat/><w:pPr><w:spacing w:after="60"/></w:pPr><w:rPr><w:b/><w:color w:val="1B1F2A"/><w:sz w:val="52"/><w:szCs w:val="52"/></w:rPr></w:style>
+<w:style w:type="paragraph" w:styleId="Subtitle"><w:name w:val="Subtitle"/><w:basedOn w:val="Normal"/><w:pPr><w:spacing w:after="360"/></w:pPr><w:rPr><w:color w:val="5B6372"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr></w:style>
+<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:qFormat/><w:pPr><w:keepNext/><w:spacing w:before="120" w:after="160"/><w:outlineLvl w:val="0"/></w:pPr><w:rPr><w:b/><w:color w:val="2D4FC9"/><w:sz w:val="30"/><w:szCs w:val="30"/></w:rPr></w:style>
+<w:style w:type="paragraph" w:styleId="Caption"><w:name w:val="caption"/><w:basedOn w:val="Normal"/><w:pPr><w:spacing w:before="0" w:after="160"/></w:pPr><w:rPr><w:i/><w:color w:val="5B6372"/><w:sz w:val="18"/><w:szCs w:val="18"/></w:rPr></w:style>
+<w:style w:type="character" w:styleId="Hyperlink"><w:name w:val="Hyperlink"/><w:rPr><w:color w:val="2D4FC9"/><w:u w:val="single"/></w:rPr></w:style>
+</w:styles>`;
+  const CONTENT_TYPES = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Default Extension="jpeg" ContentType="image/jpeg"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>`;
+  const ROOT_RELS = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/></Relationships>`;
+
+  /* nb: the notebook record; pages: its page records in order. Resolves a Blob (and reports progress through onProgress(i, n)). */
+  async function build(nb, pages, onProgress) {
+    const P = PAGE(); const L = IL.editor.SPACING[(nb.settings && nb.settings.spacing) || 'medium'] || 34;
+    const body = []; const rels = [`<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`]; const media = [];
+    let rid = 1, pic = 0;
+    const addImage = (bytes, ext) => { const n = media.length + 1; media.push({ name: `word/media/image${n}.${ext}`, data: bytes }); const id = 'rId' + (++rid); rels.push(`<Relationship Id="${id}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/image${n}.${ext}"/>`); return id; };
+    const addLink = url => { const id = 'rId' + (++rid); rels.push(`<Relationship Id="${id}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="${esc(url)}" TargetMode="External"/>`); return id; };
+    const when = new Date();
+    body.push(paragraph(nb.title || 'Notebook', 'Title'));
+    body.push(paragraph(`${pages.length} page${pages.length === 1 ? '' : 's'} · from Inkleaf, ${when.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}`, 'Subtitle'));
+    let skipped = 0;
+    for (let pi = 0; pi < pages.length; pi++) {
+      const page = pages[pi]; onProgress && onProgress(pi, pages.length);
+      if (pi > 0) body.push(pageBreak());
+      body.push(paragraph(`Page ${pi + 1}`, 'Heading1'));
+      const blocks = [];
+      (page.rows || []).forEach((t, i) => { if (t && t.trim()) blocks.push({ y: P.top + i * L, order: 0, xml: paragraph(t) }); });
+      for (const m of page.media || []) {
+        try {
+          if (m.type === 'image' && m.key) {
+            const rec = await IL.blobs.get(m.key); if (!rec) { skipped++; continue; }
+            const im = await photoBytes(rec.blob, m.rot);
+            const size = fit(m.w, m.w * im.h / im.w);   // as wide as on the page; the height follows the picture's own proportions
+            blocks.push({ y: m.y, order: 1, xml: picture(addImage(im.data, im.ext), ++pic, size.cx, size.cy, rec.name || `Photo ${pic}`) });
+          } else if (m.type === 'video') {
+            let xml = '';
+            if (m.poster) { const rec = await IL.blobs.get(m.poster); if (rec) { const im = await photoBytes(rec.blob, 0); const size = fit(m.w, m.w * im.h / im.w); xml = picture(addImage(im.data, im.ext), ++pic, size.cx, size.cy, m.name || 'Video'); } }
+            xml += paragraph(`▶ Video: ${m.name || 'video'}${m.duration ? ` (${Math.round(m.duration)} s)` : ''} — the video itself stays in the notebook.`, 'Caption');
+            blocks.push({ y: m.y, order: 1, xml });
+          } else if (m.type === 'link' && m.url) {
+            blocks.push({ y: m.y, order: 1, xml: link(addLink(m.url), `▶ ${m.name || 'Video link'}: ${m.url}`) });
+          }
+        } catch (e) { skipped++; console.warn('docx: media skipped', e); }
+      }
+      const ink = (page.strokes || []).filter(st => st && st.pts && st.pts.length);
+      if (ink.length) {
+        try {
+          const im = await inkBytes(ink);
+          if (im) { const size = fit(im.box.w, im.box.h); blocks.push({ y: im.box.y, order: 2, xml: picture(addImage(im.data, 'png'), ++pic, size.cx, size.cy, 'Handwriting') + paragraph('Handwriting (not converted to text)', 'Caption') }); }
+        } catch (e) { skipped++; console.warn('docx: ink skipped', e); }
+      }
+      blocks.sort((a, b) => a.y - b.y || a.order - b.order);
+      if (!blocks.length) body.push(paragraph('(empty page)', 'Caption'));
+      for (const b of blocks) body.push(b.xml);
+    }
+    const document = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body>${body.join('')}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+    const docRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rels.join('')}</Relationships>`;
+    const iso = when.toISOString().replace(/\.\d+Z$/, 'Z');
+    const core = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>${esc(nb.title || 'Notebook')}</dc:title><dc:creator>Inkleaf</dc:creator><dcterms:created xsi:type="dcterms:W3CDTF">${iso}</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">${iso}</dcterms:modified></cp:coreProperties>`;
+    const app = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"><Application>Inkleaf</Application></Properties>`;
+    const blob = await zip([
+      { name: '[Content_Types].xml', data: CONTENT_TYPES }, { name: '_rels/.rels', data: ROOT_RELS },
+      { name: 'word/document.xml', data: document }, { name: 'word/_rels/document.xml.rels', data: docRels }, { name: 'word/styles.xml', data: STYLES },
+      { name: 'docProps/core.xml', data: core }, { name: 'docProps/app.xml', data: app },
+      ...media.map(m => ({ name: m.name, data: m.data, compress: false }))
+    ]);
+    onProgress && onProgress(pages.length, pages.length);
+    blob.skipped = skipped; return blob;
+  }
+  const fileName = nb => `${(nb.title || 'Notebook').replace(/[\\/:*?"<>|]+/g, '').trim() || 'Notebook'}.docx`;
+  IL.docx = { MIME, build, fileName, zip, crc32 };
+})();
+
+;
 /* Inkleaf — app shell: startup, lock flow, home screen, settings, training, backups, install. */
 (function () {
   const IL = (window.IL = window.IL || {});
   const $ = id => document.getElementById(id);
   const relTime = t => { const d = Date.now() - t; const m = Math.round(d / 6e4); if (m < 1) return 'just now'; if (m < 60) return m + ' min ago'; const h = Math.round(m / 60); if (h < 24) return h + ' h ago'; const days = Math.round(h / 24); if (days < 7) return days + ' d ago'; return new Date(t).toLocaleDateString(); };
 
-  const APP_VERSION = '1.8.3';   // keep in step with VERSION in sw.js (tools/build.mjs checks)
+  const APP_VERSION = '1.9.0';   // keep in step with VERSION in sw.js (tools/build.mjs checks)
   const app = {
     get version() { return APP_VERSION; },
     settings: { live: true, autoDelay: 1.2, fingerDraws: true, penSeen: false, engine: 'inkleaf', spread: true, pageSound: true, theme: 'light' },
@@ -5477,6 +5799,7 @@ window.__INKLEAF_NO_SW = true;
       this.setupInstall(); this.setupAutoLock();
       setTimeout(() => this.gcBlobs(), 6000);
       this.setupUpdates();
+      this.setupDictation();
       await this.resumeAfterUpdate();
     },
     /* ---------- updates: a new version pushed to the site takes over as soon as it is downloaded ----------
@@ -5550,7 +5873,27 @@ window.__INKLEAF_NO_SW = true;
 
     showView(name) {
       ['lock', 'home', 'cover', 'notebook'].forEach(v => { const el = $('view-' + v); el.hidden = v !== name; el.classList.remove('measuring'); });
+      if (name !== 'notebook' && IL.dictation) IL.dictation.stop();
       this.view = name; this.closeSheets(); $('popover').hidden = true;
+    },
+    /* ---------- dictation: the toolbar microphone types what is said at the caret ---------- */
+    setupDictation() {
+      const d = IL.dictation; if (!d) return;
+      const btn = $('dictate-btn'), pill = $('dictate-pill'), txt = $('dictate-text');
+      d.lang = this.settings.dictationLang || 'auto';
+      let queue = Promise.resolve(); const later = fn => { queue = queue.then(fn).catch(e => console.warn('dictation', e)); return queue; };
+      d.bind({
+        onState: s => { const on = s === 'listening'; btn.classList.toggle('is-listening', on); btn.setAttribute('aria-pressed', on ? 'true' : 'false'); pill.hidden = !on; if (!on) txt.textContent = 'Listening…'; },
+        onInterim: t => { txt.textContent = t || 'Listening…'; },
+        onText: t => later(async () => { const ed = this.editor; if (!ed || this.view !== 'notebook' || !ed.page) return; await ed.typeText(d.capitalise(t, ed.textBeforeCaret())); }),
+        onEnter: () => later(async () => { const ed = this.editor; if (ed && this.view === 'notebook' && ed.page) await ed.enter(); }),
+        onProblem: m => this.toast(m, 5200)
+      });
+      btn.addEventListener('click', () => { if (this.view !== 'notebook') return; if (!d.supported) { this.toast('Dictation is not available in this browser. On an iPad or iPhone use Safari; on Android use Chrome. The microphone key on the keyboard always works.', 6000); return; } if (!navigator.onLine) { this.toast('Dictation needs an internet connection — the speech is understood by Apple’s or Google’s service.', 5000); return; } d.toggle(); });
+      $('dictate-stop').addEventListener('click', () => d.stop());
+      document.addEventListener('visibilitychange', () => { if (document.hidden) d.stop(); });
+      const row = $('dictation-langs'); row.innerHTML = '';
+      d.LANGS.forEach(([k, n]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.lang = k; b.textContent = n; b.addEventListener('click', () => { this.settings.dictationLang = k; d.lang = k; this.saveSettings(); this.syncSettings(); }); row.appendChild(b); });
     },
     saveSettings() { return IL.db.kvSet('settings', this.settings); },
     async saveNotebook(nb) { nb.updatedAt = nb.updatedAt || Date.now(); await IL.db.put('notebooks', nb); if (this.view === 'home') this.renderHome(); },
@@ -5583,7 +5926,7 @@ window.__INKLEAF_NO_SW = true;
         { label: 'Edit cover', icon: 'i-palette', run: () => this.editCover(nb, () => { this.renderHome(); this.showView('home'); }) },
         { label: 'Rename', icon: 'i-edit', run: () => this.prompt('Rename notebook', nb.title, v => { if (v && v.trim()) { nb.title = v.trim(); const t = (nb.cover.elements || []).find(e => e.role === 'title'); if (t) t.text = nb.title; nb.updatedAt = Date.now(); this.saveNotebook(nb); } }) },
         { label: 'Duplicate', icon: 'i-copy', run: () => this.duplicateNotebook(nb) },
-        { label: 'Export backup', icon: 'i-download', run: () => this.exportNotebook(nb) },
+        { label: 'Share or export', icon: 'i-download', run: () => this.exportNotebook(nb) },
         { label: 'Delete', icon: 'i-trash', danger: true, run: () => this.confirm('Delete this notebook?', `"${nb.title}" and all of its pages, photos and videos will be removed from this device.`, 'Delete', () => this.deleteNotebook(nb)) }
       ], x, y, nb.title);
     },
@@ -5727,6 +6070,7 @@ window.__INKLEAF_NO_SW = true;
     setNbSetting(k, v) { const nb = this.current; nb.settings[k] = v; IL.db.kvSet('lastStyle', { font: nb.settings.font, size: nb.settings.size, color: nb.settings.color, paper: nb.settings.paper, spacing: nb.settings.spacing, marginLine: nb.settings.marginLine }); this.editor.settingsChanged(); this.syncSettings(); },
     async syncSettings() {
       const st = this.current ? this.current.settings : IL.editor.defaultSettings();
+      document.querySelectorAll('#dictation-langs .chip').forEach(b => b.classList.toggle('is-active', b.dataset.lang === (this.settings.dictationLang || 'auto')));
       document.querySelectorAll('#font-grid .font-opt').forEach(b => b.classList.toggle('is-active', b.dataset.font === st.font));
       document.querySelectorAll('#size-row .chip').forEach(b => b.classList.toggle('is-active', b.dataset.size === st.size));
       document.querySelectorAll('#text-colors .color-dot').forEach(b => b.classList.toggle('is-active', b.dataset.color.toLowerCase() === (st.color || '').toLowerCase()));
@@ -5857,10 +6201,29 @@ window.__INKLEAF_NO_SW = true;
       $('train-count').textContent = counts[this.trainLabel] ? `(${counts[this.trainLabel]} saved)` : '';
     },
 
-    /* ---------- backup ---------- */
+    /* ---------- sharing files: the share sheet where there is one, otherwise a download ---------- */
+    /* resolves 'shared' (share sheet used or dismissed), 'download' (handed to the browser's downloads) or false */
+    async shareFile(file, title) {
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title }); return 'shared'; } catch (e) { if (e.name === 'AbortError') return 'shared'; } }
+      try { const url = URL.createObjectURL(file); const a = document.createElement('a'); a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000); } catch (e) { return false; }
+      return 'download';
+    },
+    /* ---------- backup and Word export ---------- */
     async exportNotebook(nb) {
       this.openSheet('sheet-export'); const status = $('export-status'); status.textContent = 'Preparing…';
+      $('export-share').onclick = $('export-copy').onclick = () => { status.textContent = 'Still preparing the backup…'; };
       const pages = (await IL.db.allBy('pages', 'byNotebook', nb.id)).sort((a, b) => a.index - b.index);
+      $('export-docx').onclick = async () => {
+        const btn = $('export-docx'); if (btn.disabled) return; btn.disabled = true;
+        try {
+          status.textContent = 'Preparing the Word document…';
+          const blob = await IL.docx.build(nb, pages, (i, n) => { status.textContent = `Preparing the Word document… page ${Math.min(i + 1, n)} of ${n}`; });
+          const doc = new File([blob], IL.docx.fileName(nb), { type: IL.docx.MIME });
+          const how = await this.shareFile(doc, nb.title);
+          status.textContent = `Word document ready (${(doc.size / 1e6).toFixed(1)} MB)` + (how === 'download' ? ' — it went to the browser’s downloads.' : how ? '.' : '. If no file appeared, this window does not allow downloads — export from the installed app or from Safari.') + (blob.skipped ? ` ${blob.skipped} picture${blob.skipped > 1 ? 's' : ''} could not be included.` : '');
+        } catch (e) { console.warn('docx', e); status.textContent = 'The Word document could not be made: ' + (e && e.message ? e.message : e); }
+        btn.disabled = false;
+      };
       const blobs = {}; const skipped = [];
       const addBlob = async (key) => { if (!key || blobs[key]) return; const rec = await IL.blobs.get(key); if (!rec) return; if (rec.blob.size > 40e6) { skipped.push(rec.name || key); return; } blobs[key] = { type: rec.blob.type, kind: rec.kind, name: rec.name, data: await blobToDataUrl(rec.blob) }; };
       for (const e of (nb.cover && nb.cover.elements) || []) if (e.type === 'image') await addBlob(e.key);
@@ -5869,9 +6232,9 @@ window.__INKLEAF_NO_SW = true;
       const json = JSON.stringify(data); const file = new File([json], `${nb.title.replace(/[^\w\- ]+/g, '').trim() || 'notebook'}.inkleaf.json`, { type: 'application/json' });
       status.textContent = `Backup ready (${(file.size / 1e6).toFixed(1)} MB).` + (skipped.length ? ` Videos over 40 MB were left out: ${skipped.join(', ')}.` : '');
       $('export-share').onclick = async () => {
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: nb.title }); return; } catch (e) { if (e.name === 'AbortError') return; } }
-        const url = URL.createObjectURL(file); const a = document.createElement('a'); a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
-        status.textContent = 'If no file appeared, this window does not allow downloads. Use "Copy as text" and paste it into a file, or export from the installed app.';
+        const how = await this.shareFile(file, nb.title);
+        if (how === 'download') status.textContent = 'The backup went to the browser’s downloads.';
+        else if (!how) status.textContent = 'If no file appeared, this window does not allow downloads. Use "Copy backup as text" and paste it into a file, or export from the installed app.';
       };
       $('export-copy').onclick = async () => { try { await navigator.clipboard.writeText(json); status.textContent = 'Copied. Paste it into a text file ending in .json to keep it.'; } catch (e) { status.textContent = 'Copying is blocked here. Try "Save or share file".'; } };
     },
